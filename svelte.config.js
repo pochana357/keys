@@ -19,7 +19,9 @@ const config = {
 			fallback: null,
 			precompress: false,
 			strict: true,
-		})
+		}),
+		base: process.env.NODE_ENV === 'production' ? '/keys' : '',
+
 	}
 };
 
