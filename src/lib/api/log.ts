@@ -101,9 +101,12 @@ async function fetchCastEvents(
 export default class Log {
 	code: string;
 	fights: Fights;
+	exportedCharacters: string[];
 	constructor(code: string, fights: Fights) {
 		this.code = code;
 		this.fights = fights;
+		this.exportedCharacters =
+			fights?.json?.exportedCharacters?.map((character) => character.name) ?? [];
 	}
 	static async build(code: string) {
 		const fights = await Fights.fetchFights(code);

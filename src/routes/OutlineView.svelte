@@ -15,8 +15,8 @@
 	}
 </script>
 
-<div class="px-2">
-	{formatAbsoluteTime(fightRaw.start)}
+<div class="py-2 pl-2 pr-1">
+	<div class="text-sm italic">Only M+ fights are shown.</div>
 	{#each fightRaw.fights as fight, i (fight.id)}
 		{#if fight.keystoneLevel && fight.dungeonPulls}
 			<div class="py-2 {i === currentFightIdx ? 'bg-primary-600' : ''}">
