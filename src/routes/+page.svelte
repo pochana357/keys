@@ -12,6 +12,7 @@
 	import EventViewer from './EventViewer.svelte';
 	import { AppState, OApiStatus } from '$lib/settings';
 	import { formatAbsoluteTime } from '$lib/utils';
+	import LoadingScreen from './LoadingScreen.svelte';
 
 	let log: Log | null = $state(null);
 	let code = $state('');
@@ -40,6 +41,20 @@
 				appState.api.status = OApiStatus.failed;
 			});
 	}
+	async function handleTest() {
+		const testCodes = [
+			'19qd8m6CcjHbkZD3',
+			'XvVTQ3WhndZGc6Na',
+			'6awx1JdH28CG94gq',
+			'A3fkrxdQBqnHp2JR'
+		];
+		const testCode = testCodes[Math.floor(Math.random() * testCodes.length)];
+		codeFormValue = testCode;
+		handleSubmit();
+	}
+	async function clearHistory() {
+		appState.clearHistory();
+	}
 	onMount(() => {
 		const codes = appState.history.items;
 		codeFormValue = codes?.[codes.length - 1].code ?? '';
@@ -64,7 +79,7 @@
 		} else {
 			appState.api.status = OApiStatus.busy;
 			log
-				?.analyzePull(pullRaw)
+				?.analyzePull(pullRaw, { progressCallback })
 				.then((e) => {
 					events = e;
 					appState.api.status = OApiStatus.succeeded;
@@ -75,9 +90,14 @@
 				});
 		}
 	});
+
+	let progress = $state({ total: 0, current: 0 });
+	const progressCallback = (current: number, start: number, end: number) => {
+		progress = { total: end - start, current: current - start };
+	};
 </script>
 
-<div class="flex h-full w-full flex-col">
+<div class="flex h-screen w-screen flex-col">
 	<form
 		class="flex h-48 flex-none flex-col gap-1"
 		onsubmit={(e) => {
@@ -88,7 +108,7 @@
 		<div class="align-center flex h-10 gap-1 text-center leading-10">
 			<div class="w-20 flex-none font-bold">Code</div>
 			<input
-				class="input"
+				class="input flex-1"
 				class:bg-red-500={appState.api.status == 'failed'}
 				name="description"
 				type="text"
@@ -97,7 +117,7 @@
 			/>
 			<button
 				type="button"
-				class="btn h-10 w-20 font-bold preset-filled-primary-950-50"
+				class="btn h-10 w-20 flex-none font-bold preset-filled-primary-950-50"
 				onclick={() => handleSubmit()}
 				disabled={appState.isBusy()}
 			>
@@ -112,9 +132,9 @@
 				{/if}
 			</button>
 		</div>
-		<div class="align-center flex h-full gap-1 border text-center">
+		<div class="align-center flex h-full gap-1 text-center">
 			<div class="h-10 w-20 flex-none font-bold leading-10">History</div>
-			<div class="line-nowrap overflow-x-clip text-nowrap pl-3">
+			<div class="line-nowrap flex-1 overflow-x-clip text-nowrap border pl-3">
 				{#each [...appState.history.items].reverse() as item (item.code)}
 					<button
 						type="button"
@@ -136,18 +156,44 @@
 					</button>
 				{/each}
 			</div>
+			<div class="flex w-20 flex-none flex-col justify-between">
+				<button
+					type="button"
+					class="btn h-10 font-bold preset-filled-primary-950-50"
+					onclick={() => handleTest()}
+				>
+					Test
+				</button>
+				<button
+					type="button"
+					class="btn h-10 font-bold preset-filled-primary-950-50"
+					onclick={() => clearHistory()}
+				>
+					Clear
+				</button>
+				<button
+					type="button"
+					class="btn h-10 font-bold preset-filled-primary-950-50"
+					disabled={true}
+				>
+					Settings
+				</button>
+			</div>
 		</div>
 	</form>
 	{#if log?.fights?.json}
-		<div class="flex">
-			<div class="w-84 flex-none">
+		<div class="flex flex-1 overflow-hidden">
+			<div class="w-84 flex-none overflow-y-auto">
 				<OutlineView fightsRaw={log.fights.json} bind:currentFightIdx bind:currentDungeonPullIdx />
 			</div>
-			<div>
+			<div class="relative flex-1 overflow-x-auto">
 				{#if pullRaw}
 					<EventViewer {events} />
 				{:else}
 					<div class="p-2 text-center">Select a pull on the left panel to view timelines.</div>
+				{/if}
+				{#if appState.api.status == OApiStatus.busy}
+					<LoadingScreen current={progress.current} total={progress.total} />
 				{/if}
 			</div>
 		</div>

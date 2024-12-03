@@ -86,7 +86,7 @@
 	}
 </script>
 
-<div class="lr-2 py-2 pl-1">
+<div class="lr-2 w-max py-2 pl-1">
 	<div class="relative">
 		{#each timeTicks as tick (tick.timestamp)}
 			<div
@@ -100,7 +100,7 @@
 		{/if}
 		<Timeline datatype="text" data={{ icons: timeTicks, mergeData: null }} bind:cursor />
 		{#each events.players.values() as player (player.guid)}
-			<div class="flex items-center gap-2">
+			<div class="sticky left-1 flex w-max items-center gap-2 pb-1 font-bold">
 				<img
 					style:--size="18"
 					style="width:calc(var(--size)* 1px); height:calc(var(--size)* 1px);"

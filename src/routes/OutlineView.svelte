@@ -27,7 +27,7 @@
 					/>
 					<div>
 						<p>#{fight.id} {fight.zoneName} +{fight.keystoneLevel}</p>
-						<p class="pl-1 pt-1 text-sm text-slate-300">
+						<p class="pt-1 text-sm text-slate-300">
 							{formatAbsoluteTime(fightRaw.start + fight.start_time)}
 							({formatTime(fight.end_time, fight.start_time, 0)})
 						</p>
