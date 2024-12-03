@@ -63,6 +63,7 @@ export type DamageTakenEventRaw = EventRaw & {
 	absorbed: number;
 	hitPoints?: number;
 	maxHitPoints?: number;
+	overkill?: number;
 };
 export type CastEventRaw = EventRaw;
 export type GeneralEvent = EventRaw & { source: UnitRaw | null; target: UnitRaw | null };

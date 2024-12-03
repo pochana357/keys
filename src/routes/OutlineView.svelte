@@ -2,9 +2,15 @@
 	import { type FightsRaw } from '$lib/api/wclTypes';
 	import { formatAbsoluteTime, formatTime } from '$lib/utils';
 	import WithTooltip from '$lib/WithTooltip.svelte';
-	type Props = { fightsRaw: FightsRaw; currentFightIdx: number; currentDungeonPullIdx: number };
+	type Props = {
+		code: string;
+		fightsRaw: FightsRaw;
+		currentFightIdx: number;
+		currentDungeonPullIdx: number;
+	};
 	let {
-		fightsRaw: fightRaw,
+		code,
+		fightsRaw,
 		currentFightIdx = $bindable(-1),
 		currentDungeonPullIdx = $bindable(-1)
 	}: Props = $props();
@@ -17,7 +23,7 @@
 
 <div class="py-2 pl-2 pr-1">
 	<div class="text-sm italic">Only M+ fights are shown.</div>
-	{#each fightRaw.fights as fight, i (fight.id)}
+	{#each fightsRaw.fights as fight, i (fight.id)}
 		{#if fight.keystoneLevel && fight.dungeonPulls}
 			<div class="py-2 {i === currentFightIdx ? 'bg-primary-600' : ''}">
 				<div class="flex gap-2">
@@ -26,9 +32,14 @@
 						alt={fight.zoneName}
 					/>
 					<div>
-						<p>#{fight.id} {fight.zoneName} +{fight.keystoneLevel}</p>
+						<p>
+							<a
+								href="https://www.warcraftlogs.com/reports/{code}#fight={fight.id}&translate=1"
+								target="_blank">#{fight.id} {fight.zoneName} +{fight.keystoneLevel}</a
+							>
+						</p>
 						<p class="pt-1 text-sm text-slate-300">
-							{formatAbsoluteTime(fightRaw.start + fight.start_time)}
+							{formatAbsoluteTime(fightsRaw.start + fight.start_time)}
 							({formatTime(fight.end_time, fight.start_time, 0)})
 						</p>
 					</div>

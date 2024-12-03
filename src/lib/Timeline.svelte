@@ -81,8 +81,11 @@
 <div class="relative h-8 py-1" style:height="{32 + maxOffsetY * offsetY2px}px">
 	{#each data.icons as icon, i (i)}
 		{@const timestamp = icon.timestamp}
+		<!-- Overkill in the damage taken timeline: red boundary -->
 		<div
-			class="absolute inline-block p-[2px] hover:z-[1] hover:shadow-[inset_0_0_0_2px_rgb(255,255,255,0.6)]"
+			class="absolute inline-block p-[2px] {icon.details?.includes('(O:')
+				? 'z-[1] shadow-[inset_0_0_0_6px_rgba(255,0,0,1)]'
+				: 'hover:z-[1] hover:shadow-[inset_0_0_0_2px_rgb(255,255,255,0.6)]'}"
 			style:left="{offsetX(timestamp)}px"
 			style:top="{offsetYdata[i] * offsetY2px}px"
 			role="button"

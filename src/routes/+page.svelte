@@ -184,7 +184,12 @@
 	{#if log?.fights?.json}
 		<div class="flex flex-1 overflow-hidden">
 			<div class="w-84 flex-none overflow-y-auto">
-				<OutlineView fightsRaw={log.fights.json} bind:currentFightIdx bind:currentDungeonPullIdx />
+				<OutlineView
+					{code}
+					fightsRaw={log.fights.json}
+					bind:currentFightIdx
+					bind:currentDungeonPullIdx
+				/>
 			</div>
 			<div class="relative flex-1 overflow-x-auto">
 				{#if pullRaw}

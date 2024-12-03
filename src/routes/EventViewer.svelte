@@ -58,7 +58,13 @@
 			.filter((e) => e.target?.id === playerId)
 			.map((e) => ({
 				raw: e,
-				icon: event2icon(e, (e2) => `${e2.amount}` + (e2.absorbed ? ` (A: ${e2.absorbed})` : ''))
+				icon: event2icon(
+					e,
+					(e2) =>
+						`${e2.amount}` +
+						(e2.absorbed ? ` (A: ${e2.absorbed})` : '') +
+						(e2.overkill ? ` (O: ${e2.overkill})` : '')
+				)
 			}));
 
 		if (!options.mergeDotInterval) return { icons: mir.map((m) => m.icon), mergeData: null };
