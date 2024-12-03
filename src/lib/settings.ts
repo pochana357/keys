@@ -1,14 +1,20 @@
 import { createSettings } from '$lib/localStorageWrapper.svelte';
 import { setContext, getContext } from 'svelte';
+import type Log from './api/log';
 
 const defaultSettings = { ms2px: 10.0 };
-const defaultHistory: { codes: string[] } = { codes: [] };
+type HistoryItem = {
+	code: string;
+	timestamp: number;
+	exportedCharacters: string[];
+};
+const defaultHistory: { items: HistoryItem[] } = { items: [] };
 
 export const OApiStatus = { busy: 'busy', failed: 'failed', succeeded: 'succeeded' } as const;
 type ApiStatus = (typeof OApiStatus)[keyof typeof OApiStatus];
-
+const maxHistory = 4;
 const defaultApiStatus: { status: ApiStatus } = { status: OApiStatus.succeeded };
-const maxHistory = 5;
+
 export class AppState {
 	settings = createSettings(defaultSettings);
 	history = createSettings(defaultHistory);
@@ -18,10 +24,15 @@ export class AppState {
 		setContext('appSettings', this);
 	}
 
-	pushCode(code: string) {
-		const newCodes = this.history.codes.filter((c) => c !== code);
-		newCodes.push(code);
-		this.history.codes = newCodes.length <= maxHistory ? newCodes : newCodes.slice(1);
+	pushCode(log: Log) {
+		const newCode = {
+			code: log.code,
+			timestamp: log.fights.json.start,
+			exportedCharacters: log.exportedCharacters
+		};
+		const newItems = this.history.items.filter((item) => item.code !== log.code);
+		newItems.push(newCode);
+		this.history.items = newItems.length <= maxHistory ? newItems : newItems.slice(1);
 	}
 	isBusy() {
 		return this.api.status === OApiStatus.busy;

@@ -11,6 +11,7 @@
 	import OutlineView from './OutlineView.svelte';
 	import EventViewer from './EventViewer.svelte';
 	import { AppState, OApiStatus } from '$lib/settings';
+	import { formatAbsoluteTime } from '$lib/utils';
 
 	let log: Log | null = $state(null);
 	let code = $state('');
@@ -32,7 +33,7 @@
 				code = codeFormValue;
 				currentFightIdx = -1;
 				currentDungeonPullIdx = -1;
-				appState.pushCode(code);
+				appState.pushCode(l);
 			})
 			.catch((err) => {
 				console.log(err);
@@ -40,8 +41,8 @@
 			});
 	}
 	onMount(() => {
-		const codes = appState.history.codes;
-		codeFormValue = codes?.[codes.length - 1] ?? '';
+		const codes = appState.history.items;
+		codeFormValue = codes?.[codes.length - 1].code ?? '';
 		handleSubmit();
 	});
 
@@ -76,68 +77,79 @@
 	});
 </script>
 
-<form
-	class=""
-	onsubmit={(e) => {
-		e.preventDefault();
-		handleSubmit();
-	}}
->
-	<div class="align-center flex h-10 gap-1 text-center leading-10">
-		<div class="w-20 flex-none font-bold">Code</div>
-		<input
-			class="input"
-			name="description"
-			type="text"
-			placeholder="(e.g., 6awx1JdH28CG94gq)"
-			bind:value={codeFormValue}
-		/>
-		<button
-			type="button"
-			class="btn h-10 w-20 font-bold preset-filled-primary-950-50"
-			onclick={() => handleSubmit()}
-			disabled={appState.isBusy()}
-		>
-			{#if appState.isBusy()}
-				<IconHourglass />
-			{:else if appState.api.status == 'failed'}
-				<IconX />
-			{:else if appState.api.status == 'succeeded'}
-				<IconCheck />
-			{:else}
-				Go
-			{/if}
-		</button>
-	</div>
-	<div class="align-center flex gap-1 text-center">
-		<div class="h-10 w-20 flex-none font-bold leading-10">History</div>
-		<div>
-			{#each [...appState.history.codes].reverse() as c (c)}
-				<button
-					type="button"
-					class="block"
-					class:font-bold={c == code}
-					onclick={() => {
-						codeFormValue = c;
-						handleSubmit();
-					}}
-				>
-					{c}
-				</button>
-			{/each}
+<div class="flex h-full w-full flex-col">
+	<form
+		class="flex h-48 flex-none flex-col gap-1"
+		onsubmit={(e) => {
+			e.preventDefault();
+			handleSubmit();
+		}}
+	>
+		<div class="align-center flex h-10 gap-1 text-center leading-10">
+			<div class="w-20 flex-none font-bold">Code</div>
+			<input
+				class="input"
+				class:bg-red-500={appState.api.status == 'failed'}
+				name="description"
+				type="text"
+				placeholder="(e.g., 6awx1JdH28CG94gq)"
+				bind:value={codeFormValue}
+			/>
+			<button
+				type="button"
+				class="btn h-10 w-20 font-bold preset-filled-primary-950-50"
+				onclick={() => handleSubmit()}
+				disabled={appState.isBusy()}
+			>
+				{#if appState.isBusy()}
+					<IconHourglass />
+				{:else if appState.api.status == 'failed'}
+					<IconX />
+				{:else if appState.api.status == 'succeeded'}
+					<IconCheck />
+				{:else}
+					Go
+				{/if}
+			</button>
 		</div>
-	</div>
-</form>
-<hr />
-{#if log?.fights?.json}
-	<div class="flex">
-		<div class="w-84 flex-none">
-			<OutlineView fightsRaw={log.fights.json} bind:currentFightIdx bind:currentDungeonPullIdx />
+		<div class="align-center flex h-full gap-1 border text-center">
+			<div class="h-10 w-20 flex-none font-bold leading-10">History</div>
+			<div class="line-nowrap overflow-x-clip text-nowrap pl-3">
+				{#each [...appState.history.items].reverse() as item (item.code)}
+					<button
+						type="button"
+						class="block pt-2"
+						class:font-bold={item.code == code}
+						onclick={() => {
+							codeFormValue = item.code;
+							handleSubmit();
+						}}
+					>
+						<span class="font-mono">{item.code}</span>
+						<span class="font-sm font-mono">({formatAbsoluteTime(item.timestamp)})</span>
+						{#each item.exportedCharacters.slice(0, Math.min(7, item.exportedCharacters.length)) as c (c)}
+							<span class="font-sm px-1">{c}</span>
+						{/each}
+						{#if item.exportedCharacters.length > 7}
+							<span class="font-sm px-1">...</span>
+						{/if}
+					</button>
+				{/each}
+			</div>
 		</div>
-		<div>
-			{#if pullRaw}
-				<EventViewer {events} />
-			{/if}
+	</form>
+	{#if log?.fights?.json}
+		<div class="flex">
+			<div class="w-84 flex-none">
+				<OutlineView fightsRaw={log.fights.json} bind:currentFightIdx bind:currentDungeonPullIdx />
+			</div>
+			<div>
+				{#if pullRaw}
+					<EventViewer {events} />
+				{:else}
+					<div class="p-2 text-center">Select a pull on the left panel to view timelines.</div>
+				{/if}
+			</div>
 		</div>
-	</div>
-{/if}
+	{/if}
+</div>

@@ -86,7 +86,7 @@
 	}
 </script>
 
-<div class="px-2">
+<div class="lr-2 py-2 pl-1">
 	<div class="relative">
 		{#each timeTicks as tick (tick.timestamp)}
 			<div
