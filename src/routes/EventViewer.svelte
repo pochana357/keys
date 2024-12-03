@@ -72,10 +72,6 @@
 				// merge
 				res[lastTimestamp.resIdx].merged.push(idx);
 				lastTimestamp.timestamp = e.icon.timestamp;
-
-				if (e.raw.ability.guid === 333634) {
-					console.log(idx, e.raw.targetID, e.raw.timestamp, lastTimestamp);
-				}
 			} else {
 				// new damage
 				res.push({ idx, merged: [] });
@@ -84,15 +80,8 @@
 					resIdx: res.length - 1,
 					timestamp: e.icon.timestamp
 				});
-
-				if (e.raw.ability.guid === 333634) {
-					console.log(idx, e.raw.targetID, e.raw.timestamp, lastTimestamp, 'enw');
-				}
 			}
 		});
-		console.log(mir);
-		console.log(res);
-
 		return { icons: mir.map((m) => m.icon), mergeData: res };
 	}
 </script>
