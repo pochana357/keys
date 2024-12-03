@@ -25,6 +25,7 @@
 			return;
 		}
 		if (codeFormValue == code) {
+			appState.api.status = OApiStatus.succeeded;
 			return;
 		}
 		Log.build(codeFormValue)
