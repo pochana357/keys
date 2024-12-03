@@ -34,6 +34,9 @@ export class AppState {
 		newItems.push(newCode);
 		this.history.items = newItems.length <= maxHistory ? newItems : newItems.slice(1);
 	}
+	clearHistory() {
+		this.history.items = [this.history.items[this.history.items.length - 1]];
+	}
 	isBusy() {
 		return this.api.status === OApiStatus.busy;
 	}

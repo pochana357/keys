@@ -18,6 +18,7 @@ type FetchEventsOptions = Partial<{
 	suffix: string;
 	verbose: boolean;
 	referenceTime: number;
+	progressCallback: (now: number, start: number, end: number) => void;
 }>;
 
 async function fetchEvents(
@@ -36,6 +37,7 @@ async function fetchEvents(
 	if (options.filter) queryString.set('filter', options.filter);
 	const events: Event[] = [];
 	let st = start;
+	options.progressCallback?.(st, start, end);
 	while (true) {
 		queryString.set('start', String(st));
 		const url =
@@ -52,10 +54,13 @@ async function fetchEvents(
 
 		if ('nextPageTimestamp' in data) {
 			st = data.nextPageTimestamp;
+			options.progressCallback?.(st, start, end);
 		} else {
+			st = end;
 			break;
 		}
 	}
+	options.progressCallback?.(st, start, end);
 	return events;
 }
 
@@ -173,16 +178,26 @@ export default class Log {
 		return events;
 	}
 
-	async analyzePull(pull: PullRaw, options: { verbose?: boolean } = {}) {
+	async analyzePull(
+		pull: PullRaw,
+		options: {
+			verbose?: boolean;
+			progressCallback?: (cur: number, st: number, ed: number) => void;
+		} = {}
+	) {
 		const startTime = pull.start_time;
 		const endTime = pull.end_time;
 
 		// The spellid of the melee attack may not be 1.
 		const damageTakenEvents = await this.damageTakenEvents(startTime, endTime, {
 			filter: `ability.id not in (${blackList.damages.join(',')}) and ability.name not in ("Melee")`,
-			verbose: options.verbose
+			verbose: options.verbose,
+			progressCallback: options.progressCallback
 		});
-		const castEvents = await this.castEvents(startTime, endTime, { verbose: options.verbose });
+		const castEvents = await this.castEvents(startTime, endTime, {
+			verbose: options.verbose,
+			progressCallback: options.progressCallback
+		});
 		return new EventsClass(damageTakenEvents, castEvents, {
 			startTime: 0,
 			endTime: endTime - startTime
