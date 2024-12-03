@@ -109,7 +109,7 @@
 			<div class="w-20 flex-none font-bold">Code</div>
 			<input
 				class="input flex-1"
-				class:bg-red-500={appState.api.status == 'failed'}
+				class:bg-red-500={appState.api.status == OApiStatus.failed}
 				name="description"
 				type="text"
 				placeholder="(e.g., 6awx1JdH28CG94gq)"
@@ -123,9 +123,9 @@
 			>
 				{#if appState.isBusy()}
 					<IconHourglass />
-				{:else if appState.api.status == 'failed'}
+				{:else if appState.api.status == OApiStatus.failed}
 					<IconX />
-				{:else if appState.api.status == 'succeeded'}
+				{:else if appState.api.status == OApiStatus.succeeded}
 					<IconCheck />
 				{:else}
 					Go

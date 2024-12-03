@@ -33,7 +33,7 @@
 </script>
 
 <div
-	class="absolute left-0 top-0 z-30 flex h-full w-full flex-col items-center justify-center gap-2 text-lg font-bold"
+	class="fixed left-0 top-0 z-30 flex h-full w-full flex-col items-center justify-center gap-2 text-lg font-bold"
 >
 	<!-- svelte-ignore a11y_media_has_caption -->
 	{#if media.mediaType == 'gif'}
