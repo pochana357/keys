@@ -22,7 +22,7 @@
 	const maxOffsetX = 15;
 
 	const offsetYLimit = 5;
-	const offsetYdata = $derived.by(() => {
+	const offsetYdata1 = $derived.by(() => {
 		const numIcons = data.icons.length;
 		const res: number[] = Array(numIcons).fill(0);
 		for (let i = 1; i < numIcons; i++) {
@@ -39,7 +39,7 @@
 	const offsetYdata2 = $derived.by(() => {
 		const numIcons = data.icons.length;
 		const res: number[] = Array(numIcons).fill(-1);
-		const occupied: number[] = [-1.0];
+		const occupied: number[] = [];
 		for (let i = 0; i < numIcons; i++) {
 			if (res[i] >= 0) continue;
 			let j = 0;
@@ -73,6 +73,9 @@
 	function setCursor(timestamp: number) {
 		cursor = offsetX(timestamp);
 	}
+
+	// const offsetYdata = $derived(datatype === 'text' ? offsetYdata1 : offsetYdata2);
+	const offsetYdata = $derived(offsetYdata2);
 </script>
 
 <div class="relative h-8 py-1" style:height="{32 + maxOffsetY * offsetY2px}px">
@@ -81,7 +84,7 @@
 		<div
 			class="absolute inline-block p-[2px] hover:z-[1] hover:shadow-[inset_0_0_0_2px_rgb(255,255,255,0.6)]"
 			style:left="{offsetX(timestamp)}px"
-			style:top="{offsetYdata2[i] * offsetY2px}px"
+			style:top="{offsetYdata[i] * offsetY2px}px"
 			role="button"
 			tabindex="0"
 			onmouseover={() => setCursor(timestamp)}

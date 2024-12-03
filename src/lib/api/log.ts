@@ -1,157 +1,188 @@
 import Fights from './fights';
-import type { PullRaw, DamageTakenEventRaw, CastEventRaw, DamageTakenEvent, CastEvent } from './wclTypes';
+import type {
+	PullRaw,
+	DamageTakenEventRaw,
+	CastEventRaw,
+	DamageTakenEvent,
+	CastEvent
+} from './wclTypes';
 import { apiAddr, wclApiKey } from './apiAddr';
 import { formatTime } from '$lib/utils';
-import { blackList, bossData } from './spellData';
+import { blackList } from './spellData';
 import defensiveData from './defensiveData';
 import { readFromBuffer, writeToBuffer } from '$lib/localStorageWrapper.svelte';
 import { EventsClass } from './event';
 
 type FetchEventsOptions = Partial<{
-  filter: string,
-  suffix: string,
-  verbose: boolean,
-  referenceTime: number,
+	filter: string;
+	suffix: string;
+	verbose: boolean;
+	referenceTime: number;
 }>;
 
-async function fetchEvents(ApiAddress: string, start: number, end: number, options: FetchEventsOptions) {
-  // a general fetch function to fetch events from WCL API
-  const queryString = new URLSearchParams({start: String(start), end: String(end), api_key: String(wclApiKey), translate: String(true)});
-  if (options.filter) queryString.set('filter', options.filter);
-  const events: Event[] = [];
-  let st = start;
-  while(true) {
-    queryString.set('start', String(st));
-    const url = `${ApiAddress}?${queryString.toString()}` + (options.suffix ? `&${options.suffix}` : '');
-    console.log('fetching', url);
-    
-    const response = await fetch(url);
-    if (!response.ok) {
-      return events;
-    }
-    const data = await response.json();
-    
-    for(const event of data.events) events.push(event);
+async function fetchEvents(
+	ApiAddress: string,
+	start: number,
+	end: number,
+	options: FetchEventsOptions
+) {
+	// a general fetch function to fetch events from WCL API
+	const queryString = new URLSearchParams({
+		start: String(start),
+		end: String(end),
+		api_key: String(wclApiKey),
+		translate: String(true)
+	});
+	if (options.filter) queryString.set('filter', options.filter);
+	const events: Event[] = [];
+	let st = start;
+	while (true) {
+		queryString.set('start', String(st));
+		const url =
+			`${ApiAddress}?${queryString.toString()}` + (options.suffix ? `&${options.suffix}` : '');
+		console.log('fetching', url);
 
-    if('nextPageTimestamp' in data) {
-      st = data.nextPageTimestamp;
-    }
-    else {
-      break;
-    }
-  }
-  return events;
+		const response = await fetch(url);
+		if (!response.ok) {
+			return events;
+		}
+		const data = await response.json();
+
+		for (const event of data.events) events.push(event);
+
+		if ('nextPageTimestamp' in data) {
+			st = data.nextPageTimestamp;
+		} else {
+			break;
+		}
+	}
+	return events;
 }
 
-async function fetchDamageTakenEvents(code: string, start: number, end: number, options: FetchEventsOptions): Promise<DamageTakenEventRaw[]> {
-  const cache = `damageTaken-${code}-${start}-${end}`;
-  try {
-    const data = readFromBuffer(cache);
-    if (!data) throw new Error('cache empty');
-    console.log('fetchDamageTakenEvents loaded from cache;', cache);
-    return data as DamageTakenEventRaw[];
-  }
-  catch {
-    const events = await fetchEvents(apiAddr.events.damageTaken(code), start, end, options);
-    writeToBuffer(cache, events);
-    console.log('fetchDamageTakenEvents loaded from API;', cache);
-    return events as unknown as DamageTakenEventRaw[];
-  }
+async function fetchDamageTakenEvents(
+	code: string,
+	start: number,
+	end: number,
+	options: FetchEventsOptions
+): Promise<DamageTakenEventRaw[]> {
+	const cache = `damageTaken-${code}-${start}-${end}`;
+	try {
+		const data = readFromBuffer(cache);
+		if (!data) throw new Error('cache empty');
+		console.log('fetchDamageTakenEvents loaded from cache;', cache);
+		return data as DamageTakenEventRaw[];
+	} catch {
+		const events = await fetchEvents(apiAddr.events.damageTaken(code), start, end, options);
+		writeToBuffer(cache, events);
+		console.log('fetchDamageTakenEvents loaded from API;', cache);
+		return events as unknown as DamageTakenEventRaw[];
+	}
 }
-async function fetchCastEvents(code: string, start: number, end: number, options: FetchEventsOptions): Promise<CastEventRaw[]> {
-  const cache = `cast-${code}-${start}-${end}`;
-  try {
-    const data = readFromBuffer(cache);
-    if (!data) throw new Error('cache empty');
-    console.log('fetchCastEvents loaded from cache;', cache);
-    return data as CastEventRaw[];
-  }
-  catch {
-    const events = await fetchEvents(apiAddr.events.cast(code), start, end, options);
-    writeToBuffer(cache, events);
-    console.log('fetchCastEvents loaded from API;', cache);
-    return events as unknown as CastEventRaw[];
-  }
+async function fetchCastEvents(
+	code: string,
+	start: number,
+	end: number,
+	options: FetchEventsOptions
+): Promise<CastEventRaw[]> {
+	const cache = `cast-${code}-${start}-${end}`;
+	try {
+		const data = readFromBuffer(cache);
+		if (!data) throw new Error('cache empty');
+		console.log('fetchCastEvents loaded from cache;', cache);
+		return data as CastEventRaw[];
+	} catch {
+		const events = await fetchEvents(apiAddr.events.cast(code), start, end, options);
+		writeToBuffer(cache, events);
+		console.log('fetchCastEvents loaded from API;', cache);
+		return events as unknown as CastEventRaw[];
+	}
 }
 
 export default class Log {
-    code: string;
-    fights: Fights;
-    constructor(code: string, fights: Fights) {
-        this.code = code;
-        this.fights = fights;
-    }
-    static async build(code: string) {
-        const fights = await Fights.fetchFights(code);
-        return new Log(code, fights);
-    }
-    async damageTakenEvents(startTime: number, endTime: number, options: FetchEventsOptions) {
-      const damageTaken = await fetchDamageTakenEvents(this.code, startTime, endTime, options);
-      const referenceTime = options.referenceTime ?? startTime;
+	code: string;
+	fights: Fights;
+	constructor(code: string, fights: Fights) {
+		this.code = code;
+		this.fights = fights;
+	}
+	static async build(code: string) {
+		const fights = await Fights.fetchFights(code);
+		return new Log(code, fights);
+	}
+	async damageTakenEvents(startTime: number, endTime: number, options: FetchEventsOptions) {
+		const damageTaken = await fetchDamageTakenEvents(this.code, startTime, endTime, options);
+		const referenceTime = options.referenceTime ?? startTime;
 
-      const events: DamageTakenEvent[] = [];
+		const events: DamageTakenEvent[] = [];
 
-      for (const event of damageTaken) {
-          if (options.verbose) {
-            const source = this.fights.findUnitRaw(event.sourceID, event.sourceIsFriendly);
-            const target = this.fights.findUnitRaw(event.targetID, event.targetIsFriendly);
-            console.log(formatTime(event.timestamp, startTime), source?.icon ?? source?.name, '▶', target?.icon ?? target?.name);
-            console.log('  ', `${event.ability.name} (${event.ability.guid})`, `${event.amount}` + (event.absorbed ? ` (A: ${event.absorbed})` : ''), `remaining: ${event.hitPoints}/${event.maxHitPoints}`);
-          }    
-          events.push({
-              ...event,
-              timestamp: event.timestamp - referenceTime,
-              source: this.fights.findUnitRaw(event.sourceID, event.sourceIsFriendly),
-              target: this.fights.findUnitRaw(event.targetID, event.targetIsFriendly),
-          });
-      }
-      return events;
-}
-async castEvents(startTime: number, endTime: number, options: FetchEventsOptions) {
-    const castEvents = await fetchCastEvents(this.code, startTime, endTime, options);
-    const SetspellsTracked = new Set(defensiveData);
-    const referenceTime = options.referenceTime ?? startTime;
-    const events: CastEvent[] = [];
-    for (const event of castEvents) {
-        // skip `begincast` events
-        if (event.type !== 'cast') continue;
-        const flag = SetspellsTracked.has(event.ability.guid);
-        if (!flag) continue;
-        if (options.verbose) {
-          console.log(formatTime(event.timestamp, referenceTime), this.fights.findUnitRaw(event.sourceID, event.sourceIsFriendly)?.name, '▶', this.fights.findUnitRaw(event.targetID, event.targetIsFriendly)?.name);
-          console.log('  ', `${event.ability.name} (${event.ability.guid})`);
-        }
-        events.push({
-          ...event,
-          timestamp: event.timestamp - referenceTime,
-          source: this.fights.findUnitRaw(event.sourceID, event.sourceIsFriendly),
-          target: this.fights.findUnitRaw(event.targetID, event.targetIsFriendly),
-        });
-    }
-    return events;
-}
-    async analyzeBoss(bossIdx: number, options: {verbose?: boolean} = {}) {
-        const bosspull = this.fights.bossPulls[bossIdx];
-        console.log(`${bosspull.pull.name} (${bosspull.pull.boss})`);
-        const startTime = bosspull.pull.start_time;
-        const endTime = bosspull.pull.end_time;
-        const damageTakenSpellIds = bossData[bosspull.pull.boss].damages;
+		for (const event of damageTaken) {
+			if (options.verbose) {
+				const source = this.fights.findUnitRaw(event.sourceID, event.sourceIsFriendly);
+				const target = this.fights.findUnitRaw(event.targetID, event.targetIsFriendly);
+				console.log(
+					formatTime(event.timestamp, startTime),
+					source?.icon ?? source?.name,
+					'▶',
+					target?.icon ?? target?.name
+				);
+				console.log(
+					'  ',
+					`${event.ability.name} (${event.ability.guid})`,
+					`${event.amount}` + (event.absorbed ? ` (A: ${event.absorbed})` : ''),
+					`remaining: ${event.hitPoints}/${event.maxHitPoints}`
+				);
+			}
+			events.push({
+				...event,
+				timestamp: event.timestamp - referenceTime,
+				source: this.fights.findUnitRaw(event.sourceID, event.sourceIsFriendly),
+				target: this.fights.findUnitRaw(event.targetID, event.targetIsFriendly)
+			});
+		}
+		return events;
+	}
+	async castEvents(startTime: number, endTime: number, options: FetchEventsOptions) {
+		const castEvents = await fetchCastEvents(this.code, startTime, endTime, options);
+		const SetspellsTracked = new Set(defensiveData);
+		const referenceTime = options.referenceTime ?? startTime;
+		const events: CastEvent[] = [];
+		for (const event of castEvents) {
+			// skip `begincast` events
+			if (event.type !== 'cast') continue;
+			const flag = SetspellsTracked.has(event.ability.guid);
+			if (!flag) continue;
+			if (options.verbose) {
+				console.log(
+					formatTime(event.timestamp, referenceTime),
+					this.fights.findUnitRaw(event.sourceID, event.sourceIsFriendly)?.name,
+					'▶',
+					this.fights.findUnitRaw(event.targetID, event.targetIsFriendly)?.name
+				);
+				console.log('  ', `${event.ability.name} (${event.ability.guid})`);
+			}
+			events.push({
+				...event,
+				timestamp: event.timestamp - referenceTime,
+				source: this.fights.findUnitRaw(event.sourceID, event.sourceIsFriendly),
+				target: this.fights.findUnitRaw(event.targetID, event.targetIsFriendly)
+			});
+		}
+		return events;
+	}
 
-        const damageTakenEvents = await this.damageTakenEvents(startTime, endTime, {filter: `ability.id in (${damageTakenSpellIds.join(',')})`, verbose: options.verbose});
-        const castEvents = await this.castEvents(startTime, endTime, {verbose: options.verbose});
-        return {damageTakenEvents, castEvents};
-    }
+	async analyzePull(pull: PullRaw, options: { verbose?: boolean } = {}) {
+		const startTime = pull.start_time;
+		const endTime = pull.end_time;
 
-    async analyzePull(pull: PullRaw, options: {verbose?: boolean} = {}) {
-      const startTime = pull.start_time;
-      const endTime = pull.end_time;
-
-      // The spellid of the melee attack may not be 1.
-      const damageTakenEvents = await this.damageTakenEvents(startTime, endTime, {
-        filter: `ability.id not in (${blackList.damages.join(',')}) and ability.name not in ("Melee")`,
-        verbose: options.verbose
-      });
-      const castEvents = await this.castEvents(startTime, endTime, {verbose: options.verbose});
-      return new EventsClass(damageTakenEvents, castEvents, {startTime: 0, endTime: endTime - startTime});
-  }
+		// The spellid of the melee attack may not be 1.
+		const damageTakenEvents = await this.damageTakenEvents(startTime, endTime, {
+			filter: `ability.id not in (${blackList.damages.join(',')}) and ability.name not in ("Melee")`,
+			verbose: options.verbose
+		});
+		const castEvents = await this.castEvents(startTime, endTime, { verbose: options.verbose });
+		return new EventsClass(damageTakenEvents, castEvents, {
+			startTime: 0,
+			endTime: endTime - startTime
+		});
+	}
 }

@@ -8,7 +8,7 @@ export const OApiStatus = { busy: 'busy', failed: 'failed', succeeded: 'succeede
 type ApiStatus = (typeof OApiStatus)[keyof typeof OApiStatus];
 
 const defaultApiStatus: { status: ApiStatus } = { status: OApiStatus.succeeded };
-
+const maxHistory = 5;
 export class AppState {
 	settings = createSettings(defaultSettings);
 	history = createSettings(defaultHistory);
@@ -21,7 +21,7 @@ export class AppState {
 	pushCode(code: string) {
 		const newCodes = this.history.codes.filter((c) => c !== code);
 		newCodes.push(code);
-		this.history.codes = newCodes;
+		this.history.codes = newCodes.length <= maxHistory ? newCodes : newCodes.slice(1);
 	}
 	isBusy() {
 		return this.api.status === OApiStatus.busy;
