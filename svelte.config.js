@@ -20,8 +20,9 @@ const config = {
 			precompress: false,
 			strict: true,
 		}),
-		base: process.env.NODE_ENV === 'production' ? '/keys' : '',
-
+		paths: {
+			base: process.argv.includes('dev') ? '' : process.env.BASE_PATH
+		}
 	}
 };
 
