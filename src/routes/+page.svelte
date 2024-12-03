@@ -83,8 +83,15 @@
 		handleSubmit();
 	}}
 >
-	<div class="flex gap-1">
-		<input class="input" name="description" type="text" bind:value={codeFormValue} />
+	<div class="align-center flex h-10 gap-1 text-center leading-10">
+		<div class="w-20 flex-none font-bold">Code</div>
+		<input
+			class="input"
+			name="description"
+			type="text"
+			placeholder="(e.g., 6awx1JdH28CG94gq)"
+			bind:value={codeFormValue}
+		/>
 		<button
 			type="button"
 			class="btn h-10 w-20 font-bold preset-filled-primary-950-50"
@@ -102,26 +109,29 @@
 			{/if}
 		</button>
 	</div>
-	<div>
-		{#each [...appState.history.codes].reverse() as c (c)}
-			<button
-				type="button"
-				class="block"
-				class:font-bold={c == code}
-				onclick={() => {
-					codeFormValue = c;
-					handleSubmit();
-				}}
-			>
-				{c}
-			</button>
-		{/each}
+	<div class="align-center flex gap-1 text-center">
+		<div class="h-10 w-20 flex-none font-bold leading-10">History</div>
+		<div>
+			{#each [...appState.history.codes].reverse() as c (c)}
+				<button
+					type="button"
+					class="block"
+					class:font-bold={c == code}
+					onclick={() => {
+						codeFormValue = c;
+						handleSubmit();
+					}}
+				>
+					{c}
+				</button>
+			{/each}
+		</div>
 	</div>
 </form>
-
+<hr />
 {#if log?.fights?.json}
 	<div class="flex">
-		<div class="w-96">
+		<div class="w-84 flex-none">
 			<OutlineView fightsRaw={log.fights.json} bind:currentFightIdx bind:currentDungeonPullIdx />
 		</div>
 		<div>

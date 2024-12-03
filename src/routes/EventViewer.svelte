@@ -111,7 +111,10 @@
 				<span style:color={ClassUtils.classColor(player.icon.split('-')[0])}>{player.name}</span>
 			</div>
 			<Timeline datatype="spellIcon" data={processDamages(player.id)} bind:cursor />
-			<Timeline datatype="spellIcon" data={processCasts(player.id)} bind:cursor />
+
+			<div class="my-1 w-full bg-slate-700" style:width="{offsetX(numTimeTicks * timeTick)}px">
+				<Timeline datatype="spellIcon" data={processCasts(player.id)} bind:cursor />
+			</div>
 		{/each}
 	</div>
 </div>
