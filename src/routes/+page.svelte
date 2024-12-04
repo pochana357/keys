@@ -11,7 +11,7 @@
 	import OutlineView from './OutlineView.svelte';
 	import EventViewer from './EventViewer.svelte';
 	import { AppState, OApiStatus } from '$lib/settings';
-	import { formatAbsoluteTime } from '$lib/utils';
+	import { formatAbsoluteTime } from '$lib/utils/utils';
 	import LoadingScreen from './LoadingScreen.svelte';
 
 	let log: Log | null = $state(null);
@@ -46,8 +46,7 @@
 		const testCodes = [
 			'4KxdFT6pVYLfy7r2', // Rogue, Stonevault
 			'19qd8m6CcjHbkZD3', // Mage
-			'XvVTQ3WhndZGc6Na', // Death Knight
-			'6awx1JdH28CG94gq',
+			'6awx1JdH28CG94gq', // Rogue, Necrotic Wake
 			'HZLwh46mFCD1Xdzk', // Druid, Siege of Boralus
 			'xZ8Vytqp1XQAnTYm', // Restoration Shaman
 			'3M46dqmjTnWKahwB' // Retribution Paladin, Dawnbreaker
