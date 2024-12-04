@@ -90,8 +90,11 @@ class ClassUtils {
 	static isHeal(unit: UnitRaw) {
 		return unit.icon && classSpec2Role[unit.icon] === ORole.heal;
 	}
-	static role(unit: UnitRaw) {
-		return classSpec2Role[unit.icon];
+	static role(unit: UnitRaw): Role | undefined {
+		// There is a bug in the WCL API (fights.friendlies) where the spec of the Evoker class is not fully specified
+		// so we assume that is is a dps class
+		if (unit.icon === 'Evoker') return ORole.dps;
+		return classSpec2Role[unit.icon] ?? undefined;
 	}
 }
 export default ClassUtils;

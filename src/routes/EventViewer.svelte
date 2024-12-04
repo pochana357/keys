@@ -99,6 +99,11 @@
 
 	let players = $derived.by(() => {
 		const players = [...events.players.values()];
+		players.forEach((p) => console.log(p.name, p.icon, ClassUtils.role(p)));
+		players.sort((a, b) => {
+			const roleDiff = String(ClassUtils.role(a)).localeCompare(String(ClassUtils.role(b)));
+			return roleDiff !== 0 ? roleDiff : a.icon.localeCompare(b.icon);
+		});
 		return players;
 	});
 </script>
