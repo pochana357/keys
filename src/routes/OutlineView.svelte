@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { type FightsRaw } from '$lib/api/wclTypes';
-	import { formatAbsoluteTime, formatTime } from '$lib/utils';
+	import { formatAbsoluteTime, formatTime } from '$lib/utils/utils';
 	import WithTooltip from '$lib/WithTooltip.svelte';
 	type Props = {
 		code: string;

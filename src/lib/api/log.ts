@@ -7,7 +7,8 @@ import type {
 	CastEvent
 } from './wclTypes';
 import { apiAddr, wclApiKey } from './apiAddr';
-import { ClassUtils, formatTime } from '$lib/utils';
+import { formatTime } from '$lib/utils/utils';
+import ClassUtils from '$lib/utils/ClassUtils';
 import { blackList } from './spellData';
 import defensiveSpells from './defensiveData';
 import { readFromBuffer, writeToBuffer } from '$lib/localStorageWrapper.svelte';

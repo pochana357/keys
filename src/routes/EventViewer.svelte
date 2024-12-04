@@ -4,7 +4,9 @@
 	import type { Ability, EventRaw, GeneralEvent } from '$lib/api/wclTypes';
 	import { getAppState } from '$lib/settings';
 	import Timeline from '$lib/Timeline.svelte';
-	import { formatTime, ClassUtils } from '$lib/utils';
+	import { formatTime } from '$lib/utils/utils';
+	import ClassUtils, { ORole } from '$lib/utils/ClassUtils';
+	import { ability2img, addLink, addSpellLink } from '$lib/utils/link';
 
 	let { events }: { events: EventsClass } = $props();
 	let cursor: number | null = $state(0);
@@ -17,16 +19,6 @@
 	});
 	const timeTicks = $derived([...Array(numTimeTicks + 1).keys()].map(timeTickCreator));
 
-	function addLink(content: string, url: string) {
-		return `<a href="${url}" target="_blank">${content}</a>`;
-	}
-	function addSpellLink(content: string, spellId: number) {
-		return addLink(content, `https://www.wowhead.com/spell=${spellId}`);
-	}
-	function ability2img(ability: Ability) {
-		const img = `<img class="w-5 max-w-none" src="https://assets.rpglogs.com/img/warcraft/abilities/${ability.abilityIcon}" alt="${ability.name}" />`;
-		return addSpellLink(img, ability.guid);
-	}
 	function event2icon<T extends EventRaw>(event: T, detailsCreator: (event: T) => string) {
 		return {
 			timestamp: event.timestamp,
@@ -104,6 +96,11 @@
 		});
 		return { icons: mir.map((m) => m.icon), mergeData: res };
 	}
+
+	let players = $derived.by(() => {
+		const players = [...events.players.values()];
+		return players;
+	});
 </script>
 
 <div class="lr-2 w-max py-2 pl-1">
@@ -119,7 +116,7 @@
 			<div style:width="1px" style:left="{cursor}px" class="absolute h-full bg-red-500"></div>
 		{/if}
 		<Timeline datatype="text" data={{ icons: timeTicks, mergeData: null }} bind:cursor />
-		{#each events.players.values() as player (player.guid)}
+		{#each players as player (player.guid)}
 			<div class="sticky left-1 flex w-max items-center gap-2 py-1 font-bold">
 				<img
 					style:--size="18"

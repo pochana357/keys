@@ -2,8 +2,7 @@
 	import { onMount } from 'svelte';
 	import { AppState, getAppState } from './settings';
 	import WithTooltip from './WithTooltip.svelte';
-	import { formatTime } from './utils';
-	import type { GeneralEvent } from './api/wclTypes';
+	import { formatTime } from '$lib/utils/utils';
 
 	type Icon = { timestamp: number; content: string; details?: string };
 	type Props = {
