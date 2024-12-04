@@ -34,7 +34,7 @@
 					<div>
 						<p>
 							<a
-								href="https://www.warcraftlogs.com/reports/{code}#fight={fight.id}&translate=1"
+								href="https://www.warcraftlogs.com/reports/{code}#fight={fight.id}&translate=true"
 								target="_blank">#{fight.id} {fight.zoneName} +{fight.keystoneLevel}</a
 							>
 						</p>
