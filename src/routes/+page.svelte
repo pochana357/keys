@@ -44,10 +44,13 @@
 	}
 	async function handleTest() {
 		const testCodes = [
-			'19qd8m6CcjHbkZD3',
-			'XvVTQ3WhndZGc6Na',
+			'4KxdFT6pVYLfy7r2', // Rogue, Stonevault
+			'19qd8m6CcjHbkZD3', // Mage
+			'XvVTQ3WhndZGc6Na', // Death Knight
 			'6awx1JdH28CG94gq',
-			'A3fkrxdQBqnHp2JR'
+			'HZLwh46mFCD1Xdzk', // Druid, Siege of Boralus
+			'xZ8Vytqp1XQAnTYm', // Restoration Shaman
+			'3M46dqmjTnWKahwB' // Retribution Paladin, Dawnbreaker
 		];
 		const testCode = testCodes[Math.floor(Math.random() * testCodes.length)];
 		codeFormValue = testCode;

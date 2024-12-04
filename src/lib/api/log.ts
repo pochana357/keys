@@ -7,9 +7,9 @@ import type {
 	CastEvent
 } from './wclTypes';
 import { apiAddr, wclApiKey } from './apiAddr';
-import { formatTime } from '$lib/utils';
+import { ClassUtils, formatTime } from '$lib/utils';
 import { blackList } from './spellData';
-import defensiveData from './defensiveData';
+import defensiveSpells from './defensiveData';
 import { readFromBuffer, writeToBuffer } from '$lib/localStorageWrapper.svelte';
 import { EventsClass } from './event';
 
@@ -151,14 +151,26 @@ export default class Log {
 	}
 	async castEvents(startTime: number, endTime: number, options: FetchEventsOptions) {
 		const castEvents = await fetchCastEvents(this.code, startTime, endTime, options);
-		const SetspellsTracked = new Set(defensiveData);
+
 		const referenceTime = options.referenceTime ?? startTime;
 		const events: CastEvent[] = [];
 		for (const event of castEvents) {
 			// skip `begincast` events
 			if (event.type !== 'cast') continue;
-			const flag = SetspellsTracked.has(event.ability.guid);
-			if (!flag) continue;
+			const defensiveSpell = defensiveSpells[event.ability.guid];
+			if (!defensiveSpell) continue;
+
+			const source = this.fights.findUnitRaw(event.sourceID, event.sourceIsFriendly);
+			const target = this.fights.findUnitRaw(event.targetID, event.targetIsFriendly);
+
+			if (
+				defensiveSpell.dpsOnly &&
+				source &&
+				(ClassUtils.isHeal(source) || ClassUtils.isTank(source))
+			) {
+				continue;
+			}
+			if (defensiveSpell.selfCastOnly && event.sourceID !== event.targetID) continue;
 			if (options.verbose) {
 				console.log(
 					formatTime(event.timestamp, referenceTime),
@@ -171,8 +183,8 @@ export default class Log {
 			events.push({
 				...event,
 				timestamp: event.timestamp - referenceTime,
-				source: this.fights.findUnitRaw(event.sourceID, event.sourceIsFriendly),
-				target: this.fights.findUnitRaw(event.targetID, event.targetIsFriendly)
+				source,
+				target
 			});
 		}
 		return events;

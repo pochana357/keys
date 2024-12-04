@@ -1,6 +1,7 @@
 <script lang="ts">
+	import defensiveSpells from '$lib/api/defensiveData';
 	import type { EventsClass } from '$lib/api/event';
-	import type { Ability, EventRaw } from '$lib/api/wclTypes';
+	import type { Ability, EventRaw, GeneralEvent } from '$lib/api/wclTypes';
 	import { getAppState } from '$lib/settings';
 	import Timeline from '$lib/Timeline.svelte';
 	import { formatTime, ClassUtils } from '$lib/utils';
@@ -38,34 +39,47 @@
 	let ms2px = $derived(appSettings?.settings?.ms2px || 10.0);
 	const offsetX = (timestamp: number) => (timestamp / 1000.0) * ms2px;
 
+	function filterEvents<T extends GeneralEvent>(
+		events: T[],
+		playerId: { source?: number; target?: number }
+	) {
+		const filtered = playerId.source
+			? events.filter((e) => e.source?.id === playerId.source)
+			: events;
+		return playerId.target ? filtered.filter((e) => e.target?.id === playerId.target) : filtered;
+	}
 	function processCasts(playerId: number) {
-		const mir = events.casts
-			.filter((e) => e.source?.id === playerId)
-			.map((e) => ({
-				raw: e,
-				icon: event2icon(
-					e,
-					(e2) => `${e2.source?.name}` + (e2.target ? ` ▶ ${e2.target.name}` : '')
-				)
-			}));
-		return { icons: mir.map((m) => m.icon), mergeData: null };
+		const mir = filterEvents(events.casts, { source: playerId }).map((e) => ({
+			raw: e,
+			icon: event2icon(e, (e2) => `${e2.source?.name}` + (e2.target ? ` ▶ ${e2.target.name}` : ''))
+		}));
+
+		const majorIcons = [];
+		const minorIcons = [];
+
+		for (const item of mir) {
+			const spellId = item.raw.ability.guid;
+			const defensiveSpell = defensiveSpells[spellId];
+			if (!defensiveSpell) continue;
+			if (defensiveSpell.minor) minorIcons.push(item.icon);
+			else majorIcons.push(item.icon);
+		}
+		return { majorIcons, minorIcons };
 	}
 	function processDamages(
 		playerId: number,
 		options: { mergeDotInterval?: number } = { mergeDotInterval: 5000 }
 	) {
-		const mir = events.damages
-			.filter((e) => e.target?.id === playerId)
-			.map((e) => ({
-				raw: e,
-				icon: event2icon(
-					e,
-					(e2) =>
-						`${e2.amount}` +
-						(e2.absorbed ? ` (A: ${e2.absorbed})` : '') +
-						(e2.overkill ? ` (O: ${e2.overkill})` : '')
-				)
-			}));
+		const mir = filterEvents(events.damages, { target: playerId }).map((e) => ({
+			raw: e,
+			icon: event2icon(
+				e,
+				(e2) =>
+					`${e2.amount}` +
+					(e2.absorbed ? ` (A: ${e2.absorbed})` : '') +
+					(e2.overkill ? ` (O: ${e2.overkill})` : '')
+			)
+		}));
 
 		if (!options.mergeDotInterval) return { icons: mir.map((m) => m.icon), mergeData: null };
 		const mergeDotInterval = options.mergeDotInterval;
@@ -106,7 +120,7 @@
 		{/if}
 		<Timeline datatype="text" data={{ icons: timeTicks, mergeData: null }} bind:cursor />
 		{#each events.players.values() as player (player.guid)}
-			<div class="sticky left-1 flex w-max items-center gap-2 pb-1 font-bold">
+			<div class="sticky left-1 flex w-max items-center gap-2 py-1 font-bold">
 				<img
 					style:--size="18"
 					style="width:calc(var(--size)* 1px); height:calc(var(--size)* 1px);"
@@ -118,8 +132,14 @@
 			</div>
 			<Timeline datatype="spellIcon" data={processDamages(player.id)} bind:cursor />
 
-			<div class="my-1 w-full bg-slate-700" style:width="{offsetX(numTimeTicks * timeTick)}px">
-				<Timeline datatype="spellIcon" data={processCasts(player.id)} bind:cursor />
+			{@const casts = processCasts(player.id)}
+			<div class="w-full bg-slate-700 py-1" style:width="{offsetX(numTimeTicks * timeTick)}px">
+				<Timeline datatype="spellIcon" data={{ icons: casts.majorIcons }} bind:cursor />
+				{#if casts.minorIcons.length > 0}
+					<div class="-mt-1">
+						<Timeline datatype="spellIcon" data={{ icons: casts.minorIcons }} bind:cursor />
+					</div>
+				{/if}
 			</div>
 		{/each}
 	</div>
