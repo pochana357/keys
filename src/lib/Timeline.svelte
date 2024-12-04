@@ -10,7 +10,7 @@
 		datatype: 'text' | 'spellIcon';
 		data: {
 			icons: Icon[];
-			mergeData: { idx: number; merged: number[] }[] | null;
+			mergeData?: { idx: number; merged: number[] }[] | null;
 		};
 		cursor: number | null;
 	};
@@ -78,7 +78,7 @@
 	const offsetYdata = $derived(offsetYdata2);
 </script>
 
-<div class="relative h-8 py-1" style:height="{32 + maxOffsetY * offsetY2px}px">
+<div class="relative my-1" style:height="calc(1.5rem + {maxOffsetY * offsetY2px}px)">
 	{#each data.icons as icon, i (i)}
 		{@const timestamp = icon.timestamp}
 		<!-- Overkill in the damage taken timeline: red boundary -->

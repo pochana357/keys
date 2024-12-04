@@ -1,69 +1,138 @@
-const defensiveData: number[] = [
+type EffectBuff = {
+	type: 'buff';
+	buffId: number;
+	isStackable?: boolean;
+};
+type EffectNonbuff = {
+	type: 'extended';
+	duration: number; // in milliseconds
+};
+type DefensiveEffect = EffectBuff | EffectNonbuff;
+type DefensiveSpell = {
+	selfCastOnly?: boolean;
+	dpsOnly?: boolean;
+	effect: DefensiveEffect[];
+	minor?: boolean;
+};
+const defensiveBuff = (buffId: number, isStackable: boolean = false): EffectBuff => ({
+	type: 'buff',
+	buffId,
+	isStackable
+});
+const defensiveExtended = (duration: number): EffectNonbuff => ({
+	type: 'extended',
+	duration
+});
+const defensiveSpells: Record<number, DefensiveSpell> = {
 	// Priest
-	8092, // Mind Blast
-	19236, // Desperate Player
-	586, // Fade
-	62618, // Power Word: Barrier
-	33206, // Pain Suppression
-	451235, // Voidwrath
-	47536, // Rature
+	8092: { effect: [defensiveBuff(450193)] }, // Mind Blast (Entropic Rift)
+	19236: { effect: [defensiveBuff(19236)] }, // Desperate Player
+	586: { effect: [defensiveBuff(586)], minor: true }, // Fade
+	62618: { effect: [defensiveBuff(81782)] }, // Power Word: Barrier
+	33206: { effect: [defensiveBuff(33206)] }, // Pain Suppression
+	451235: { effect: [defensiveBuff(322105)] }, // Voidwrath (Shadow Covenant)
+	47536: { effect: [defensiveBuff(47536, true)] }, // Rature (ApplyBuff & RemoveBuffStack events)
+	17: { effect: [defensiveBuff(17)], minor: true }, // Power Word: Shield
+	2061: { effect: [defensiveBuff(193065)], minor: true }, // Flash Heal (Protective Light)
+	194509: { effect: [] }, // Power Word: Radiance
+	32375: { effect: [] }, // Mass Dispel
 
 	// Shaman
-	108281, // Ancestral Guidance
-	108271, // Astral Shift
-	108270, // Stone Bulwark Totem
-	198103, // Earth Elemental
+	108281: { effect: [defensiveBuff(108281)] }, // Ancestral Guidance
+	108271: { effect: [defensiveBuff(108271)] }, // Astral Shift
 
-	108280, // Healing Tide Totem
-	98008, // Spirit Link Totem
-	114052, // Ascendance
-	5394, // Healing Stream Totem
+	108270: { effect: [defensiveBuff(114893)] }, // Stone Bulwark Totem (Stone Bulwark)
+	// 114893 is the initial big shield and 462844 is small shields generated periodically.
+
+	198103: { effect: [defensiveBuff(381755)] }, // Earth Elemental (Earth Elemental); there is also a buff named Primordial Bond (381761)
+	2645: { effect: [defensiveBuff(260881, true)] }, // Ghost Wolf (SpiritWolf)
+	8004: { dpsOnly: true, effect: [] }, // Healing Surge
+	57994: {
+		dpsOnly: true,
+		effect: [355702, 355703, 355704, 355705, 355706, 355634].map((id) => defensiveBuff(id, true)),
+		minor: true
+	}, // Wind Shear (Seasoned Winds)
+	// 355702: Fire
+	// 355703: Holy
+	// 355704: Nature
+	// 355705: Shadow
+	// 355706: Arcane
+	// 355634: Frost
+	// 355704, 355705: https://www.warcraftlogs.com/reports/4KxdFT6pVYLfy7r2#fight=2&type=auras&source=1
+
+	108280: { effect: [defensiveBuff(108280)] }, // Healing Tide Totem
+	98008: { effect: [defensiveBuff(325174)] }, // Spirit Link Totem
+	114052: { effect: [defensiveBuff(114052)] }, // Ascendance (restoration shaman); the enhancement version is 114051 and the elemental 114050.
+	5394: { effect: [defensiveExtended(15000)] }, // Healing Stream Totem
 
 	// Evoker
-	374227, // Zephyr
-	370665, // Rescue
-	406732, // Spatial Paradox
-	363916, // Obsidian Scale
-	374348, // Renewing Blaze
+	374227: { effect: [defensiveBuff(374227)] }, // Zephyr
+	370665: { effect: [defensiveBuff(370889)] }, // Rescue (Twin Guardian)
+	406732: { effect: [defensiveBuff(406732), defensiveBuff(406789)] }, // Spatial Paradox (separate buffs for the source and the target)
+	363916: { effect: [defensiveBuff(363916)] }, // Obsidian Scale
+	374348: { effect: [defensiveBuff(374348)] }, // Renewing Blaze
+	374251: { effect: [] }, // Cauterizing Flame
+	442204: { effect: [defensiveBuff(409678)] }, // Breath of Eons (Chrono Ward)
 
 	// Death Knight
-	48707, // Anti-Magic Shell
-	49039, // Lichborne
-	48792, // Icebound Fortitude
-	51052, // Anti-Magic Zone
+	48707: { effect: [defensiveBuff(48707)] }, // Anti-Magic Shell
+	49039: { effect: [defensiveBuff(49039)] }, // Lichborne
+	48792: { effect: [defensiveBuff(48792)] }, // Icebound Fortitude
+	51052: { effect: [defensiveBuff(145629)] }, // Anti-Magic Zone
+
+	// Rogue
+	1966: { effect: [defensiveBuff(1966)] }, // Feint
+	5277: { effect: [defensiveBuff(5277)] }, // Evasion
+	31224: { effect: [defensiveBuff(31224)] }, // Cloak of Shadows
+	185311: { effect: [defensiveBuff(185311)] }, // Crimson Vial
 
 	// Mage
-	342245, // Alter Time
-	55342, // Mirror Image
-	110960, // Greater Invisibility
-	45438, // Ice Block
-	414660, // Mass Barrier
+	342245: { effect: [defensiveBuff(342246)] }, // Alter Time
+	55342: { effect: [defensiveBuff(55342)] }, // Mirror Image
+
+	110960: { effect: [defensiveBuff(113862)] }, // Greater Invisibility
+	// The buff 110960 tracks the stealth; 113862 tracks the DR part (during the stealth & 3s afterward).
+
+	45438: { effect: [defensiveBuff(45438)] }, // Ice Block
+	414658: { effect: [defensiveBuff(414658)] }, // Ice cold
+	414660: { effect: [defensiveBuff(11426)] }, // Mass Barrier (Ice Barrier); the buff for the mass barrier is the same as the normal one.
+	11426: { effect: [defensiveBuff(11426)] }, // Ice Barrier
 
 	// Paladin
-	204018, // Blessing of Spellwarding
-	6940, // Blessing of Sacrifice
-	432459, // Holy Bulwark
-	432472, // Sacred Weapon
-	642, // Divine Shield
-	387174, // Eye of Tyr
-	86659, // Guardian of Ancient Kings
-	31850, // Ardent Defender
-	31884, // Avenging Wrath
+	204018: { effect: [defensiveBuff(204018)] }, // Blessing of Spellwarding
+	6940: { effect: [defensiveBuff(6940)] }, // Blessing of Sacrifice
 
-	403876, // Divine Protection
-	184662, // Shield of Vengeance
+	432459: { effect: [defensiveBuff(432496), defensiveBuff(432607)] }, // Holy Bulwark
+	// (432496 is the 20s buff merely showing that the buff is up and
+	// 432607 is the shield buff that constantly refreshes every 2 seconds and fades if the shield is consumed.)
+
+	432472: { effect: [defensiveBuff(432502)] }, // Sacred Weapon; not a defensive per se but it triggers Tempered in Battle
+	642: { effect: [defensiveBuff(642)] }, // Divine Shield
+	387174: { effect: [defensiveExtended(6000)] }, // Eye of Tyr
+	86659: { effect: [defensiveBuff(86659)] }, // Guardian of Ancient Kings
+	31850: { effect: [defensiveBuff(31850)] }, // Ardent Defender
+	31884: { effect: [defensiveBuff(31884)] }, // Avenging Wrath
+	471195: { effect: [defensiveBuff(387792)] }, // Lay on Hands (Empyreal Ward)
+
+	403876: { effect: [defensiveBuff(403876)] }, // Divine Protection
+	184662: { effect: [defensiveBuff(184662)] }, // Shield of Vengeance
+	85673: { dpsOnly: true, effect: [] }, // Word of Glory
 
 	// Druid
-	5487, // Bear Form
-	22812, // Barkskin
-	22842, // Frenzied Regeneration
+	5487: { effect: [defensiveBuff(5487)] }, // Bear Form
+	22812: { effect: [defensiveBuff(22812)] }, // Barkskin
+	108238: { effect: [] }, // Renewal
+	124974: { effect: [defensiveBuff(124974)] }, // Nature's Vigil
+	12: { selfCastOnly: true, effect: [defensiveBuff(400126)] }, // Regrowth (Forestwalk)
 
-	// Items
-	431416, // Algari Healing Potion
-	452767, // Heartseeking Health Injector
+	// General
+	431416: { effect: [] }, // Algari Healing Potion
+	452767: { effect: [] }, // Heartseeking Health Injector
+	// Cloak proc (Evasive Maneuvers buff id = 457533)
+	// Stoneform casts missing (bug in the WCL side; buff id = 65116)
 
-	328404, // Discharged Anima
-	328406, // Discharged Anima
-	328050 // Discarded Shield
-];
-export default defensiveData;
+	// Necrotic Wake
+	328404: { effect: [defensiveExtended(8000)] }, // Discharged Anima; the spell 328406 is the perodic casts every 1 second when the anima is used.
+	328050: { effect: [defensiveBuff(328050)] } // Discarded Shield
+};
+export default defensiveSpells;

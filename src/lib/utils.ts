@@ -44,11 +44,79 @@ const classColors: { [className: string]: string } = {
 	Warlock: '#8788EE',
 	Warrior: '#C69B6D'
 };
+const ORole = {
+	tank: 'TANK',
+	heal: 'HEAL',
+	dps: 'DPS'
+} as const;
+export type Role = (typeof ORole)[keyof typeof ORole];
+const classSpec2Role: Record<string, Role> = {
+	'DeathKnight-Blood': ORole.tank,
+	'DeathKnight-Frost': ORole.dps,
+	'DeathKnight-Unholy': ORole.dps,
+
+	'DemonHunter-Havoc': ORole.dps,
+	'DemonHunter-Vengeance': ORole.tank,
+
+	'Druid-Balance': ORole.dps,
+	'Druid-Feral': ORole.dps,
+	'Druid-Guardian': ORole.tank,
+	'Druid-Restoration': ORole.heal,
+
+	'Evoker-Augmentation': ORole.dps,
+	'Evoker-Devastation': ORole.dps,
+	'Evoker-Preservation': ORole.heal,
+
+	'Hunter-BeastMastery': ORole.dps,
+	'Hunter-Marksmanship': ORole.dps,
+	'Hunter-Survival': ORole.dps,
+
+	'Mage-Arcane': ORole.dps,
+	'Mage-Fire': ORole.dps,
+	'Mage-Frost': ORole.dps,
+
+	'Monk-Brewmaster': ORole.tank,
+	'Monk-Mistweaver': ORole.heal,
+	'Monk-Windwalker': ORole.dps,
+
+	'Paladin-Holy': ORole.heal,
+	'Paladin-Protection': ORole.tank,
+	'Paladin-Retribution': ORole.dps,
+
+	'Priest-Discipline': ORole.heal,
+	'Priest-Holy': ORole.heal,
+	'Priest-Shadow': ORole.dps,
+
+	'Rogue-Assassination': ORole.dps,
+	'Rogue-Outlaw': ORole.dps,
+	'Rogue-Subtlety': ORole.dps,
+
+	'Shaman-Elemental': ORole.dps,
+	'Shaman-Enhancement': ORole.dps,
+	'Shaman-Restoration': ORole.heal,
+
+	'Warlock-Affliction': ORole.dps,
+	'Warlock-Demonology': ORole.dps,
+	'Warlock-Destruction': ORole.dps,
+
+	'Warrior-Arms': ORole.dps,
+	'Warrior-Fury': ORole.dps,
+	'Warrior-Protection': ORole.tank
+};
 export class ClassUtils {
 	static classColor(className: string) {
 		return hexToRGB(classColors[className]);
 	}
 	static isPlayer(unit: UnitRaw) {
 		return classColors[unit.type] !== undefined;
+	}
+	static isDps(unit: UnitRaw) {
+		return unit.icon && classSpec2Role[unit.icon] === ORole.dps;
+	}
+	static isTank(unit: UnitRaw) {
+		return unit.icon && classSpec2Role[unit.icon] === ORole.tank;
+	}
+	static isHeal(unit: UnitRaw) {
+		return unit.icon && classSpec2Role[unit.icon] === ORole.heal;
 	}
 }
