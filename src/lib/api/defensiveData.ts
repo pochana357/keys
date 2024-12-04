@@ -23,6 +23,34 @@ const defensiveExtended = (duration: number): EffectNonbuff => ({
 	type: 'extended',
 	duration
 });
+export const offensiveSpells: Record<number, DefensiveSpell> = {
+	// The buffs procced by offensive spells are not tracked.
+	// Shaman
+	114051: { effect: [] }, // Ascendance (enhancement)
+	114050: { effect: [] }, // Ascendance (elemental)
+
+	// Mage
+	12472: { effect: [] }, // Icy Veins
+
+	// Paladin
+	454373: { effect: [] }, // Crusade
+
+	// Druid
+	102560: { effect: [] }, // Incarnation: Chosen of Elune
+
+	// Rogue
+	385627: { effect: [] }, // Kingsbane
+	360194: { effect: [] }, // Deathmark
+
+	// Death Knight
+	152279: { effect: [] }, // Breath of Sindragosa
+	51271: { effect: [] }, // Pillar of Frost
+	63560: { effect: [] }, // Dark Transformation
+	455395: { effect: [] }, // Raise Abomination
+
+	// General
+	444959: { effect: [] } // Spymaster's Web
+};
 const defensiveSpells: Record<number, DefensiveSpell> = {
 	// Priest
 	8092: { effect: [defensiveBuff(450193)] }, // Mind Blast (Entropic Rift)
@@ -113,6 +141,7 @@ const defensiveSpells: Record<number, DefensiveSpell> = {
 	31850: { effect: [defensiveBuff(31850)] }, // Ardent Defender
 	31884: { effect: [defensiveBuff(31884)] }, // Avenging Wrath
 	471195: { effect: [defensiveBuff(387792)] }, // Lay on Hands (Empyreal Ward)
+	375576: { effect: [] }, // Divine Toll
 
 	403876: { effect: [defensiveBuff(403876)] }, // Divine Protection
 	184662: { effect: [defensiveBuff(184662)] }, // Shield of Vengeance
@@ -135,4 +164,7 @@ const defensiveSpells: Record<number, DefensiveSpell> = {
 	328404: { effect: [defensiveExtended(8000)] }, // Discharged Anima; the spell 328406 is the perodic casts every 1 second when the anima is used.
 	328050: { effect: [defensiveBuff(328050)] } // Discarded Shield
 };
+for (const [id, val] of Object.entries(offensiveSpells)) {
+	defensiveSpells[id] = { ...val, minor: true };
+}
 export default defensiveSpells;
