@@ -129,6 +129,7 @@ const defensiveSpells: Record<number, DefensiveSpell> = {
 	// Paladin
 	204018: { effect: [defensiveBuff(204018)] }, // Blessing of Spellwarding
 	6940: { effect: [defensiveBuff(6940)] }, // Blessing of Sacrifice
+	1022: { effect: [defensiveBuff(1022)] }, // Blessing of Protection
 
 	432459: { effect: [defensiveBuff(432496), defensiveBuff(432607)] }, // Holy Bulwark
 	// (432496 is the 20s buff merely showing that the buff is up and
