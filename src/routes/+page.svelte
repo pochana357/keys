@@ -6,6 +6,7 @@
 	import IconCheck from 'lucide-svelte/icons/check';
 	import IconHistory from 'lucide-svelte/icons/history';
 	import IconSettings from 'lucide-svelte/icons/settings';
+	import IconAlignJustify from 'lucide-svelte/icons/align-justify';
 	import type { PullRaw } from '$lib/api/wclTypes';
 	import { EventsClass } from '$lib/api/event';
 	import Log from '$lib/api/log';
@@ -95,6 +96,7 @@
 
 	let showHistory = $state(false);
 	let showSettings = $state(false);
+	let showOutline = $state(true);
 </script>
 
 <div class="flex h-screen w-screen flex-col gap-1">
@@ -142,6 +144,13 @@
 				<button
 					type="button"
 					class="w-15 h-10 flex-none px-1 font-bold hover:text-primary-200"
+					onclick={() => (showOutline = !showOutline)}
+				>
+					<IconAlignJustify />
+				</button>
+				<button
+					type="button"
+					class="w-15 h-10 flex-none px-1 font-bold hover:text-primary-200"
 					onclick={() => (showSettings = !showSettings)}
 				>
 					<IconSettings />
@@ -168,14 +177,16 @@
 	{/if}
 	{#if log?.fights?.json}
 		<div class="flex flex-1 overflow-hidden">
-			<div class="w-84 flex-none overflow-y-auto">
-				<OutlineView
-					{code}
-					fightsRaw={log.fights.json}
-					bind:currentFightIdx
-					bind:currentDungeonPullIdx
-				/>
-			</div>
+			{#if showOutline}
+				<div class="w-84 flex-none overflow-y-auto">
+					<OutlineView
+						{code}
+						fightsRaw={log.fights.json}
+						bind:currentFightIdx
+						bind:currentDungeonPullIdx
+					/>
+				</div>
+			{/if}
 			<div class="relative flex-1 overflow-x-auto">
 				{#if pullRaw}
 					<EventViewer {events} />
