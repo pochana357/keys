@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { AppState, getAppState, defaultSettings } from '$lib/AppState';
+	import { AppState, getAppState } from '$lib/AppState';
 	import WithTooltip from './WithTooltip.svelte';
 	import { formatTime } from '$lib/utils/utils';
 
@@ -14,13 +14,13 @@
 		cursor: number | null;
 	};
 	let { datatype, data, cursor = $bindable() }: Props = $props();
-	const appSettings = getAppState();
+	const appState = getAppState();
 
-	let pxPerSec = $derived(appSettings?.settings?.pxPerSec || defaultSettings.pxPerSec);
+	let pxPerSec = $derived(appState?.settings?.pxPerSec || AppState.defaultSettings.pxPerSec);
 	let horizontalOverlap = $derived(
-		appSettings?.settings?.horizontalOverlap || defaultSettings.horizontalOverlap
+		appState?.settings?.horizontalOverlap || AppState.defaultSettings.horizontalOverlap
 	);
-	let pxPerLevel = $derived(appSettings?.settings?.pxPerLevel || defaultSettings.pxPerLevel);
+	let pxPerLevel = $derived(appState?.settings?.pxPerLevel || AppState.defaultSettings.pxPerLevel);
 
 	const offsetX = (timestamp: number) => (timestamp / 1000.0) * pxPerSec;
 

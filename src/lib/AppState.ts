@@ -2,7 +2,7 @@ import { createSettings } from '$lib/localStorageWrapper.svelte';
 import { setContext, getContext } from 'svelte';
 import type Log from './api/log';
 
-export const defaultSettings = {
+const defaultSettings = {
 	pxPerSec: 10.0,
 	horizontalOverlap: 15.0, // in pixel
 	pxPerLevel: 20.0,
@@ -30,11 +30,15 @@ export class AppState {
 	settings = createSettings(defaultSettings);
 	history = createSettings(defaultHistory);
 	api = createSettings(defaultApiStatus);
+	static defaultSettings = defaultSettings;
 
 	constructor() {
 		setContext('appSettings', this);
 	}
 
+	resetSettings() {
+		this.settings = createSettings(defaultSettings);
+	}
 	validateSettings() {
 		const settings = this.settings;
 		if (
