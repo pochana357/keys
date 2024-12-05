@@ -8,7 +8,8 @@
 		pxPerSec = $bindable(),
 		horizontalOverlap = $bindable(),
 		pxPerLevel = $bindable(),
-		showMinors = $bindable()
+		showMinors = $bindable(),
+		showReceived = $bindable()
 	}: Props = $props();
 	let pxPerSecWrapped = $state([pxPerSec]);
 	let horizontalOverlapWrapped = $state([horizontalOverlap]);
@@ -71,10 +72,17 @@
 	<div>
 		<div class="text-lg font-bold">Content</div>
 		<hr class="mb-2 mt-1" />
-		<div class="w-96">
+		<div class="flex w-96 flex-col gap-2">
 			<div class="flex justify-between">
 				<p>Show offensives and minor defensives</p>
 				<Switch name="showMinors" bind:checked={showMinors} controlInactive="bg-secondary-100">
+					{#snippet inactiveChild()}<IconX size="14" />{/snippet}
+					{#snippet activeChild()}<IconCheck size="14" />{/snippet}
+				</Switch>
+			</div>
+			<div class="flex justify-between">
+				<p>Show received Spells by friendlies</p>
+				<Switch name="showReceived" bind:checked={showReceived} controlInactive="bg-secondary-100">
 					{#snippet inactiveChild()}<IconX size="14" />{/snippet}
 					{#snippet activeChild()}<IconCheck size="14" />{/snippet}
 				</Switch>

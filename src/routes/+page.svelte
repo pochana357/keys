@@ -184,6 +184,7 @@
 				<button
 					type="button"
 					class="w-15 h-10 flex-none px-1 font-bold hover:text-primary-200"
+					class:text-secondary-200={visibility.history}
 					onclick={() => (visibility.history = !visibility.history)}
 				>
 					<IconHistory />
@@ -191,6 +192,7 @@
 				<button
 					type="button"
 					class="w-15 h-10 flex-none px-1 font-bold hover:text-primary-200"
+					class:text-secondary-200={visibility.outline}
 					onclick={() => (visibility.outline = !visibility.outline)}
 				>
 					<IconAlignJustify />
@@ -198,6 +200,7 @@
 				<button
 					type="button"
 					class="w-15 h-10 flex-none px-1 font-bold hover:text-primary-200"
+					class:text-secondary-200={visibility.settings}
 					onclick={() => (visibility.settings = !visibility.settings)}
 				>
 					<IconSettings />
@@ -217,6 +220,7 @@
 					bind:horizontalOverlap={settings.horizontalOverlap}
 					bind:pxPerLevel={settings.pxPerLevel}
 					bind:showMinors={settings.showMinors}
+					bind:showReceived={settings.showReceived}
 					defaultSettings={AppState.defaultSettings}
 				/>
 			</div>
@@ -239,7 +243,11 @@
 				{#if currentDungeonPullRaw}
 					<EventViewer
 						{events}
-						options={{ pxPerSec: settings.pxPerSec, showMinors: settings.showMinors }}
+						options={{
+							pxPerSec: settings.pxPerSec,
+							showMinors: settings.showMinors,
+							showReceived: settings.showReceived
+						}}
 					/>
 				{:else}
 					<p class="p-2 text-center text-lg">

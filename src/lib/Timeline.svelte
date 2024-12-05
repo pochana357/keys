@@ -80,7 +80,7 @@
 	const offsetYdata = $derived(getLevel2);
 </script>
 
-<div class="relative my-1" style:height="calc(1.5rem + {heightInLevel * pxPerLevel}px)">
+<div class="relative" style:height="calc(1.5rem + {heightInLevel * pxPerLevel}px)">
 	{#each data.icons as icon, i (i)}
 		{@const timestamp = icon.timestamp}
 		<!-- Overkill in the damage taken timeline: red boundary -->
