@@ -36,7 +36,7 @@
 		return {
 			timestamp: event.timestamp,
 			content: ability2img(event.ability, classes),
-			details: `${event.ability.name} (${event.ability.guid})<br>` + detailsCreator(event)
+			details: `${event.ability.name} (#${event.ability.guid})<br>` + detailsCreator(event)
 		};
 	}
 
@@ -57,14 +57,20 @@
 	function processCasts(playerId: number) {
 		const mir = filterEvents(events.casts, { source: playerId }).map((e) => ({
 			raw: e,
-			icon: event2icon(e, (e2) => `${e2.source?.name}` + (e2.target ? ` ▶ ${e2.target.name}` : ''))
+			icon: event2icon(e, (e2) =>
+				e2.target
+					? `${ClassUtils.formatUnit(e2.source)} ▶ ${ClassUtils.formatUnit(e2.target)}`
+					: ''
+			)
 		}));
 		const mirReceived = filterEvents(events.casts, { target: playerId })
 			.map((e) => ({
 				raw: e,
 				icon: event2icon(
 					e,
-					(e2) => `${e2.source?.name}` + (e2.target ? ` ▶ ${e2.target.name}` : ''),
+					(e2) =>
+						`${ClassUtils.formatUnit(e2.source)}` +
+						(e2.target ? ` ▶ ${ClassUtils.formatUnit(e2.target)}` : ''),
 					'grayscale-[50%]'
 				)
 			}))
