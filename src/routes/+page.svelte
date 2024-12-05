@@ -27,6 +27,12 @@
 	let settings = $derived(appState.settings);
 	async function handleSubmit() {
 		appState.api.status = OApiStatus.busy;
+		if (codeFormValue.length == 0) {
+			appState.api.status = OApiStatus.succeeded;
+			code = '';
+			log = null;
+			return;
+		}
 		if (codeFormValue.length < 5) {
 			appState.api.status = OApiStatus.failed;
 			return;
@@ -162,7 +168,7 @@
 		{/if}
 	</form>
 	{#if showSettings}
-		<div class="align-center flex h-max gap-1">
+		<div class="align-center flex h-max gap-1 pr-2">
 			<div class="h-10 w-20 flex-none text-center font-bold leading-10">Settings</div>
 			<div class="flex-1 overflow-x-clip border py-2 pl-3">
 				<SettingsComponent
@@ -191,9 +197,14 @@
 				{#if pullRaw}
 					<EventViewer {events} />
 				{:else}
-					<div class="p-2 text-center text-lg">
-						Select a pull on the left panel to view timelines.
-					</div>
+					<p class="p-2 text-center text-lg">
+						Select a pull on
+						{#if showOutline}
+							the left panel to view timelines.
+						{:else}
+							the Outline panel to view timelines.
+						{/if}
+					</p>
 				{/if}
 				{#if appState.api.status == OApiStatus.busy}
 					<LoadingScreen current={progress.current} total={progress.total} />
