@@ -124,7 +124,7 @@
 		{/if}
 		<Timeline datatype="text" data={{ icons: timeTicks, mergeData: null }} bind:cursor />
 		{#each players as player (player.guid)}
-			<div class="sticky left-1 flex w-max items-center gap-2 py-1 font-bold">
+			<div class="sticky left-2 flex w-max items-center gap-2 py-1 font-bold">
 				<img
 					style:--size="18"
 					style="width:calc(var(--size)* 1px); height:calc(var(--size)* 1px);"

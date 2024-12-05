@@ -100,7 +100,7 @@ const defensiveSpells: Record<number, DefensiveSpell> = {
 	363916: { effect: [defensiveBuff(363916)] }, // Obsidian Scale
 	374348: { effect: [defensiveBuff(374348)] }, // Renewing Blaze
 	374251: { effect: [] }, // Cauterizing Flame
-	442204: { effect: [defensiveBuff(409678)] }, // Breath of Eons (Chrono Ward)
+	442204: { effect: [defensiveBuff(409678)], minor: true }, // Breath of Eons (Chrono Ward)
 
 	// Death Knight
 	48707: { effect: [defensiveBuff(48707)] }, // Anti-Magic Shell

@@ -25,7 +25,7 @@
 	}
 </script>
 
-<div class="align-center flex h-max gap-1">
+<div class="align-center flex h-max gap-1 pr-2">
 	<div class="h-10 w-20 flex-none text-center font-bold leading-10">History</div>
 	<div class="line-nowrap flex-1 overflow-x-clip text-nowrap border pb-2 pl-3">
 		{#each [...appState.history.items].reverse() as item (item.code)}
