@@ -19,6 +19,13 @@ export type FightPullRaw = PullRaw & {
 	keystoneLevel?: number;
 	dungeonPulls?: DungeonPullRaw[];
 };
+export type MplusPullRaw = PullRaw & {
+	zoneID: number;
+	zoneName: string;
+	keystoneLevel: number;
+	dungeonPulls: DungeonPullRaw[];
+};
+
 type ExportedCharacter = {
 	id: number;
 	name: string;

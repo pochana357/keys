@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Fights from '$lib/api/fights';
 	import { type FightsRaw } from '$lib/api/wclTypes';
 	import { formatAbsoluteTime, formatTime } from '$lib/utils/utils';
 	import WithTooltip from '$lib/WithTooltip.svelte';
@@ -7,24 +8,15 @@
 		fightsRaw: FightsRaw;
 		currentFightIdx: number;
 		currentDungeonPullIdx: number;
+		onUpdate: (fightIdx: number, dungeonPullIdx: number) => void;
 	};
-	let {
-		code,
-		fightsRaw,
-		currentFightIdx = $bindable(-1),
-		currentDungeonPullIdx = $bindable(-1)
-	}: Props = $props();
-
-	function selectPull(i: number, j: number) {
-		currentFightIdx = i;
-		currentDungeonPullIdx = j;
-	}
+	let { code, fightsRaw, currentFightIdx, currentDungeonPullIdx, onUpdate }: Props = $props();
 </script>
 
 <div class="py-2 pl-2 pr-1">
 	<div class="text-sm italic">Only M+ fights are shown.</div>
 	{#each fightsRaw.fights as fight, i (fight.id)}
-		{#if fight.keystoneLevel && fight.dungeonPulls}
+		{#if Fights.ValidateFight(fight)}
 			<div class="py-2 {i === currentFightIdx ? 'bg-primary-600' : ''}">
 				<div class="flex gap-2">
 					<img
@@ -49,7 +41,7 @@
 						class="block w-full text-left {i === currentFightIdx && j === currentDungeonPullIdx
 							? 'bg-secondary-600 font-bold'
 							: ''}"
-						onclick={() => selectPull(i, j)}
+						onclick={() => onUpdate(i, j)}
 					>
 						{#if pull.boss}
 							<WithTooltip tooltip={pull.boss ? `Boss #${pull.boss}` : ''}>
