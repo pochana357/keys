@@ -1,6 +1,6 @@
 import { readFromBuffer, writeToBuffer } from '$lib/localStorageWrapper.svelte.js';
 import { apiAddr, wclApiKey } from './apiAddr.js';
-import type { BossPull, FightsRaw, UnitRaw } from './wclTypes.js';
+import type { BossPull, FightPullRaw, FightsRaw, UnitRaw, MplusPullRaw } from './wclTypes.js';
 
 function parseUnits(units: UnitRaw[]) {
 	if (!units) {
@@ -40,10 +40,13 @@ export default class Fights {
 		if (!pull) return -1;
 		return pull.findIndex((pull) => pull.id === pullId);
 	}
+	static ValidateFight(fight: FightPullRaw): fight is MplusPullRaw {
+		return fight.keystoneLevel !== undefined && fight.dungeonPulls !== undefined;
+	}
 	findBossFights(options: { verbose?: boolean } = {}) {
 		const bossPulls: BossPull[] = [];
 		for (const fight of this.json.fights) {
-			if (!fight.keystoneLevel || !fight.dungeonPulls) continue;
+			if (!Fights.ValidateFight(fight)) continue;
 			if (options.verbose) console.log(fight.name, fight.keystoneLevel);
 			for (const pull of fight.dungeonPulls) {
 				// pull.boss is the boss id; if the pull is not a boss, it will be 0

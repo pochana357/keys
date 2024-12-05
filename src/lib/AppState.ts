@@ -1,6 +1,7 @@
 import { createSettings } from '$lib/localStorageWrapper.svelte';
 import { setContext, getContext } from 'svelte';
 import type Log from './api/log';
+import { browser } from '$app/environment';
 
 const defaultSettings = {
 	pxPerSec: 10.0,
@@ -19,6 +20,14 @@ type HistoryItem = {
 	timestamp: number;
 	exportedCharacters: string[];
 };
+
+const defaultCurrentPage = {
+	code: '',
+	fightIdx: -1,
+	dungeonPullIdx: -1
+};
+export type currentPage = typeof defaultCurrentPage;
+
 const defaultHistory: { items: HistoryItem[] } = { items: [] };
 
 export const OApiStatus = { busy: 'busy', failed: 'failed', succeeded: 'succeeded' } as const;
@@ -26,14 +35,55 @@ type ApiStatus = (typeof OApiStatus)[keyof typeof OApiStatus];
 const maxHistory = 10;
 const defaultApiStatus: { status: ApiStatus } = { status: OApiStatus.succeeded };
 
+const defaultVisibility = {
+	history: false,
+	settings: false,
+	outline: true
+};
+export type Visibility = typeof defaultVisibility;
+
+function updateUrl(urlParams: URLSearchParams) {
+	if (browser) window.history.pushState({}, '', `?${urlParams.toString()}`);
+}
 export class AppState {
 	settings = createSettings(defaultSettings);
 	history = createSettings(defaultHistory);
 	api = createSettings(defaultApiStatus);
+	#currentPage = createSettings(defaultCurrentPage);
+	visibility = createSettings(defaultVisibility);
+	urlParams: URLSearchParams = new URLSearchParams();
+
 	static defaultSettings = defaultSettings;
+	static defaultCurrentPage = defaultCurrentPage;
+	static defaultHistory = defaultHistory;
 
 	constructor() {
 		setContext('appSettings', this);
+	}
+
+	get code() {
+		return this.#currentPage.code;
+	}
+	get fightIdx() {
+		return this.#currentPage.fightIdx;
+	}
+	get dungeonPullIdx() {
+		return this.#currentPage.dungeonPullIdx;
+	}
+	set code(code: string) {
+		this.#currentPage.code = code;
+		this.urlParams.set('code', code);
+		updateUrl(this.urlParams);
+	}
+	set fightIdx(fightIdx: number) {
+		this.#currentPage.fightIdx = fightIdx;
+		this.urlParams.set('fight', fightIdx.toString());
+		updateUrl(this.urlParams);
+	}
+	set dungeonPullIdx(dungeonPullIdx: number) {
+		this.#currentPage.dungeonPullIdx = dungeonPullIdx;
+		this.urlParams.set('pull', dungeonPullIdx.toString());
+		updateUrl(this.urlParams);
 	}
 
 	resetSettings() {
@@ -62,7 +112,7 @@ export class AppState {
 		if (typeof settings.showMinors !== 'boolean') settings.showMinors = defaultSettings.showMinors;
 	}
 
-	pushCode(log: Log) {
+	pushCodeToHistory(log: Log) {
 		const newCode = {
 			code: log.code,
 			timestamp: log.fights.json.start,

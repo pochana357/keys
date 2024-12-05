@@ -2,13 +2,20 @@
 	import defensiveSpells from '$lib/api/defensiveData';
 	import type { EventsClass } from '$lib/api/event';
 	import type { Ability, EventRaw, GeneralEvent } from '$lib/api/wclTypes';
-	import { getAppState } from '$lib/AppState';
+	import { AppState } from '$lib/AppState';
 	import Timeline from '$lib/Timeline.svelte';
 	import { formatTime } from '$lib/utils/utils';
 	import ClassUtils, { ORole } from '$lib/utils/ClassUtils';
 	import { ability2img, addLink, addSpellLink } from '$lib/utils/link';
 
-	let { events }: { events: EventsClass } = $props();
+	type Props = {
+		events: EventsClass;
+		options: {
+			pxPerSec?: number;
+			showMinors?: boolean;
+		};
+	};
+	let { events, options = {} }: Props = $props();
 	let cursor: number | null = $state(0);
 	const timeTick = 10000;
 	const numTimeTicks = $derived(Math.ceil((events.endTime - events.startTime) / timeTick));
@@ -27,10 +34,8 @@
 		};
 	}
 
-	const appSettings = getAppState();
-	let settings = $derived(appSettings?.settings);
-	let showMinors = $derived(settings?.showMinors || false);
-	let pxPerSec = $derived(settings?.pxPerSec || 10.0);
+	let showMinors = $derived(options.showMinors || false);
+	let pxPerSec = $derived(options.pxPerSec || 10.0);
 	const offsetX = (timestamp: number) => (timestamp / 1000.0) * pxPerSec;
 
 	function filterEvents<T extends GeneralEvent>(
