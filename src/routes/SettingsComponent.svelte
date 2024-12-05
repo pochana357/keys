@@ -81,7 +81,7 @@
 				</Switch>
 			</div>
 			<div class="flex justify-between">
-				<p>Show received Spells by friendlies</p>
+				<p>Show spells received by friendlies</p>
 				<Switch name="showReceived" bind:checked={showReceived} controlInactive="bg-secondary-100">
 					{#snippet inactiveChild()}<IconX size="14" />{/snippet}
 					{#snippet activeChild()}<IconCheck size="14" />{/snippet}
