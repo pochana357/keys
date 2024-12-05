@@ -165,6 +165,7 @@ const defensiveSpells: Record<number, DefensiveSpell> = {
 	328050: { effect: [defensiveBuff(328050)] } // Discarded Shield
 };
 for (const [id, val] of Object.entries(offensiveSpells)) {
+	// @ts-expect-error permit any
 	defensiveSpells[id] = { ...val, minor: true };
 }
 export default defensiveSpells;
