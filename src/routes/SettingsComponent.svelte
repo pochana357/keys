@@ -36,8 +36,8 @@
 		<p>Horizontal size (px/s): {pxPerSec}</p>
 		<Slider
 			name="pxPerSec"
-			min={settingsRange.pxPerLevel[0]}
-			max={settingsRange.pxPerLevel[1]}
+			min={settingsRange.pxPerSec[0]}
+			max={settingsRange.pxPerSec[1]}
 			step={1}
 			bind:value={pxPerSecWrapped}
 			height="h-2"
