@@ -1,29 +1,24 @@
 <script lang="ts">
 	import IconHourglass from 'lucide-svelte/icons/hourglass';
-	// import IconX from 'lucide-svelte/icons/circle-x';
-	// import IconCheck from 'lucide-svelte/icons/circle-check';
 	import IconX from 'lucide-svelte/icons/x';
 	import IconCheck from 'lucide-svelte/icons/check';
 	import IconHistory from 'lucide-svelte/icons/history';
 	import IconSettings from 'lucide-svelte/icons/settings';
 	import IconAlignJustify from 'lucide-svelte/icons/align-justify';
-	import type { FightPullRaw, PullRaw } from '$lib/api/wclTypes';
-	import { EventsClass } from '$lib/api/event';
-	import Log from '$lib/api/log';
+	import type { FightPullRaw, FightsRaw, PullRaw } from '$lib/api/wclTypes';
+	import { EventsClass } from '$lib/api/event.svelte';
+	import Log from '$lib/api/log.svelte';
 	import { onMount } from 'svelte';
 	import OutlineView from './OutlineView.svelte';
 	import EventViewer from './EventViewer.svelte';
 	import { AppState, OApiStatus } from '$lib/AppState';
-	import { formatAbsoluteTime } from '$lib/utils/utils';
 	import LoadingScreen from './LoadingScreen.svelte';
 	import SettingsComponent from './SettingsComponent.svelte';
 	import History from './History.svelte';
-	import WithTooltip from '$lib/WithTooltip.svelte';
-	import { apiAddr } from '$lib/api/apiAddr';
-	import Fights from '$lib/api/fights';
 
 	let appState = new AppState();
-	let log: Log | null = $state(null);
+	let logs: { [code: string]: Log } = $state({});
+	let currentLog: Log | undefined = $derived(logs[appState.code]);
 	let currentFightPullRaw: FightPullRaw | null = $state(null);
 	let currentDungeonPullRaw: PullRaw | null = $state(null);
 	let codeInputFormValue = $state('');
@@ -31,119 +26,96 @@
 	let visibility = $derived(appState.visibility);
 	const urlParams = new URLSearchParams(window.location.search);
 
-	function selectDungeonPull(fightIdx: number, dungeonPullIdx: number) {
-		const fightPullRaws = log?.fights?.json?.fights;
-		if (fightPullRaws && fightIdx >= 0 && dungeonPullIdx >= 0) {
-			const fightPullRaw = fightPullRaws[fightIdx];
-			if (fightPullRaw && Fights.ValidateFight(fightPullRaw)) {
-				const dungeonPull = fightPullRaw.dungeonPulls[dungeonPullIdx];
-				if (dungeonPull) {
-					// fightIdx and dungeonPullIdx denote a valid pull
-					appState.fightIdx = fightIdx;
-					appState.dungeonPullIdx = dungeonPullIdx;
-					currentFightPullRaw = fightPullRaw;
-					currentDungeonPullRaw = dungeonPull;
-					return;
-				}
-			}
-		}
-
-		appState.fightIdx = -1;
-		appState.dungeonPullIdx = -1;
-		currentFightPullRaw = null;
-		currentDungeonPullRaw = null;
-	}
-	async function fetchLog(newCode: string, fightIdx = -1, dungeonPullIdx = -1) {
-		appState.api.status = OApiStatus.busy;
-		return Log.build(newCode)
-			.then((l) => {
-				log = l;
-				appState.api.status = OApiStatus.succeeded;
-				appState.code = newCode;
-				appState.pushCodeToHistory(l);
-
-				selectDungeonPull(fightIdx, dungeonPullIdx);
-			})
-			.catch((err) => {
-				console.log(err);
-				appState.api.status = OApiStatus.failed;
-			});
-	}
-	async function handleSubmit() {
-		appState.api.status = OApiStatus.busy;
-		if (codeInputFormValue.length < 5) {
-			appState.api.status = OApiStatus.failed;
-			return;
-		}
-		if (log && codeInputFormValue == log.code) {
-			appState.api.status = OApiStatus.succeeded;
-			selectDungeonPull(appState.fightIdx, appState.dungeonPullIdx);
-			return;
-		}
-		if (!log && codeInputFormValue == appState.code) {
-			fetchLog(codeInputFormValue, appState.fightIdx, appState.dungeonPullIdx);
-		} else {
-			fetchLog(codeInputFormValue);
-		}
-	}
-	async function submitCode(newCode: string) {
-		console.log('submitCode', newCode);
-		if (codeInputFormValue !== newCode) codeInputFormValue = newCode;
-		handleSubmit();
-	}
-	async function submitMostRecentCode() {
-		const codes = appState.history.items;
-		submitCode(codes?.[codes.length - 1].code ?? '');
-	}
-	onMount(() => {
-		appState.validateSettings();
-		const codeFromUrl = urlParams.get('code');
-
-		const toNumber = (s: string | null) => {
-			if (!s) return -1;
-			const n = parseInt(s);
-			return isNaN(n) ? -1 : n;
-		};
-		console.log('codeFromUrl', codeFromUrl);
-		if (codeFromUrl) {
-			submitCode(codeFromUrl).then(() => {
-				if (appState.api.status === OApiStatus.succeeded) {
-					selectDungeonPull(
-						toNumber(urlParams.get('fightIdx')),
-						toNumber(urlParams.get('dungeonPullIdx'))
-					);
-				} else {
-					submitMostRecentCode();
-				}
-			});
-		} else {
-			submitMostRecentCode();
-		}
-	});
-
-	let events = $state(new EventsClass());
-	$effect(() => {
-		if (!currentDungeonPullRaw) {
-			events.clear();
-		} else {
+	async function callApi(code: string, fightIdx = -1, dungeonPullIdx = -1) {
+		if (!logs[code]) {
 			appState.api.status = OApiStatus.busy;
-			log
-				?.analyzePull(currentDungeonPullRaw, { progressCallback })
+			try {
+				logs[code] = await Log.build(code);
+				appState.api.status = OApiStatus.succeeded;
+			} catch (err) {
+				appState.api.status = OApiStatus.failed;
+				console.log(err);
+				return null;
+			}
+		} else {
+			appState.api.status = OApiStatus.succeeded;
+		}
+		const dungeonPull = logs[code].getDungeonPull(fightIdx, dungeonPullIdx);
+		if (dungeonPull) {
+			appState.api.status = OApiStatus.busy;
+			return logs[code]
+				.analyzePull(dungeonPull.dungeonPullRaw, { progressCallback })
 				.then((e) => {
-					events = e;
 					appState.api.status = OApiStatus.succeeded;
+					return { dungeonPull, eventsClass: e };
 				})
 				.catch((err) => {
 					console.log(err);
 					appState.api.status = OApiStatus.failed;
+					throw err;
 				});
-		}
+		} else return null;
+	}
+
+	async function handleSubmit(fightIdx = -1, dungeonPullIdx = -1) {
+		if (codeInputFormValue.length < 5) return;
+		return callApi(codeInputFormValue, fightIdx, dungeonPullIdx)
+			.then((res) => {
+				appState.code = codeInputFormValue;
+				appState.pushCodeToHistory(logs[codeInputFormValue]);
+				if (res) {
+					appState.fightIdx = fightIdx;
+					appState.dungeonPullIdx = dungeonPullIdx;
+					currentFightPullRaw = res.dungeonPull.fightPullRaw;
+					currentDungeonPullRaw = res.dungeonPull.dungeonPullRaw;
+					events = res.eventsClass;
+				} else {
+					appState.fightIdx = -1;
+					appState.dungeonPullIdx = -1;
+					currentFightPullRaw = null;
+					currentDungeonPullRaw = null;
+					events = new EventsClass();
+				}
+				return events;
+			})
+			.catch((err) => {
+				// pass
+			});
+	}
+	async function submitCode(newCode: string, fightIdx = -1, dungeonPullIdx = -1) {
+		console.log('submitCode', newCode);
+		if (codeInputFormValue !== newCode) codeInputFormValue = newCode;
+		// if (appState.code !== codeInputFormValue) handleSubmit(-1, -1); else
+		handleSubmit(fightIdx, dungeonPullIdx);
+	}
+	async function submitMostRecentCode() {
+		const codes = appState.history.items;
+		return submitCode(codes?.[codes.length - 1].code ?? '');
+	}
+	const toNumber = (s: string | null) => {
+		if (!s) return -1;
+		const n = parseInt(s);
+		return isNaN(n) ? -1 : n;
+	};
+	onMount(async () => {
+		appState.validateSettings();
+		const fromUrl = {
+			code: urlParams.get('code') ?? '',
+			fightIdx: toNumber(urlParams.get('fight')),
+			dungeonPullIdx: toNumber(urlParams.get('pull'))
+		};
+
+		console.log('urlParams', fromUrl);
+		if (!fromUrl.code) submitMostRecentCode();
+		await submitCode(fromUrl.code, fromUrl.fightIdx, fromUrl.dungeonPullIdx);
 	});
 
 	let progress = $state({ total: 0, current: 0 });
 	const progressCallback = (current: number, start: number, end: number) => {
 		progress = { total: end - start, current: current - start };
 	};
+
+	let events = $state(new EventsClass());
 </script>
 
 <div class="flex h-screen w-screen flex-col gap-1">
@@ -226,16 +198,16 @@
 			</div>
 		</div>
 	{/if}
-	{#if log?.fights?.json}
+	{#if currentLog?.fights?.json}
 		<div class="flex flex-1 overflow-hidden">
 			{#if visibility.outline}
 				<div class="w-84 flex-none overflow-y-auto">
 					<OutlineView
 						code={appState.code}
-						fightsRaw={log.fights.json}
+						fightsRaw={currentLog.fights.json}
 						currentFightIdx={appState.fightIdx}
 						currentDungeonPullIdx={appState.dungeonPullIdx}
-						onUpdate={selectDungeonPull}
+						onUpdate={handleSubmit}
 					/>
 				</div>
 			{/if}
@@ -259,17 +231,15 @@
 						{/if}
 					</p>
 				{/if}
-				{#if appState.api.status == OApiStatus.busy}
-					<LoadingScreen current={progress.current} total={progress.total} />
-				{/if}
 			</div>
 		</div>
 	{:else}
-		<div class="flex flex-1 items-center justify-center">
-			<div class="text-center">
-				<p class="text-2xl font-bold">Welcome to Log Analyzer for Mythic Plus.</p>
-				<p class="text-lg">Enter a Warcraft Logs code to get started.</p>
-			</div>
+		<div class="pt-8 text-center">
+			<p class="text-2xl font-bold">Welcome to Log Analyzer for Mythic Plus.</p>
+			<p class="text-lg">Enter a Warcraft Logs code to get started.</p>
 		</div>
+	{/if}
+	{#if appState.api.status == OApiStatus.busy}
+		<LoadingScreen current={progress.current} total={progress.total} />
 	{/if}
 </div>

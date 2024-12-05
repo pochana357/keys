@@ -1,12 +1,13 @@
 import ClassUtils from '$lib/utils/ClassUtils';
+import { SvelteMap } from 'svelte/reactivity';
 import type { CastEvent, DamageTakenEvent, UnitRaw } from './wclTypes';
 
 export class EventsClass {
-	damages: DamageTakenEvent[];
-	casts: CastEvent[];
-	players: Map<number, UnitRaw>;
-	startTime: number;
-	endTime: number;
+	damages: DamageTakenEvent[] = $state([]);
+	casts: CastEvent[] = $state([]);
+	players: SvelteMap<number, UnitRaw> = $state(new SvelteMap());
+	startTime = $state(0);
+	endTime = $state(0);
 
 	constructor(
 		damages?: DamageTakenEvent[],
@@ -18,7 +19,6 @@ export class EventsClass {
 		this.startTime = options.startTime ?? 0;
 		this.endTime = this.startTime;
 
-		this.players = new Map();
 		for (const events of [this.damages, this.casts]) {
 			for (const event of events) {
 				if (event.source && ClassUtils.isPlayer(event.source)) {
@@ -36,9 +36,5 @@ export class EventsClass {
 			}
 		}
 		this.endTime = options.endTime ?? this.endTime;
-	}
-	clear() {
-		this.damages = [];
-		this.casts = [];
 	}
 }
