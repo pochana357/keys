@@ -7,12 +7,14 @@
 	import { formatTime } from '$lib/utils/utils';
 	import ClassUtils, { ORole } from '$lib/utils/ClassUtils';
 	import { ability2img, addLink, addSpellLink } from '$lib/utils/link';
+	import { blackList } from '$lib/api/spellData';
 
 	type Props = {
 		events: EventsClass;
 		options: {
 			pxPerSec?: number;
 			showMinors?: boolean;
+			showReceived?: boolean;
 		};
 	};
 	let { events, options = {} }: Props = $props();
@@ -26,16 +28,21 @@
 	});
 	const timeTicks = $derived([...Array(numTimeTicks + 1).keys()].map(timeTickCreator));
 
-	function event2icon<T extends EventRaw>(event: T, detailsCreator: (event: T) => string) {
+	function event2icon<T extends EventRaw>(
+		event: T,
+		detailsCreator: (event: T) => string,
+		classes = ''
+	) {
 		return {
 			timestamp: event.timestamp,
-			content: ability2img(event.ability),
+			content: ability2img(event.ability, classes),
 			details: `${event.ability.name} (${event.ability.guid})<br>` + detailsCreator(event)
 		};
 	}
 
-	let showMinors = $derived(options.showMinors || false);
-	let pxPerSec = $derived(options.pxPerSec || 10.0);
+	let showMinors = $derived(options.showMinors ?? AppState.defaultSettings.showMinors);
+	let showReceived = $derived(options.showReceived ?? AppState.defaultSettings.showReceived);
+	let pxPerSec = $derived(options.pxPerSec ?? AppState.defaultSettings.pxPerSec);
 	const offsetX = (timestamp: number) => (timestamp / 1000.0) * pxPerSec;
 
 	function filterEvents<T extends GeneralEvent>(
@@ -52,7 +59,21 @@
 			raw: e,
 			icon: event2icon(e, (e2) => `${e2.source?.name}` + (e2.target ? ` ▶ ${e2.target.name}` : ''))
 		}));
-
+		const mirReceived = filterEvents(events.casts, { target: playerId })
+			.map((e) => ({
+				raw: e,
+				icon: event2icon(
+					e,
+					(e2) => `${e2.source?.name}` + (e2.target ? ` ▶ ${e2.target.name}` : ''),
+					'grayscale-[50%]'
+				)
+			}))
+			.filter(
+				(e) =>
+					// e.raw.source?.id !== e.raw.target?.id &&
+					!blackList.AoEHeals.includes(e.raw.ability.guid)
+			)
+			.filter((e) => showMinors || !defensiveSpells[e.raw.ability.guid].minor);
 		const majorIcons = [];
 		const minorIcons = [];
 
@@ -63,7 +84,7 @@
 			if (defensiveSpell.minor) minorIcons.push(item.icon);
 			else majorIcons.push(item.icon);
 		}
-		return { majorIcons, minorIcons };
+		return { majorIcons, minorIcons, receivedIcons: mirReceived.map((m) => m.icon) };
 	}
 	function processDamages(
 		playerId: number,
@@ -106,7 +127,6 @@
 
 	let players = $derived.by(() => {
 		const players = [...events.players.values()];
-		players.forEach((p) => console.log(p.name, p.icon, ClassUtils.role(p)));
 		players.sort((a, b) => {
 			const roleDiff = String(ClassUtils.role(a)).localeCompare(String(ClassUtils.role(b)));
 			return roleDiff !== 0 ? roleDiff : a.icon.localeCompare(b.icon);
@@ -129,7 +149,7 @@
 		{/if}
 		<Timeline datatype="text" data={{ icons: timeTicks, mergeData: null }} bind:cursor />
 		{#each players as player (player.guid)}
-			<div class="sticky left-2 flex w-max items-center gap-2 py-1 font-bold">
+			<div class="sticky left-2 my-1 flex w-max items-center gap-2 font-bold">
 				<img
 					style:--size="18"
 					style="width:calc(var(--size)* 1px); height:calc(var(--size)* 1px);"
@@ -142,11 +162,20 @@
 			<Timeline datatype="spellIcon" data={processDamages(player.id)} bind:cursor />
 
 			{@const casts = processCasts(player.id)}
-			<div class="w-full bg-slate-700 py-1" style:width="{offsetX(numTimeTicks * timeTick)}px">
-				<Timeline datatype="spellIcon" data={{ icons: casts.majorIcons }} bind:cursor />
+			<div class="py-1">
+				<div class="w-full bg-slate-700" style:width="{offsetX(numTimeTicks * timeTick)}px">
+					<Timeline datatype="spellIcon" data={{ icons: casts.majorIcons }} bind:cursor />
+				</div>
+
 				{#if showMinors && casts.minorIcons.length > 0}
-					<div class="-mt-1">
+					<div class="w-full bg-slate-600" style:width="{offsetX(numTimeTicks * timeTick)}px">
 						<Timeline datatype="spellIcon" data={{ icons: casts.minorIcons }} bind:cursor />
+					</div>
+				{/if}
+
+				{#if showReceived && casts.receivedIcons.length > 0}
+					<div class="w-full bg-slate-500" style:width="{offsetX(numTimeTicks * timeTick)}px">
+						<Timeline datatype="spellIcon" data={{ icons: casts.receivedIcons }} bind:cursor />
 					</div>
 				{/if}
 			</div>

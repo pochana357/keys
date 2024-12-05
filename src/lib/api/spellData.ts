@@ -5,5 +5,8 @@ export const blackList = {
 		1, // Melee
 		455537, // Symbiosis
 		32409 // Shadow Word: Death
+	],
+	AoEHeals: [
+		194509 // Power Word: Radiance
 	]
 };

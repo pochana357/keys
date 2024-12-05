@@ -35,13 +35,15 @@
 <div
 	class="fixed left-0 top-0 z-30 flex h-full w-full flex-col items-center justify-center gap-2 text-lg font-bold"
 >
-	<!-- svelte-ignore a11y_media_has_caption -->
-	{#if media.mediaType == 'gif'}
-		<img class="w-80" src={media.src} alt="Poochyena" />
-	{:else}
-		<video class="w-80" autoplay controlslist="nodownload" loop height="auto">
-			<source src={media.src} type="video/mp4" />
-		</video>
-	{/if}
-	<p>Loading... ({current}/{total})</p>
+	<div class="w-80 bg-surface-950 text-center">
+		<!-- svelte-ignore a11y_media_has_caption -->
+		{#if media.mediaType == 'gif'}
+			<img class="w-80" src={media.src} alt="Poochyena" />
+		{:else}
+			<video class="w-80" autoplay controlslist="nodownload" loop height="auto">
+				<source src={media.src} type="video/mp4" />
+			</video>
+		{/if}
+		<p>Loading... ({current}/{total})</p>
+	</div>
 </div>

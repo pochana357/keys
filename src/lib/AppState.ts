@@ -7,7 +7,8 @@ const defaultSettings = {
 	pxPerSec: 10.0,
 	horizontalOverlap: 15.0, // in pixel
 	pxPerLevel: 20.0,
-	showMinors: false
+	showMinors: false,
+	showReceived: true
 };
 export const settingsRange = {
 	pxPerSec: [5.0, 20.0],
