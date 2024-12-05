@@ -2,7 +2,7 @@
 	import defensiveSpells from '$lib/api/defensiveData';
 	import type { EventsClass } from '$lib/api/event';
 	import type { Ability, EventRaw, GeneralEvent } from '$lib/api/wclTypes';
-	import { getAppState } from '$lib/settings';
+	import { getAppState } from '$lib/AppState';
 	import Timeline from '$lib/Timeline.svelte';
 	import { formatTime } from '$lib/utils/utils';
 	import ClassUtils, { ORole } from '$lib/utils/ClassUtils';
@@ -28,8 +28,10 @@
 	}
 
 	const appSettings = getAppState();
-	let ms2px = $derived(appSettings?.settings?.ms2px || 10.0);
-	const offsetX = (timestamp: number) => (timestamp / 1000.0) * ms2px;
+	let settings = $derived(appSettings?.settings);
+	let showMinors = $derived(settings?.showMinors || false);
+	let pxPerSec = $derived(settings?.pxPerSec || 10.0);
+	const offsetX = (timestamp: number) => (timestamp / 1000.0) * pxPerSec;
 
 	function filterEvents<T extends GeneralEvent>(
 		events: T[],
@@ -137,7 +139,7 @@
 			{@const casts = processCasts(player.id)}
 			<div class="w-full bg-slate-700 py-1" style:width="{offsetX(numTimeTicks * timeTick)}px">
 				<Timeline datatype="spellIcon" data={{ icons: casts.majorIcons }} bind:cursor />
-				{#if casts.minorIcons.length > 0}
+				{#if showMinors && casts.minorIcons.length > 0}
 					<div class="-mt-1">
 						<Timeline datatype="spellIcon" data={{ icons: casts.minorIcons }} bind:cursor />
 					</div>

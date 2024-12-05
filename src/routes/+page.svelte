@@ -4,20 +4,26 @@
 	// import IconCheck from 'lucide-svelte/icons/circle-check';
 	import IconX from 'lucide-svelte/icons/x';
 	import IconCheck from 'lucide-svelte/icons/check';
+	import IconHistory from 'lucide-svelte/icons/history';
+	import IconSettings from 'lucide-svelte/icons/settings';
 	import type { PullRaw } from '$lib/api/wclTypes';
 	import { EventsClass } from '$lib/api/event';
 	import Log from '$lib/api/log';
 	import { onMount } from 'svelte';
 	import OutlineView from './OutlineView.svelte';
 	import EventViewer from './EventViewer.svelte';
-	import { AppState, OApiStatus } from '$lib/settings';
+	import { AppState, OApiStatus } from '$lib/AppState';
 	import { formatAbsoluteTime } from '$lib/utils/utils';
 	import LoadingScreen from './LoadingScreen.svelte';
+	import SettingsComponent from './SettingsComponent.svelte';
+	import History from './History.svelte';
+	import WithTooltip from '$lib/WithTooltip.svelte';
 
 	let log: Log | null = $state(null);
 	let code = $state('');
 	let codeFormValue = $state('');
 	let appState = new AppState();
+	let settings = $derived(appState.settings);
 	async function handleSubmit() {
 		appState.api.status = OApiStatus.busy;
 		if (codeFormValue.length < 5) {
@@ -42,26 +48,14 @@
 				appState.api.status = OApiStatus.failed;
 			});
 	}
-	async function handleTest() {
-		const testCodes = [
-			'4KxdFT6pVYLfy7r2', // Rogue, Stonevault
-			'19qd8m6CcjHbkZD3', // Mage
-			'6awx1JdH28CG94gq', // Rogue, Necrotic Wake
-			'HZLwh46mFCD1Xdzk', // Druid, Siege of Boralus
-			'xZ8Vytqp1XQAnTYm', // Restoration Shaman
-			'3M46dqmjTnWKahwB' // Retribution Paladin, Dawnbreaker
-		];
-		const testCode = testCodes[Math.floor(Math.random() * testCodes.length)];
-		codeFormValue = testCode;
+	const submitCode = (newCode: string) => {
+		codeFormValue = newCode;
 		handleSubmit();
-	}
-	async function clearHistory() {
-		appState.clearHistory();
-	}
+	};
 	onMount(() => {
+		appState.validateSettings();
 		const codes = appState.history.items;
-		codeFormValue = codes?.[codes.length - 1].code ?? '';
-		handleSubmit();
+		submitCode(codes?.[codes.length - 1].code ?? '');
 	});
 
 	let currentFightIdx = $state(-1); // dbg: 41
@@ -98,11 +92,14 @@
 	const progressCallback = (current: number, start: number, end: number) => {
 		progress = { total: end - start, current: current - start };
 	};
+
+	let showHistory = $state(false);
+	let showSettings = $state(false);
 </script>
 
-<div class="flex h-screen w-screen flex-col">
+<div class="flex h-screen w-screen flex-col gap-1">
 	<form
-		class="flex h-48 flex-none flex-col gap-1"
+		class="flex h-max flex-none flex-col gap-1"
 		onsubmit={(e) => {
 			e.preventDefault();
 			handleSubmit();
@@ -134,56 +131,40 @@
 					Go
 				{/if}
 			</button>
-		</div>
-		<div class="align-center flex h-full gap-1 text-center">
-			<div class="h-10 w-20 flex-none font-bold leading-10">History</div>
-			<div class="line-nowrap flex-1 overflow-x-clip text-nowrap border pl-3">
-				{#each [...appState.history.items].reverse() as item (item.code)}
-					<button
-						type="button"
-						class="block pt-2"
-						class:font-bold={item.code == code}
-						onclick={() => {
-							codeFormValue = item.code;
-							handleSubmit();
-						}}
-					>
-						<span class="font-mono">{item.code}</span>
-						<span class="font-sm font-mono">({formatAbsoluteTime(item.timestamp)})</span>
-						{#each item.exportedCharacters.slice(0, Math.min(7, item.exportedCharacters.length)) as c (c)}
-							<span class="font-sm px-1">{c}</span>
-						{/each}
-						{#if item.exportedCharacters.length > 7}
-							<span class="font-sm px-1">...</span>
-						{/if}
-					</button>
-				{/each}
-			</div>
-			<div class="flex w-20 flex-none flex-col justify-between">
+			<div class="px-2">
 				<button
 					type="button"
-					class="btn h-10 font-bold preset-filled-primary-950-50"
-					onclick={() => handleTest()}
+					class="w-15 h-10 flex-none px-1 font-bold hover:text-primary-200"
+					onclick={() => (showHistory = !showHistory)}
 				>
-					Test
+					<IconHistory />
 				</button>
 				<button
 					type="button"
-					class="btn h-10 font-bold preset-filled-primary-950-50"
-					onclick={() => clearHistory()}
+					class="w-15 h-10 flex-none px-1 font-bold hover:text-primary-200"
+					onclick={() => (showSettings = !showSettings)}
 				>
-					Clear
-				</button>
-				<button
-					type="button"
-					class="btn h-10 font-bold preset-filled-primary-950-50"
-					disabled={true}
-				>
-					Settings
+					<IconSettings />
 				</button>
 			</div>
 		</div>
+		{#if showHistory}
+			<History currentCode={code} {submitCode} />
+		{/if}
 	</form>
+	{#if showSettings}
+		<div class="align-center flex h-max gap-1">
+			<div class="h-10 w-20 flex-none text-center font-bold leading-10">Settings</div>
+			<div class="flex-1 overflow-x-clip border py-2 pl-3">
+				<SettingsComponent
+					bind:pxPerSec={settings.pxPerSec}
+					bind:horizontalOverlap={settings.horizontalOverlap}
+					bind:pxPerLevel={settings.pxPerLevel}
+					bind:showMinors={settings.showMinors}
+				/>
+			</div>
+		</div>
+	{/if}
 	{#if log?.fights?.json}
 		<div class="flex flex-1 overflow-hidden">
 			<div class="w-84 flex-none overflow-y-auto">
@@ -198,11 +179,20 @@
 				{#if pullRaw}
 					<EventViewer {events} />
 				{:else}
-					<div class="p-2 text-center">Select a pull on the left panel to view timelines.</div>
+					<div class="p-2 text-center text-lg">
+						Select a pull on the left panel to view timelines.
+					</div>
 				{/if}
 				{#if appState.api.status == OApiStatus.busy}
 					<LoadingScreen current={progress.current} total={progress.total} />
 				{/if}
+			</div>
+		</div>
+	{:else}
+		<div class="flex flex-1 items-center justify-center">
+			<div class="text-center">
+				<p class="text-2xl font-bold">Welcome to Log Analyzer for Mythic Plus.</p>
+				<p class="text-lg">Enter a Warcraft Logs code to get started.</p>
 			</div>
 		</div>
 	{/if}

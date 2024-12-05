@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { AppState, getAppState } from './settings';
+	import { AppState, getAppState, defaultSettings } from '$lib/AppState';
 	import WithTooltip from './WithTooltip.svelte';
 	import { formatTime } from '$lib/utils/utils';
 
@@ -16,26 +16,30 @@
 	let { datatype, data, cursor = $bindable() }: Props = $props();
 	const appSettings = getAppState();
 
-	let ms2px = $derived(appSettings?.settings?.ms2px || 10.0);
-	const offsetX = (timestamp: number) => (timestamp / 1000.0) * ms2px;
-	const maxOffsetX = 15;
+	let pxPerSec = $derived(appSettings?.settings?.pxPerSec || defaultSettings.pxPerSec);
+	let horizontalOverlap = $derived(
+		appSettings?.settings?.horizontalOverlap || defaultSettings.horizontalOverlap
+	);
+	let pxPerLevel = $derived(appSettings?.settings?.pxPerLevel || defaultSettings.pxPerLevel);
 
-	const offsetYLimit = 5;
-	const offsetYdata1 = $derived.by(() => {
+	const offsetX = (timestamp: number) => (timestamp / 1000.0) * pxPerSec;
+
+	const maxLevel = 5;
+	const getLevel1 = $derived.by(() => {
 		const numIcons = data.icons.length;
 		const res: number[] = Array(numIcons).fill(0);
 		for (let i = 1; i < numIcons; i++) {
 			if (
-				offsetX(data.icons[i].timestamp - data.icons[i - 1].timestamp) < maxOffsetX &&
-				res[i - 1] < offsetYLimit
+				offsetX(data.icons[i].timestamp - data.icons[i - 1].timestamp) <= horizontalOverlap &&
+				res[i - 1] < maxLevel
 			) {
 				res[i] = res[i - 1] + 1;
 			}
 		}
 		return res;
 	});
-	// offsetYdata should be eventually replaced by offsetYdata2
-	const offsetYdata2 = $derived.by(() => {
+	// getLevel1 should be eventually replaced by getLevel2
+	const getLevel2 = $derived.by(() => {
 		const numIcons = data.icons.length;
 		const res: number[] = Array(numIcons).fill(-1);
 		const occupied: number[] = [];
@@ -43,7 +47,7 @@
 			if (res[i] >= 0) continue;
 			let j = 0;
 			for (j = 0; j < occupied.length; j++) {
-				if (data.icons[i].timestamp - occupied[j] > 1500) {
+				if (offsetX(data.icons[i].timestamp - occupied[j]) > horizontalOverlap) {
 					break;
 				}
 			}
@@ -66,18 +70,17 @@
 		}
 		return res;
 	});
-	const maxOffsetY = $derived(Math.max(...offsetYdata2));
-	const offsetY2px = 20;
+	const heightInLevel = $derived(Math.max(...getLevel2));
 
 	function setCursor(timestamp: number) {
 		cursor = offsetX(timestamp);
 	}
 
 	// const offsetYdata = $derived(datatype === 'text' ? offsetYdata1 : offsetYdata2);
-	const offsetYdata = $derived(offsetYdata2);
+	const offsetYdata = $derived(getLevel2);
 </script>
 
-<div class="relative my-1" style:height="calc(1.5rem + {maxOffsetY * offsetY2px}px)">
+<div class="relative my-1" style:height="calc(1.5rem + {heightInLevel * pxPerLevel}px)">
 	{#each data.icons as icon, i (i)}
 		{@const timestamp = icon.timestamp}
 		<!-- Overkill in the damage taken timeline: red boundary -->
@@ -86,7 +89,7 @@
 				? 'z-[1] shadow-[inset_0_0_0_6px_rgba(255,0,0,1)]'
 				: 'hover:z-[1] hover:shadow-[inset_0_0_0_2px_rgb(255,255,255,0.6)]'}"
 			style:left="{offsetX(timestamp)}px"
-			style:top="{offsetYdata[i] * offsetY2px}px"
+			style:top="{offsetYdata[i] * pxPerLevel}px"
 			role="button"
 			tabindex="0"
 			onmouseover={() => setCursor(timestamp)}
