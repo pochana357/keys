@@ -78,6 +78,12 @@ class ClassUtils {
 	static classColor(className: string) {
 		return hexToRGB(classColors[className]);
 	}
+	static formatUnit(unit: UnitRaw | null) {
+		if (!unit) return 'Unknown';
+		if (!ClassUtils.isPlayer(unit)) return unit.name;
+		const classColor = ClassUtils.classColor(unit.type) ?? '#777777';
+		return `<span style="color:${classColor}; font-weight: bold;">${unit.name}</span>`;
+	}
 	static isPlayer(unit: UnitRaw) {
 		return classColors[unit.type] !== undefined;
 	}
