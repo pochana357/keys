@@ -161,6 +161,7 @@
 					bind:horizontalOverlap={settings.horizontalOverlap}
 					bind:pxPerLevel={settings.pxPerLevel}
 					bind:showMinors={settings.showMinors}
+					defaultSettings={AppState.defaultSettings}
 				/>
 			</div>
 		</div>
