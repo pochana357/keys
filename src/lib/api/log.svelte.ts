@@ -1,4 +1,3 @@
-import Fights from './fights';
 import type {
 	PullRaw,
 	DamageTakenEventRaw,
@@ -12,7 +11,8 @@ import ClassUtils from '$lib/utils/ClassUtils';
 import { blackList } from './spellData';
 import defensiveSpells from './defensiveData';
 import { readFromBuffer, writeToBuffer } from '$lib/localStorageWrapper.svelte';
-import { EventsClass } from './event';
+import Fights from '$lib/api/fights.svelte';
+import { EventsClass } from '$lib/api/event.svelte';
 
 type FetchEventsOptions = Partial<{
 	filter: string;
@@ -105,14 +105,16 @@ async function fetchCastEvents(
 }
 
 export default class Log {
-	code: string;
-	fights: Fights;
-	exportedCharacters: string[];
-	constructor(code: string, fights: Fights) {
+	code = $state('');
+	fights = $state(new Fights());
+	exportedCharacters: string[] = $state([]);
+	constructor(code: string, fights?: Fights) {
 		this.code = code;
-		this.fights = fights;
-		this.exportedCharacters =
-			fights?.json?.exportedCharacters?.map((character) => character.name) ?? [];
+		if (code && fights) {
+			this.fights = fights;
+			this.exportedCharacters =
+				fights?.json?.exportedCharacters?.map((character) => character.name) ?? [];
+		}
 	}
 	static async build(code: string) {
 		const fights = await Fights.fetchFights(code);
@@ -191,6 +193,23 @@ export default class Log {
 		return events;
 	}
 
+	getDungeonPull(fightIdx: number, dungeonPullIdx: number) {
+		// If the pair of fightIdx and dungeonPullIdx denotes a valid M+ pull,
+		// returns the corresponding fightPullRaw and dungeonPullRaw.
+
+		const fightPullRaws = this.fights?.json?.fights;
+		if (fightPullRaws && fightIdx >= 0 && dungeonPullIdx >= 0) {
+			const fightPullRaw = fightPullRaws[fightIdx];
+			if (fightPullRaw && Fights.ValidateFight(fightPullRaw)) {
+				const dungeonPullRaw = fightPullRaw.dungeonPulls[dungeonPullIdx];
+				if (dungeonPullRaw) {
+					// valid M+ pull
+					return { fightPullRaw, dungeonPullRaw };
+				}
+			}
+		}
+		return null;
+	}
 	async analyzePull(
 		pull: PullRaw,
 		options: {

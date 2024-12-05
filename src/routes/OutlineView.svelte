@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Fights from '$lib/api/fights';
+	import Fights from '$lib/api/fights.svelte';
 	import { type FightsRaw } from '$lib/api/wclTypes';
 	import { formatAbsoluteTime, formatTime } from '$lib/utils/utils';
 	import WithTooltip from '$lib/WithTooltip.svelte';
@@ -41,7 +41,10 @@
 						class="block w-full text-left {i === currentFightIdx && j === currentDungeonPullIdx
 							? 'bg-secondary-600 font-bold'
 							: ''}"
-						onclick={() => onUpdate(i, j)}
+						onclick={() => {
+							console.log('onUpdate called by OutlineView');
+							onUpdate(i, j);
+						}}
 					>
 						{#if pull.boss}
 							<WithTooltip tooltip={pull.boss ? `Boss #${pull.boss}` : ''}>

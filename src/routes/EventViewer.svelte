@@ -1,6 +1,6 @@
 <script lang="ts">
 	import defensiveSpells from '$lib/api/defensiveData';
-	import type { EventsClass } from '$lib/api/event';
+	import type { EventsClass } from '$lib/api/event.svelte';
 	import type { Ability, EventRaw, GeneralEvent } from '$lib/api/wclTypes';
 	import { AppState } from '$lib/AppState';
 	import Timeline from '$lib/Timeline.svelte';
