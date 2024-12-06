@@ -48,8 +48,12 @@ export const offensiveSpells: Record<number, DefensiveSpell> = {
 	63560: { effect: [] }, // Dark Transformation
 	455395: { effect: [] }, // Raise Abomination
 
-	// General
-	444959: { effect: [] } // Spymaster's Web
+	// Trinkets
+	444959: { effect: [] }, // Spymaster's Web
+	449946: { effect: [] } // Cryptic Instruction (Treacherous Transmitter)
+	// 443407: { effect: [] }, // Skarmorak Shard
+	// 91374: { effect: [] }, // Battle of Prowess (Mark of Khardros)
+	// 92099: { effect: [] } // Speed of Thought (Skardin's Grace)
 };
 const defensiveSpells: Record<number, DefensiveSpell> = {
 	// Priest
@@ -158,6 +162,11 @@ const defensiveSpells: Record<number, DefensiveSpell> = {
 	// General
 	431416: { effect: [] }, // Algari Healing Potion
 	452767: { effect: [] }, // Heartseeking Health Injector
+
+	// Trinkets
+	444301: { effect: [defensiveBuff(444301)] }, // Ravenous Swarm (444301 is the 3s buff; 447134 is the buff that tracks the shield amount)
+
+	// Missing
 	// Cloak proc (Evasive Maneuvers buff id = 457533)
 	// Stoneform casts missing (bug in the WCL side; buff id = 65116)
 
