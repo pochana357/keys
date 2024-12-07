@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getAppState, settingsRange, type Settings, AppState } from '$lib/AppState';
+	import { settingsRange, type Settings, AppState } from '$lib/AppState';
 	import { Slider, Switch } from '@skeletonlabs/skeleton-svelte';
 	import IconX from 'lucide-svelte/icons/x';
 	import IconCheck from 'lucide-svelte/icons/check';
@@ -9,7 +9,8 @@
 		horizontalOverlap = $bindable(),
 		pxPerLevel = $bindable(),
 		showMinor: showMinors = $bindable(),
-		showReceived = $bindable()
+		showReceived = $bindable(),
+		dungeonStartAsReferenceTime = $bindable()
 	}: Props = $props();
 	let pxPerSecWrapped = $state([pxPerSec]);
 	let horizontalOverlapWrapped = $state([horizontalOverlap]);
@@ -87,6 +88,17 @@
 					{#snippet activeChild()}<IconCheck size="14" />{/snippet}
 				</Switch>
 			</div>
+			<div class="flex justify-between">
+				<p>Offset the timestamp to the start of the pull</p>
+				<Switch
+					name="showReceived"
+					bind:checked={dungeonStartAsReferenceTime}
+					controlInactive="bg-secondary-100"
+				>
+					{#snippet inactiveChild()}<IconX size="14" />{/snippet}
+					{#snippet activeChild()}<IconCheck size="14" />{/snippet}
+				</Switch>
+			</div>
 		</div>
 
 		<button
@@ -97,6 +109,8 @@
 				horizontalOverlapWrapped = [AppState.defaultSettings.horizontalOverlap];
 				pxPerLevelWrapped = [AppState.defaultSettings.pxPerLevel];
 				showMinors = AppState.defaultSettings.showMinor;
+				showReceived = AppState.defaultSettings.showReceived;
+				dungeonStartAsReferenceTime = AppState.defaultSettings.dungeonStartAsReferenceTime;
 			}}
 		>
 			Reset settings

@@ -1,21 +1,32 @@
 import { createSettings } from '$lib/localStorageWrapper.svelte';
 import { setContext, getContext } from 'svelte';
-import type Log from './api/log';
+import type Log from './api/Log.svelte';
 import { browser } from '$app/environment';
 
-const defaultSettings = {
+export const OReferenceTime = { dungeon: 'dungeon', pull: 'pull' } as const;
+export type ReferenceTime = (typeof OReferenceTime)[keyof typeof OReferenceTime];
+
+export type Settings = {
+	pxPerSec: number;
+	horizontalOverlap: number;
+	pxPerLevel: number;
+	showMinor: boolean;
+	showReceived: boolean;
+	dungeonStartAsReferenceTime: boolean;
+};
+const defaultSettings: Settings = {
 	pxPerSec: 10.0,
 	horizontalOverlap: 15.0, // in pixel
 	pxPerLevel: 20.0,
 	showMinor: false,
-	showReceived: true
+	showReceived: true,
+	dungeonStartAsReferenceTime: false
 };
 export const settingsRange = {
 	pxPerSec: [5.0, 20.0],
 	horizontalOverlap: [1.0, 25.0],
 	pxPerLevel: [15.0, 25.0]
 };
-export type Settings = typeof defaultSettings;
 type HistoryItem = {
 	code: string;
 	timestamp: number;
@@ -114,9 +125,10 @@ export class AppState {
 	}
 
 	pushCodeToHistory(log: Log) {
+		if (!log?.code) return;
 		const newCode = {
 			code: log.code,
-			timestamp: log.fights.json.start,
+			timestamp: log.fights.json?.start || 0,
 			exportedCharacters: log.exportedCharacters
 		};
 		const newItems = this.history.items.filter((item) => item.code !== log.code);
