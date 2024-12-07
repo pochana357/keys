@@ -9,7 +9,7 @@
 		datatype: 'text' | 'spellIcon';
 		data: {
 			icons: Icon[];
-			mergeData?: { idx: number; merged: number[] }[] | null;
+			mergeGroups?: { firstEventIdx: number; mergedIdxs: number[] }[] | null;
 		};
 		cursor: number | null;
 	};
@@ -58,10 +58,12 @@
 				occupied[j] = data.icons[i].timestamp;
 			}
 
-			if (data.mergeData) {
-				const k = data.mergeData.findIndex(({ idx, merged }) => idx === i);
+			if (data.mergeGroups) {
+				const k = data.mergeGroups.findIndex(
+					({ firstEventIdx: idx, mergedIdxs: merged }) => idx === i
+				);
 				if (k >= 0) {
-					data.mergeData[k].merged.forEach((idx) => {
+					data.mergeGroups[k].mergedIdxs.forEach((idx) => {
 						res[idx] = j;
 						occupied[j] = Math.max(occupied[j], data.icons[idx].timestamp);
 					});

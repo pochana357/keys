@@ -8,7 +8,7 @@
 		pxPerSec = $bindable(),
 		horizontalOverlap = $bindable(),
 		pxPerLevel = $bindable(),
-		showMinors = $bindable(),
+		showMinor: showMinors = $bindable(),
 		showReceived = $bindable()
 	}: Props = $props();
 	let pxPerSecWrapped = $state([pxPerSec]);
@@ -96,7 +96,7 @@
 				pxPerSecWrapped = [AppState.defaultSettings.pxPerSec];
 				horizontalOverlapWrapped = [AppState.defaultSettings.horizontalOverlap];
 				pxPerLevelWrapped = [AppState.defaultSettings.pxPerLevel];
-				showMinors = AppState.defaultSettings.showMinors;
+				showMinors = AppState.defaultSettings.showMinor;
 			}}
 		>
 			Reset settings

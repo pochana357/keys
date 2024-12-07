@@ -6,8 +6,8 @@
 	import IconSettings from 'lucide-svelte/icons/settings';
 	import IconAlignJustify from 'lucide-svelte/icons/align-justify';
 	import type { FightPullRaw, FightsRaw, PullRaw } from '$lib/api/wclTypes';
-	import { EventsLumped } from '$lib/api/event.svelte';
-	import Log from '$lib/api/log.svelte';
+	import EventsLumped from '$lib/api/EventsLumped.svelte';
+	import Log from '$lib/api/Log.svelte';
 	import { onMount } from 'svelte';
 	import OutlineView from './OutlineView.svelte';
 	import EventViewer from './EventViewer.svelte';
@@ -194,7 +194,7 @@
 					bind:pxPerSec={settings.pxPerSec}
 					bind:horizontalOverlap={settings.horizontalOverlap}
 					bind:pxPerLevel={settings.pxPerLevel}
-					bind:showMinors={settings.showMinors}
+					bind:showMinor={settings.showMinor}
 					bind:showReceived={settings.showReceived}
 					defaultSettings={AppState.defaultSettings}
 				/>
@@ -220,7 +220,7 @@
 						{events}
 						options={{
 							pxPerSec: settings.pxPerSec,
-							showMinors: settings.showMinors,
+							showMinor: settings.showMinor,
 							showReceived: settings.showReceived
 						}}
 					/>

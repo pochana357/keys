@@ -7,7 +7,7 @@ const defaultSettings = {
 	pxPerSec: 10.0,
 	horizontalOverlap: 15.0, // in pixel
 	pxPerLevel: 20.0,
-	showMinors: false,
+	showMinor: false,
 	showReceived: true
 };
 export const settingsRange = {
@@ -110,7 +110,7 @@ export class AppState {
 			settings.pxPerLevel > settingsRange.pxPerLevel[1]
 		)
 			settings.pxPerLevel = defaultSettings.pxPerLevel;
-		if (typeof settings.showMinors !== 'boolean') settings.showMinors = defaultSettings.showMinors;
+		if (typeof settings.showMinor !== 'boolean') settings.showMinor = defaultSettings.showMinor;
 	}
 
 	pushCodeToHistory(log: Log) {
