@@ -66,7 +66,7 @@ export default class Log {
 		});
 		const castEvents = (
 			await retrieveEvents('casts', {
-				filter: `ability.id in (${[...trackedIds.castsTracked.keys()].join(',')})`,
+				filter: `ability.id in (${[...trackedIds.castsTracked.keys()].join(',')}) and type != "begincast"`,
 				progressCallback: options.progressCallback
 			})
 		).filter((event) => {
