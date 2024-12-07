@@ -7,6 +7,8 @@
 		damageTakenEvents: DamageTakenEvent[];
 		options: {
 			mergeDotInterval?: number;
+			referenceTime?: number;
+			offsetX?: (timestamp: number) => number;
 		};
 		cursor: number | null;
 	};
@@ -14,8 +16,10 @@
 	const defaultMergeDotInterval = 5000;
 	const mergeDotInterval = options.mergeDotInterval ?? defaultMergeDotInterval;
 
+	let referenceTime = $derived(options.referenceTime ?? 0);
+
 	// Merge damage events with the same spell id if they are close enough.
-	let mergeData = $derived.by(() => {
+	let mergeGroups = $derived.by(() => {
 		// lastTimestamps[spellId] stores the last timestamp of the damage event.
 		const lastTimestamps = new Map<number, { mergeDataIdx: number; timestamp: number }>();
 		// each entry of mergeData stores the index of the first damage event in the merge group (firstEventIdx)
@@ -55,4 +59,9 @@
 	);
 </script>
 
-<Timeline datatype="spellIcon" data={{ icons, mergeGroups: mergeData }} bind:cursor />
+<Timeline
+	datatype="spellIcon"
+	{icons}
+	options={{ mergeGroups, referenceTime, offsetX: options.offsetX }}
+	bind:cursor
+/>

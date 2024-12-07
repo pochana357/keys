@@ -179,11 +179,11 @@ for (const [id, val] of Object.entries(offensiveSpells)) {
 	castDict[Number(id)] = { ...val, minor: true };
 }
 
-export const spelllikeBuffs = {
+export const spelllikeBuffs: SpellDict = {
 	457533: { effect: [defensiveBuff(457533)] }, // Evasive Maneuvers (Cloak proc)
 	65116: { effect: [defensiveBuff(65116)] } // Stoneform; its casts are missing in the logs.
 };
-export const spelllikeDebuffs = {
+export const spelllikeDebuffs: SpellDict = {
 	// Paladin
 	393879: { effect: [defensiveBuff(86659)] } // Gift of the Golden Val'kyr
 };

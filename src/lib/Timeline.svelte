@@ -7,13 +7,15 @@
 	type Icon = { timestamp: number; content: string; details?: string };
 	type Props = {
 		datatype: 'text' | 'spellIcon';
-		data: {
-			icons: Icon[];
-			mergeGroups?: { firstEventIdx: number; mergedIdxs: number[] }[] | null;
+		icons: Icon[];
+		options: {
+			mergeGroups?: { firstEventIdx: number; mergedIdxs: number[] }[];
+			referenceTime?: number;
+			offsetX?: (timestamp: number) => number;
 		};
 		cursor: number | null;
 	};
-	let { datatype, data, cursor = $bindable() }: Props = $props();
+	let { datatype, icons, options = {}, cursor = $bindable() }: Props = $props();
 	const appState = getAppState();
 
 	let pxPerSec = $derived(appState?.settings?.pxPerSec || AppState.defaultSettings.pxPerSec);
@@ -21,16 +23,16 @@
 		appState?.settings?.horizontalOverlap || AppState.defaultSettings.horizontalOverlap
 	);
 	let pxPerLevel = $derived(appState?.settings?.pxPerLevel || AppState.defaultSettings.pxPerLevel);
-
-	const offsetX = (timestamp: number) => (timestamp / 1000.0) * pxPerSec;
+	let referenceTime = $derived(options.referenceTime ?? 0);
+	const offsetX = options.offsetX ?? ((timestamp: number) => (timestamp / 1000.0) * pxPerSec);
 
 	const maxLevel = 5;
 	const getLevel1 = $derived.by(() => {
-		const numIcons = data.icons.length;
+		const numIcons = icons.length;
 		const res: number[] = Array(numIcons).fill(0);
 		for (let i = 1; i < numIcons; i++) {
 			if (
-				offsetX(data.icons[i].timestamp - data.icons[i - 1].timestamp) <= horizontalOverlap &&
+				offsetX(icons[i].timestamp - icons[i - 1].timestamp) <= horizontalOverlap &&
 				res[i - 1] < maxLevel
 			) {
 				res[i] = res[i - 1] + 1;
@@ -40,32 +42,32 @@
 	});
 	// getLevel1 should be eventually replaced by getLevel2
 	const getLevel2 = $derived.by(() => {
-		const numIcons = data.icons.length;
+		const numIcons = icons.length;
 		const res: number[] = Array(numIcons).fill(-1);
 		const occupied: number[] = [];
 		for (let i = 0; i < numIcons; i++) {
 			if (res[i] >= 0) continue;
 			let j = 0;
 			for (j = 0; j < occupied.length; j++) {
-				if (offsetX(data.icons[i].timestamp - occupied[j]) > horizontalOverlap) {
+				if (((icons[i].timestamp - occupied[j]) / 1000.0) * pxPerSec > horizontalOverlap) {
 					break;
 				}
 			}
 			res[i] = j;
 			if (j == occupied.length) {
-				occupied.push(data.icons[i].timestamp);
+				occupied.push(icons[i].timestamp);
 			} else {
-				occupied[j] = data.icons[i].timestamp;
+				occupied[j] = icons[i].timestamp;
 			}
 
-			if (data.mergeGroups) {
-				const k = data.mergeGroups.findIndex(
+			if (options.mergeGroups) {
+				const k = options.mergeGroups.findIndex(
 					({ firstEventIdx: idx, mergedIdxs: merged }) => idx === i
 				);
 				if (k >= 0) {
-					data.mergeGroups[k].mergedIdxs.forEach((idx) => {
+					options.mergeGroups[k].mergedIdxs.forEach((idx) => {
 						res[idx] = j;
-						occupied[j] = Math.max(occupied[j], data.icons[idx].timestamp);
+						occupied[j] = Math.max(occupied[j], icons[idx].timestamp);
 					});
 				}
 			}
@@ -83,7 +85,7 @@
 </script>
 
 <div class="relative" style:height="calc(1.5rem + {heightInLevel * pxPerLevel}px)">
-	{#each data.icons as icon, i (i)}
+	{#each icons as icon, i (i)}
 		{@const timestamp = icon.timestamp}
 		<!-- Overkill in the damage taken timeline: red boundary -->
 		<div
@@ -100,7 +102,10 @@
 			onblur={() => (cursor = null)}
 		>
 			{#if icon.details}
-				<WithTooltip tooltip={`${formatTime(timestamp)} ${icon.details}`} placement="bottom">
+				<WithTooltip
+					tooltip={`${formatTime(timestamp, referenceTime)} ${icon.details}`}
+					placement="bottom"
+				>
 					{@html icon.content}
 				</WithTooltip>
 			{:else}
