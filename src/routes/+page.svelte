@@ -6,7 +6,7 @@
 	import IconSettings from 'lucide-svelte/icons/settings';
 	import IconAlignJustify from 'lucide-svelte/icons/align-justify';
 	import type { FightPullRaw, FightsRaw, PullRaw } from '$lib/api/wclTypes';
-	import { EventsClass } from '$lib/api/event.svelte';
+	import { EventsLumped } from '$lib/api/event.svelte';
 	import Log from '$lib/api/log.svelte';
 	import { onMount } from 'svelte';
 	import OutlineView from './OutlineView.svelte';
@@ -44,7 +44,7 @@
 		if (dungeonPull) {
 			appState.api.status = OApiStatus.busy;
 			return logs[code]
-				.analyzePull(dungeonPull.dungeonPullRaw, { progressCallback })
+				.fetchPull(dungeonPull.dungeonPullRaw, { progressCallback })
 				.then((e) => {
 					appState.api.status = OApiStatus.succeeded;
 					return { dungeonPull, eventsClass: e };
@@ -74,7 +74,7 @@
 					appState.dungeonPullIdx = -1;
 					currentFightPullRaw = null;
 					currentDungeonPullRaw = null;
-					events = new EventsClass();
+					events = new EventsLumped();
 				}
 				return events;
 			})
@@ -90,7 +90,10 @@
 	}
 	async function submitMostRecentCode() {
 		const codes = appState.history.items;
-		return submitCode(codes?.[codes.length - 1].code ?? '');
+		if (!codes || codes.length == 0) return submitCode('');
+		else {
+			return submitCode(codes[codes.length - 1].code);
+		}
 	}
 	const toNumber = (s: string | null) => {
 		if (!s) return -1;
@@ -115,7 +118,7 @@
 		progress = { total: end - start, current: current - start };
 	};
 
-	let events = $state(new EventsClass());
+	let events = $state(new EventsLumped());
 </script>
 
 <div class="flex h-screen w-screen flex-col gap-1">
@@ -133,7 +136,7 @@
 				class:bg-red-500={appState.api.status == OApiStatus.failed}
 				name="description"
 				type="text"
-				placeholder="(e.g., 6awx1JdH28CG94gq)"
+				placeholder="(e.g., 1DvhRcyAX9WwNQka)"
 				bind:value={codeInputFormValue}
 			/>
 			<button
@@ -235,8 +238,15 @@
 		</div>
 	{:else}
 		<div class="pt-8 text-center">
-			<p class="text-2xl font-bold">Welcome to Log Analyzer for Mythic Plus.</p>
+			<p class="my-2 text-2xl font-bold">Welcome to Log Analyzer for Mythic Plus.</p>
 			<p class="text-lg">Enter a Warcraft Logs code to get started.</p>
+			<p class="my-2">
+				<span class="text-surface-300"
+					>e.g., https://www.warcraftlogs.com/reports/<span class="font-bold text-primary-300"
+						>1DvhRcyAX9WwNQka</span
+					>#fight=23&type=damage-done</span
+				>
+			</p>
 		</div>
 	{/if}
 	{#if appState.api.status == OApiStatus.busy}

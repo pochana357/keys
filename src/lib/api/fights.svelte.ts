@@ -1,6 +1,6 @@
 import { readFromBuffer, writeToBuffer } from '$lib/localStorageWrapper.svelte.js';
 import { apiAddr, wclApiKey } from './apiAddr.js';
-import type { BossPull, FightPullRaw, FightsRaw, UnitRaw, MplusPullRaw } from './wclTypes.js';
+import type { FightPullRaw, FightsRaw, UnitRaw, MplusPullRaw } from './wclTypes.js';
 
 function parseUnits(units: UnitRaw[]) {
 	if (!units) {
@@ -19,7 +19,6 @@ export default class Fights {
 	enemies: { [id: number]: UnitRaw } = $state({});
 	friendlyPets: { [id: number]: UnitRaw } = $state({});
 	enemyPets: { [id: number]: UnitRaw } = $state({});
-	bossPulls: BossPull[] = $state([]);
 
 	constructor(fightsRaw?: FightsRaw) {
 		if (fightsRaw) {
@@ -28,7 +27,6 @@ export default class Fights {
 			this.enemies = parseUnits(fightsRaw.enemies);
 			this.friendlyPets = parseUnits(fightsRaw.friendlyPets);
 			this.enemyPets = parseUnits(fightsRaw.enemyPets);
-			this.bossPulls = this.findBossFights();
 		}
 	}
 	getFightIdx(fightId: number) {
@@ -43,23 +41,6 @@ export default class Fights {
 	}
 	static ValidateFight(fight: FightPullRaw): fight is MplusPullRaw {
 		return fight.keystoneLevel !== undefined && fight.dungeonPulls !== undefined;
-	}
-	findBossFights(options: { verbose?: boolean } = {}) {
-		const bossPulls: BossPull[] = [];
-		if (!this.json) return [];
-		for (const fight of this.json.fights) {
-			if (!Fights.ValidateFight(fight)) continue;
-			if (options.verbose) console.log(fight.name, fight.keystoneLevel);
-			for (const pull of fight.dungeonPulls) {
-				// pull.boss is the boss id; if the pull is not a boss, it will be 0
-				if (pull.boss > 0) {
-					bossPulls.push({ pull, fight });
-					if (options.verbose) console.log('  ', pull.name, pull.start_time, pull.end_time);
-				}
-			}
-			if (options.verbose) console.log('');
-		}
-		return bossPulls;
 	}
 
 	findUnitRaw(idOrEnvUnit: number | UnitRaw, unitIsFriendly: number): UnitRaw | null {

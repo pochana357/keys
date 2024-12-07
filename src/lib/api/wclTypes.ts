@@ -73,12 +73,22 @@ export type DamageTakenEventRaw = EventRawBase & {
 	overkill?: number;
 };
 export type CastEventRaw = EventRawBase;
+export type BuffEventRaw = EventRawBase;
+export type DebuffEventRaw = EventRawBase;
 
 export type GeneralEventRaw = EventRawBase & { source: UnitRaw | null; target: UnitRaw | null };
-export type EventRaw = { damageTaken: DamageTakenEventRaw; casts: CastEventRaw };
+export type EventRaw = {
+	damageTaken: DamageTakenEventRaw;
+	casts: CastEventRaw;
+	buffs: BuffEventRaw;
+	debuffs: DebuffEventRaw;
+};
 
-export type DamageTakenEvent = DamageTakenEventRaw & {
+type UnitsResolved = {
 	source: UnitRaw | null;
 	target: UnitRaw | null;
 };
-export type CastEvent = CastEventRaw & { source: UnitRaw | null; target: UnitRaw | null };
+export type DamageTakenEvent = DamageTakenEventRaw & UnitsResolved;
+export type CastEvent = CastEventRaw & UnitsResolved;
+export type BuffEvent = BuffEventRaw & UnitsResolved;
+export type DebuffEvent = DebuffEventRaw & UnitsResolved;

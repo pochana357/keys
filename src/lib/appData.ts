@@ -23,7 +23,9 @@ const defensiveExtended = (duration: number): EffectNonbuff => ({
 	type: 'extended',
 	duration
 });
-export const offensiveSpells: Record<number, DefensiveSpell> = {
+type SpellDict = { [id: number]: DefensiveSpell };
+
+const offensiveSpells: SpellDict = {
 	// The buffs procced by offensive spells are not tracked.
 	// Shaman
 	114051: { effect: [] }, // Ascendance (enhancement)
@@ -55,7 +57,8 @@ export const offensiveSpells: Record<number, DefensiveSpell> = {
 	// 91374: { effect: [] }, // Battle of Prowess (Mark of Khardros)
 	// 92099: { effect: [] } // Speed of Thought (Skardin's Grace)
 };
-const defensiveSpells: Record<number, DefensiveSpell> = {
+
+const defensiveSpells: SpellDict = {
 	// Priest
 	8092: { effect: [defensiveBuff(450193)] }, // Mind Blast (Entropic Rift)
 	19236: { effect: [defensiveBuff(19236)] }, // Desperate Player
@@ -166,16 +169,47 @@ const defensiveSpells: Record<number, DefensiveSpell> = {
 	// Trinkets
 	444301: { effect: [defensiveBuff(444301)] }, // Ravenous Swarm (444301 is the 3s buff; 447134 is the buff that tracks the shield amount)
 
-	// Missing
-	// Cloak proc (Evasive Maneuvers buff id = 457533)
-	// Stoneform casts missing (bug in the WCL side; buff id = 65116)
-
 	// Necrotic Wake
 	328404: { effect: [defensiveExtended(8000)] }, // Discharged Anima; the spell 328406 is the perodic casts every 1 second when the anima is used.
 	328050: { effect: [defensiveBuff(328050)] } // Discarded Shield
 };
+export const castDict: SpellDict = { ...defensiveSpells };
 for (const [id, val] of Object.entries(offensiveSpells)) {
-	// @ts-expect-error permit any
-	defensiveSpells[id] = { ...val, minor: true };
+	// All offensive spells are treated as if they were minor defensive spells.
+	castDict[Number(id)] = { ...val, minor: true };
 }
-export default defensiveSpells;
+
+export const spelllikeBuffs = {
+	457533: { effect: [defensiveBuff(457533)] }, // Evasive Maneuvers (Cloak proc)
+	65116: { effect: [defensiveBuff(65116)] } // Stoneform; its casts are missing in the logs.
+};
+export const spelllikeDebuffs = {
+	// Paladin
+	393879: { effect: [defensiveBuff(86659)] } // Gift of the Golden Val'kyr
+};
+
+const castsTracked = new Set<number>(Object.keys(castDict).map((id) => Number(id)));
+const buffsTracked = new Set<number>(Object.keys(spelllikeBuffs).map((id) => Number(id)));
+for (const val of Object.values(castDict)) {
+	for (const effect of val.effect) {
+		if (effect.type === 'buff') buffsTracked.add(effect.buffId);
+	}
+}
+const debuffsTracked = new Set<number>(Object.keys(spelllikeDebuffs).map((id) => Number(id)));
+
+export const trackedIds = { castsTracked, buffsTracked, debuffsTracked };
+
+export const castBlackList = {
+	// Damage taken effects listed here are not tracked.
+	damages: [
+		1, // Melee
+		455537, // Symbiosis
+		32409 // Shadow Word: Death
+	],
+	// The AoE heal casts *are* tracked, but their targets are not displayed.
+	AoEHeals: [
+		194509 // Power Word: Radiance
+	]
+};
+
+// encounterID: https://wago.tools/db2/DungeonEncounter?page=1

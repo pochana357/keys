@@ -4,8 +4,10 @@ export const apiAddr = {
 	fights: (code: string) => `${apiPrefixV1}/fights/${code}`,
 	events: {
 		damageTaken: (code: string) => `${apiPrefixV1}/events/damage-taken/${code}`,
-		casts: (code: string) => `${apiPrefixV1}/events/casts/${code}`
+		casts: (code: string) => `${apiPrefixV1}/events/casts/${code}`,
+		buffs: (code: string) => `${apiPrefixV1}/events/buffs/${code}`,
+		debuffs: (code: string) => `${apiPrefixV1}/events/debuffs/${code}`
 	}
 } as const;
 
-export type EventTypes = keyof typeof apiAddr.events;
+export type EventType = keyof typeof apiAddr.events;
