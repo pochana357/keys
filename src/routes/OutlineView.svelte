@@ -42,7 +42,6 @@
 							? 'bg-secondary-600 font-bold'
 							: ''}"
 						onclick={() => {
-							console.log('onUpdate called by OutlineView');
 							onUpdate(i, j);
 						}}
 					>

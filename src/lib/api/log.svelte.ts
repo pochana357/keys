@@ -1,108 +1,15 @@
-import type {
-	PullRaw,
-	DamageTakenEventRaw,
-	CastEventRaw,
-	DamageTakenEvent,
-	CastEvent
-} from './wclTypes';
-import { apiAddr, wclApiKey } from './apiAddr';
+import type { PullRaw, DamageTakenEvent, CastEvent } from './wclTypes';
 import { formatTime } from '$lib/utils/utils';
 import ClassUtils from '$lib/utils/ClassUtils';
 import { blackList } from './spellData';
 import defensiveSpells from './defensiveData';
-import { readFromBuffer, writeToBuffer } from '$lib/localStorageWrapper.svelte';
 import Fights from '$lib/api/fights.svelte';
 import { EventsClass } from '$lib/api/event.svelte';
-
-type FetchEventsOptions = Partial<{
-	filter: string;
-	suffix: string;
-	verbose: boolean;
-	referenceTime: number;
-	progressCallback: (now: number, start: number, end: number) => void;
-}>;
-
-async function fetchEvents(
-	ApiAddress: string,
-	start: number,
-	end: number,
-	options: FetchEventsOptions
-) {
-	// a general fetch function to fetch events from WCL API
-	const queryString = new URLSearchParams({
-		start: String(start),
-		end: String(end),
-		api_key: String(wclApiKey),
-		translate: String(true)
-	});
-	if (options.filter) queryString.set('filter', options.filter);
-	const events: Event[] = [];
-	let st = start;
-	options.progressCallback?.(st, start, end);
-	while (true) {
-		queryString.set('start', String(st));
-		const url =
-			`${ApiAddress}?${queryString.toString()}` + (options.suffix ? `&${options.suffix}` : '');
-		console.log('fetching', url);
-
-		const response = await fetch(url);
-		if (!response.ok) {
-			return events;
-		}
-		const data = await response.json();
-
-		for (const event of data.events) events.push(event);
-
-		if ('nextPageTimestamp' in data) {
-			st = data.nextPageTimestamp;
-			options.progressCallback?.(st, start, end);
-		} else {
-			st = end;
-			break;
-		}
-	}
-	options.progressCallback?.(st, start, end);
-	return events;
-}
-
-async function fetchDamageTakenEvents(
-	code: string,
-	start: number,
-	end: number,
-	options: FetchEventsOptions
-): Promise<DamageTakenEventRaw[]> {
-	const cache = `damageTaken-${code}-${start}-${end}`;
-	try {
-		const data = readFromBuffer(cache);
-		if (!data) throw new Error('cache empty');
-		console.log('fetchDamageTakenEvents loaded from cache;', cache);
-		return data as DamageTakenEventRaw[];
-	} catch {
-		const events = await fetchEvents(apiAddr.events.damageTaken(code), start, end, options);
-		writeToBuffer(cache, events);
-		console.log('fetchDamageTakenEvents loaded from API;', cache);
-		return events as unknown as DamageTakenEventRaw[];
-	}
-}
-async function fetchCastEvents(
-	code: string,
-	start: number,
-	end: number,
-	options: FetchEventsOptions
-): Promise<CastEventRaw[]> {
-	const cache = `cast-${code}-${start}-${end}`;
-	try {
-		const data = readFromBuffer(cache);
-		if (!data) throw new Error('cache empty');
-		console.log('fetchCastEvents loaded from cache;', cache);
-		return data as CastEventRaw[];
-	} catch {
-		const events = await fetchEvents(apiAddr.events.cast(code), start, end, options);
-		writeToBuffer(cache, events);
-		console.log('fetchCastEvents loaded from API;', cache);
-		return events as unknown as CastEventRaw[];
-	}
-}
+import {
+	fetchDamageTakenEvents,
+	fetchCastEvents,
+	type FetchEventsOptions
+} from '$lib/api/fetchEvents';
 
 export default class Log {
 	code = $state('');
