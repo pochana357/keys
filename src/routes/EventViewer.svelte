@@ -1,16 +1,15 @@
 <script lang="ts">
-	import defensiveSpells from '$lib/api/defensiveData';
-	import type { EventsClass } from '$lib/api/event.svelte';
+	import { castDict, castBlackList } from '$lib/appData';
+	import type { EventsLumped } from '$lib/api/event.svelte';
 	import type { Ability, EventRawBase, GeneralEventRaw } from '$lib/api/wclTypes';
 	import { AppState } from '$lib/AppState';
 	import Timeline from '$lib/Timeline.svelte';
 	import { formatTime } from '$lib/utils/utils';
 	import ClassUtils, { ORole } from '$lib/utils/ClassUtils';
 	import { ability2img, addLink, addSpellLink } from '$lib/utils/link';
-	import { blackList } from '$lib/api/spellData';
 
 	type Props = {
-		events: EventsClass;
+		events: EventsLumped;
 		options: {
 			pxPerSec?: number;
 			showMinors?: boolean;
@@ -77,17 +76,17 @@
 			.filter(
 				(e) =>
 					// e.raw.source?.id !== e.raw.target?.id &&
-					!blackList.AoEHeals.includes(e.raw.ability.guid)
+					!castBlackList.AoEHeals.includes(e.raw.ability.guid)
 			)
-			.filter((e) => showMinors || !defensiveSpells[e.raw.ability.guid].minor);
+			.filter((e) => showMinors || !castDict[e.raw.ability.guid].minor);
 		const majorIcons = [];
 		const minorIcons = [];
 
 		for (const item of mir) {
 			const spellId = item.raw.ability.guid;
-			const defensiveSpell = defensiveSpells[spellId];
-			if (!defensiveSpell) continue;
-			if (defensiveSpell.minor) minorIcons.push(item.icon);
+			const castData = castDict[spellId];
+			if (!castData) continue;
+			if (castData.minor) minorIcons.push(item.icon);
 			else majorIcons.push(item.icon);
 		}
 		return { majorIcons, minorIcons, receivedIcons: mirReceived.map((m) => m.icon) };

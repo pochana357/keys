@@ -1,15 +1,10 @@
-import type { PullRaw, DamageTakenEvent, CastEvent } from './wclTypes';
-import { formatTime } from '$lib/utils/utils';
+import type { PullRaw } from './wclTypes';
 import ClassUtils from '$lib/utils/ClassUtils';
-import { blackList } from './spellData';
-import defensiveSpells from './defensiveData';
+import { castDict, trackedIds, castBlackList } from '$lib/appData';
 import Fights from '$lib/api/fights.svelte';
-import { EventsClass } from '$lib/api/event.svelte';
-import {
-	fetchDamageTakenEvents,
-	fetchCastEvents,
-	type FetchEventsOptions
-} from '$lib/api/fetchEvents';
+import { EventsLumped } from '$lib/api/event.svelte';
+import { type FetchEventsOptions, fetchEventsWithCache } from '$lib/api/fetchEvents';
+import type { EventType } from './apiAddr';
 
 export default class Log {
 	code = $state('');
@@ -27,79 +22,6 @@ export default class Log {
 		const fights = await Fights.fetchFights(code);
 		return new Log(code, fights);
 	}
-	async damageTakenEvents(startTime: number, endTime: number, options: FetchEventsOptions) {
-		const damageTaken = await fetchDamageTakenEvents(this.code, startTime, endTime, options);
-		const referenceTime = options.referenceTime ?? startTime;
-
-		const events: DamageTakenEvent[] = [];
-
-		for (const event of damageTaken) {
-			if (options.verbose) {
-				const source = this.fights.findUnitRaw(event.sourceID, event.sourceIsFriendly);
-				const target = this.fights.findUnitRaw(event.targetID, event.targetIsFriendly);
-				console.log(
-					formatTime(event.timestamp, startTime),
-					source?.icon ?? source?.name,
-					'▶',
-					target?.icon ?? target?.name
-				);
-				console.log(
-					'  ',
-					`${event.ability.name} (${event.ability.guid})`,
-					`${event.amount}` + (event.absorbed ? ` (A: ${event.absorbed})` : ''),
-					`remaining: ${event.hitPoints}/${event.maxHitPoints}`
-				);
-			}
-			events.push({
-				...event,
-				timestamp: event.timestamp - referenceTime,
-				source: this.fights.findUnitRaw(event.sourceID, event.sourceIsFriendly),
-				target: this.fights.findUnitRaw(event.targetID, event.targetIsFriendly)
-			});
-		}
-		return events;
-	}
-	async castEvents(startTime: number, endTime: number, options: FetchEventsOptions) {
-		const castEvents = await fetchCastEvents(this.code, startTime, endTime, options);
-
-		const referenceTime = options.referenceTime ?? startTime;
-		const events: CastEvent[] = [];
-		for (const event of castEvents) {
-			// skip `begincast` events
-			if (event.type !== 'cast') continue;
-			const defensiveSpell = defensiveSpells[event.ability.guid];
-			if (!defensiveSpell) continue;
-
-			const source = this.fights.findUnitRaw(event.sourceID, event.sourceIsFriendly);
-			const target = this.fights.findUnitRaw(event.targetID, event.targetIsFriendly);
-
-			if (
-				defensiveSpell.dpsOnly &&
-				source &&
-				(ClassUtils.isHeal(source) || ClassUtils.isTank(source))
-			) {
-				continue;
-			}
-			if (defensiveSpell.selfCastOnly && event.sourceID !== event.targetID) continue;
-			if (options.verbose) {
-				console.log(
-					formatTime(event.timestamp, referenceTime),
-					this.fights.findUnitRaw(event.sourceID, event.sourceIsFriendly)?.name,
-					'▶',
-					this.fights.findUnitRaw(event.targetID, event.targetIsFriendly)?.name
-				);
-				console.log('  ', `${event.ability.name} (${event.ability.guid})`);
-			}
-			events.push({
-				...event,
-				timestamp: event.timestamp - referenceTime,
-				source,
-				target
-			});
-		}
-		return events;
-	}
-
 	getDungeonPull(fightIdx: number, dungeonPullIdx: number) {
 		// If the pair of fightIdx and dungeonPullIdx denotes a valid M+ pull,
 		// returns the corresponding fightPullRaw and dungeonPullRaw.
@@ -117,27 +39,61 @@ export default class Log {
 		}
 		return null;
 	}
-	async analyzePull(
+	async fetchPull(
 		pull: PullRaw,
 		options: {
-			verbose?: boolean;
 			progressCallback?: (cur: number, st: number, ed: number) => void;
 		} = {}
 	) {
 		const startTime = pull.start_time;
 		const endTime = pull.end_time;
 
-		// The spellid of the melee attack may not be 1.
-		const damageTakenEvents = await this.damageTakenEvents(startTime, endTime, {
-			filter: `ability.id not in (${blackList.damages.join(',')}) and ability.name not in ("Melee")`,
-			verbose: options.verbose,
+		const retrieveEvents = <T extends EventType>(eventType: T, options: FetchEventsOptions) =>
+			fetchEventsWithCache(eventType, this.code, startTime, endTime, options).then((events) =>
+				events.map((event) => ({
+					...event,
+					timestamp: event.timestamp - startTime,
+					source: this.fights.findUnitRaw(event.sourceID, event.sourceIsFriendly),
+					target: this.fights.findUnitRaw(event.targetID, event.targetIsFriendly)
+				}))
+			);
+
+		const damageTakenEvents = await retrieveEvents('damageTaken', {
+			// We filter out the melee attacks and other irrelvant damage events such as Shadow Word: Death and Symbiosis (Darkmoon).
+			// Note that the spellid of the melee attack may not always be 1.
+			filter: `ability.id not in (${castBlackList.damages.join(',')}) and ability.name not in ("Melee")`,
 			progressCallback: options.progressCallback
 		});
-		const castEvents = await this.castEvents(startTime, endTime, {
-			verbose: options.verbose,
+		console.log(trackedIds.castsTracked.keys());
+		const castEvents = (
+			await retrieveEvents('casts', {
+				filter: `ability.id in (${[...trackedIds.castsTracked.keys()].join(',')})`,
+				progressCallback: options.progressCallback
+			})
+		).filter((event) => {
+			const castData = castDict[event.ability.guid];
+			if (!castData) return false;
+			if (
+				castData.dpsOnly &&
+				event.source &&
+				(ClassUtils.isHeal(event.source) || ClassUtils.isTank(event.source))
+			) {
+				return false;
+			}
+			if (castData.selfCastOnly && event.sourceID !== event.targetID) return false;
+			return true;
+		});
+
+		const buffEvents = await retrieveEvents('buffs', {
+			filter: `ability.id in (${[...trackedIds.buffsTracked.keys()].join(',')})`,
 			progressCallback: options.progressCallback
 		});
-		return new EventsClass(damageTakenEvents, castEvents, {
+		const debuffEVents = await retrieveEvents('debuffs', {
+			filter: `ability.id in (${[...trackedIds.debuffsTracked.keys()].join(',')})`,
+			progressCallback: options.progressCallback
+		});
+
+		return new EventsLumped(damageTakenEvents, castEvents, buffEvents, debuffEVents, {
 			startTime: 0,
 			endTime: endTime - startTime
 		});

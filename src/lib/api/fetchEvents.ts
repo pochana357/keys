@@ -1,12 +1,11 @@
 import { readFromBuffer, writeToBuffer } from '$lib/localStorageWrapper.svelte';
-import { apiAddr, wclApiKey, type EventTypes as EventType } from './apiAddr';
-import type { CastEventRaw, DamageTakenEventRaw, EventRaw } from './wclTypes';
+import { apiAddr, wclApiKey, type EventType } from './apiAddr';
+import type { EventRaw } from './wclTypes';
 import StringHash from '$lib/utils/hash';
 
 export type FetchEventsOptions = Partial<{
 	filter: string;
 	suffix: string;
-	verbose: boolean;
 	referenceTime: number;
 	progressCallback: (now: number, start: number, end: number) => void;
 }>;
@@ -56,14 +55,16 @@ async function fetchEvents(
 	return events;
 }
 
-export async function fetchEventsWrapped<T extends EventType>(
+export async function fetchEventsWithCache<T extends EventType>(
 	eventType: T,
 	code: string,
 	start: number,
 	end: number,
 	options: FetchEventsOptions
 ): Promise<EventRaw[T][]> {
-	const hash = StringHash.cyrb53(getUrl(apiAddr.events[eventType](code), start, end, options));
+	const url = getUrl(apiAddr.events[eventType](code), start, end, options);
+	console.log(url);
+	const hash = StringHash.cyrb53(url);
 	const cache = `${code}-${hash}`;
 	try {
 		const data = readFromBuffer(cache);
@@ -71,25 +72,11 @@ export async function fetchEventsWrapped<T extends EventType>(
 		console.log(`${eventType} events loaded from the local cache;`, cache);
 		return data as EventRaw[T][];
 	} catch {
-		const events = await fetchEvents(apiAddr.events.damageTaken(code), start, end, options);
+		const time = Date.now();
+		const events = await fetchEvents(apiAddr.events[eventType](code), start, end, options);
 		writeToBuffer(cache, events);
-		console.log(`${eventType} events fetched from API;`, cache);
+		const elapsedTime = Date.now() - time; // milliseconds
+		console.log(`${eventType} events fetched from API;`, cache, `(${elapsedTime / 1000.0}s)`);
 		return events as unknown as EventRaw[T][];
 	}
-}
-export async function fetchDamageTakenEvents(
-	code: string,
-	start: number,
-	end: number,
-	options: FetchEventsOptions
-): Promise<DamageTakenEventRaw[]> {
-	return fetchEventsWrapped('damageTaken', code, start, end, options);
-}
-export async function fetchCastEvents(
-	code: string,
-	start: number,
-	end: number,
-	options: FetchEventsOptions
-): Promise<CastEventRaw[]> {
-	return fetchEventsWrapped('casts', code, start, end, options);
 }
