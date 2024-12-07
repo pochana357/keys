@@ -54,7 +54,7 @@ export type Ability = {
 	guid: number;
 	abilityIcon: string;
 };
-export type EventRaw = {
+export type EventRawBase = {
 	timestamp: number;
 	type: string;
 	sourceID: number | UnitRaw;
@@ -63,7 +63,7 @@ export type EventRaw = {
 	targetIsFriendly: number;
 	ability: Ability;
 };
-export type DamageTakenEventRaw = EventRaw & {
+export type DamageTakenEventRaw = EventRawBase & {
 	buffs: string;
 	hitType: number;
 	amount: number;
@@ -72,8 +72,11 @@ export type DamageTakenEventRaw = EventRaw & {
 	maxHitPoints?: number;
 	overkill?: number;
 };
-export type CastEventRaw = EventRaw;
-export type GeneralEvent = EventRaw & { source: UnitRaw | null; target: UnitRaw | null };
+export type CastEventRaw = EventRawBase;
+
+export type GeneralEventRaw = EventRawBase & { source: UnitRaw | null; target: UnitRaw | null };
+export type EventRaw = { damageTaken: DamageTakenEventRaw; casts: CastEventRaw };
+
 export type DamageTakenEvent = DamageTakenEventRaw & {
 	source: UnitRaw | null;
 	target: UnitRaw | null;

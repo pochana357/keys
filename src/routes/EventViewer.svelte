@@ -1,7 +1,7 @@
 <script lang="ts">
 	import defensiveSpells from '$lib/api/defensiveData';
 	import type { EventsClass } from '$lib/api/event.svelte';
-	import type { Ability, EventRaw, GeneralEvent } from '$lib/api/wclTypes';
+	import type { Ability, EventRawBase, GeneralEventRaw } from '$lib/api/wclTypes';
 	import { AppState } from '$lib/AppState';
 	import Timeline from '$lib/Timeline.svelte';
 	import { formatTime } from '$lib/utils/utils';
@@ -28,7 +28,7 @@
 	});
 	const timeTicks = $derived([...Array(numTimeTicks + 1).keys()].map(timeTickCreator));
 
-	function event2icon<T extends EventRaw>(
+	function event2icon<T extends EventRawBase>(
 		event: T,
 		detailsCreator: (event: T) => string,
 		classes = ''
@@ -45,7 +45,7 @@
 	let pxPerSec = $derived(options.pxPerSec ?? AppState.defaultSettings.pxPerSec);
 	const offsetX = (timestamp: number) => (timestamp / 1000.0) * pxPerSec;
 
-	function filterEvents<T extends GeneralEvent>(
+	function filterEvents<T extends GeneralEventRaw>(
 		events: T[],
 		playerId: { source?: number; target?: number }
 	) {
