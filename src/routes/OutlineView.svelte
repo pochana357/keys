@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Fights from '$lib/api/fights.svelte';
+	import Fights from '$lib/api/Fights.svelte';
 	import { type FightsRaw } from '$lib/api/wclTypes';
 	import { formatAbsoluteTime, formatTime } from '$lib/utils/utils';
 	import WithTooltip from '$lib/WithTooltip.svelte';

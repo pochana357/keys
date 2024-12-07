@@ -1,18 +1,20 @@
 <script lang="ts">
 	import { castDict, castBlackList } from '$lib/appData';
-	import type { EventsLumped } from '$lib/api/event.svelte';
-	import type { Ability, EventRawBase, GeneralEventRaw } from '$lib/api/wclTypes';
+	import type EventsLumped from '$lib/api/EventsLumped.svelte';
+	import type { EventRawBase, GeneralEventRaw } from '$lib/api/wclTypes';
 	import { AppState } from '$lib/AppState';
 	import Timeline from '$lib/Timeline.svelte';
 	import { formatTime } from '$lib/utils/utils';
-	import ClassUtils, { ORole } from '$lib/utils/ClassUtils';
-	import { ability2img, addLink, addSpellLink } from '$lib/utils/link';
+	import ClassUtils from '$lib/utils/ClassUtils';
+	import { ability2img } from '$lib/utils/link';
+	import DamageEventsViewer from './DamageEventsViewer.svelte';
+	import CastEventsViewer from './CastEventsViewer.svelte';
 
 	type Props = {
 		events: EventsLumped;
 		options: {
 			pxPerSec?: number;
-			showMinors?: boolean;
+			showMinor?: boolean;
 			showReceived?: boolean;
 		};
 	};
@@ -39,10 +41,11 @@
 		};
 	}
 
-	let showMinors = $derived(options.showMinors ?? AppState.defaultSettings.showMinors);
+	let showMinor = $derived(options.showMinor ?? AppState.defaultSettings.showMinor);
 	let showReceived = $derived(options.showReceived ?? AppState.defaultSettings.showReceived);
 	let pxPerSec = $derived(options.pxPerSec ?? AppState.defaultSettings.pxPerSec);
 	const offsetX = (timestamp: number) => (timestamp / 1000.0) * pxPerSec;
+	let width = $derived(offsetX(numTimeTicks * timeTick));
 
 	function filterEvents<T extends GeneralEventRaw>(
 		events: T[],
@@ -53,91 +56,27 @@
 			: events;
 		return playerId.target ? filtered.filter((e) => e.target?.id === playerId.target) : filtered;
 	}
-	function processCasts(playerId: number) {
-		const mir = filterEvents(events.casts, { source: playerId }).map((e) => ({
-			raw: e,
-			icon: event2icon(e, (e2) =>
-				e2.target
-					? `${ClassUtils.formatUnit(e2.source)} ▶ ${ClassUtils.formatUnit(e2.target)}`
-					: ''
-			)
-		}));
-		const mirReceived = filterEvents(events.casts, { target: playerId })
-			.map((e) => ({
-				raw: e,
-				icon: event2icon(
-					e,
-					(e2) =>
-						`${ClassUtils.formatUnit(e2.source)}` +
-						(e2.target ? ` ▶ ${ClassUtils.formatUnit(e2.target)}` : ''),
-					'grayscale-[50%]'
-				)
-			}))
-			.filter(
-				(e) =>
-					// e.raw.source?.id !== e.raw.target?.id &&
-					!castBlackList.AoEHeals.includes(e.raw.ability.guid)
-			)
-			.filter((e) => showMinors || !castDict[e.raw.ability.guid].minor);
-		const majorIcons = [];
-		const minorIcons = [];
 
-		for (const item of mir) {
-			const spellId = item.raw.ability.guid;
-			const castData = castDict[spellId];
-			if (!castData) continue;
-			if (castData.minor) minorIcons.push(item.icon);
-			else majorIcons.push(item.icon);
-		}
-		return { majorIcons, minorIcons, receivedIcons: mirReceived.map((m) => m.icon) };
-	}
-	function processDamages(
-		playerId: number,
-		options: { mergeDotInterval?: number } = { mergeDotInterval: 5000 }
-	) {
-		const mir = filterEvents(events.damages, { target: playerId }).map((e) => ({
-			raw: e,
-			icon: event2icon(
-				e,
-				(e2) =>
-					`${e2.amount}` +
-					(e2.absorbed ? ` (A: ${e2.absorbed})` : '') +
-					(e2.overkill ? ` (O: ${e2.overkill})` : '')
-			)
-		}));
-
-		if (!options.mergeDotInterval) return { icons: mir.map((m) => m.icon), mergeData: null };
-		const mergeDotInterval = options.mergeDotInterval;
-
-		const lastTimestamps = new Map<number, { mirIdx: number; resIdx: number; timestamp: number }>();
-		const res: { idx: number; merged: number[] }[] = [];
-		mir.forEach((e, idx) => {
-			const lastTimestamp = lastTimestamps.get(e.raw.ability.guid);
-			if (lastTimestamp && e.icon.timestamp - lastTimestamp.timestamp < mergeDotInterval) {
-				// merge
-				res[lastTimestamp.resIdx].merged.push(idx);
-				lastTimestamp.timestamp = e.icon.timestamp;
-			} else {
-				// new damage
-				res.push({ idx, merged: [] });
-				lastTimestamps.set(e.raw.ability.guid, {
-					mirIdx: idx,
-					resIdx: res.length - 1,
-					timestamp: e.icon.timestamp
-				});
+	function partitionEventsByPlayer<T extends GeneralEventRaw>(events: T[]) {
+		const bySource: { [id: number]: T[] } = {};
+		const byTarget: { [id: number]: T[] } = {};
+		for (const e of events) {
+			if (e.source) {
+				if (!bySource[e.source.id]) bySource[e.source.id] = [];
+				bySource[e.source.id].push(e);
 			}
-		});
-		return { icons: mir.map((m) => m.icon), mergeData: res };
+			if (e.target) {
+				if (!byTarget[e.target.id]) byTarget[e.target.id] = [];
+				byTarget[e.target.id].push(e);
+			}
+		}
+		return { bySource, byTarget };
 	}
 
-	let players = $derived.by(() => {
-		const players = [...events.players.values()];
-		players.sort((a, b) => {
-			const roleDiff = String(ClassUtils.role(a)).localeCompare(String(ClassUtils.role(b)));
-			return roleDiff !== 0 ? roleDiff : a.icon.localeCompare(b.icon);
-		});
-		return players;
-	});
+	const damageEventsPartitioned = $derived(partitionEventsByPlayer(events.damages));
+	const castEventsPartitioned = $derived(partitionEventsByPlayer(events.casts));
+	const buffEventsPartitioned = $derived(partitionEventsByPlayer(events.buffs));
+	const debuffEventsPartitioned = $derived(partitionEventsByPlayer(events.debuffs));
 </script>
 
 <div class="lr-2 w-max py-2 pl-1">
@@ -152,8 +91,9 @@
 		{#if cursor}
 			<div style:width="1px" style:left="{cursor}px" class="absolute h-full bg-red-500"></div>
 		{/if}
-		<Timeline datatype="text" data={{ icons: timeTicks, mergeData: null }} bind:cursor />
-		{#each players as player (player.guid)}
+		<Timeline datatype="text" data={{ icons: timeTicks, mergeGroups: null }} bind:cursor />
+
+		{#each events.players as player (player.guid)}
 			<div class="sticky left-2 my-1 flex w-max items-center gap-2 font-bold">
 				<img
 					style:--size="18"
@@ -164,25 +104,21 @@
 				/>
 				<span style:color={ClassUtils.classColor(player.icon.split('-')[0])}>{player.name}</span>
 			</div>
-			<Timeline datatype="spellIcon" data={processDamages(player.id)} bind:cursor />
-
-			{@const casts = processCasts(player.id)}
+			<!-- <Timeline datatype="spellIcon" data={processDamages(player.id)} bind:cursor /> -->
+			<DamageEventsViewer
+				damageTakenEvents={damageEventsPartitioned.byTarget[player.id] ?? []}
+				options={{}}
+				bind:cursor
+			/>
 			<div class="py-1">
-				<div class="w-full bg-slate-700" style:width="{offsetX(numTimeTicks * timeTick)}px">
-					<Timeline datatype="spellIcon" data={{ icons: casts.majorIcons }} bind:cursor />
-				</div>
-
-				{#if showMinors && casts.minorIcons.length > 0}
-					<div class="w-full bg-slate-600" style:width="{offsetX(numTimeTicks * timeTick)}px">
-						<Timeline datatype="spellIcon" data={{ icons: casts.minorIcons }} bind:cursor />
-					</div>
-				{/if}
-
-				{#if showReceived && casts.receivedIcons.length > 0}
-					<div class="w-full bg-slate-500" style:width="{offsetX(numTimeTicks * timeTick)}px">
-						<Timeline datatype="spellIcon" data={{ icons: casts.receivedIcons }} bind:cursor />
-					</div>
-				{/if}
+				<CastEventsViewer
+					castEventsBySource={castEventsPartitioned.bySource[player.id] ?? []}
+					castEventsByTarget={castEventsPartitioned.byTarget[player.id] ?? []}
+					{showMinor}
+					{showReceived}
+					{width}
+					bind:cursor
+				/>
 			</div>
 		{/each}
 	</div>

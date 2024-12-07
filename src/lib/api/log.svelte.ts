@@ -1,8 +1,8 @@
 import type { PullRaw } from './wclTypes';
 import ClassUtils from '$lib/utils/ClassUtils';
 import { castDict, trackedIds, castBlackList } from '$lib/appData';
-import Fights from '$lib/api/fights.svelte';
-import { EventsLumped } from '$lib/api/event.svelte';
+import Fights from '$lib/api/Fights.svelte';
+import EventsLumped from '$lib/api/EventsLumped.svelte';
 import { type FetchEventsOptions, fetchEventsWithCache } from '$lib/api/fetchEvents';
 import type { EventType } from './apiAddr';
 
@@ -64,7 +64,6 @@ export default class Log {
 			filter: `ability.id not in (${castBlackList.damages.join(',')}) and ability.name not in ("Melee")`,
 			progressCallback: options.progressCallback
 		});
-		console.log(trackedIds.castsTracked.keys());
 		const castEvents = (
 			await retrieveEvents('casts', {
 				filter: `ability.id in (${[...trackedIds.castsTracked.keys()].join(',')})`,
