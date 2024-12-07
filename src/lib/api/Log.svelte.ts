@@ -52,7 +52,7 @@ export default class Log {
 			fetchEventsWithCache(eventType, this.code, startTime, endTime, options).then((events) =>
 				events.map((event) => ({
 					...event,
-					timestamp: event.timestamp - startTime,
+					timestamp: event.timestamp,
 					source: this.fights.findUnitRaw(event.sourceID, event.sourceIsFriendly),
 					target: this.fights.findUnitRaw(event.targetID, event.targetIsFriendly)
 				}))
@@ -93,8 +93,8 @@ export default class Log {
 		});
 
 		return new EventsLumped(damageTakenEvents, castEvents, buffEvents, debuffEVents, {
-			startTime: 0,
-			endTime: endTime - startTime
+			startTime,
+			endTime
 		});
 	}
 }

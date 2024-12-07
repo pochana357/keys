@@ -16,6 +16,7 @@
 			pxPerSec?: number;
 			showMinor?: boolean;
 			showReceived?: boolean;
+			referenceTime?: number;
 		};
 	};
 	let { events, options = {} }: Props = $props();
@@ -23,9 +24,10 @@
 	const timeTick = 10000;
 	const numTimeTicks = $derived(Math.ceil((events.endTime - events.startTime) / timeTick));
 
+	let referenceTime = $derived(options.referenceTime ?? events.startTime);
 	const timeTickCreator = (i: number) => ({
-		timestamp: i * timeTick,
-		content: formatTime(i * 10000, 0, 0)
+		timestamp: events.startTime + i * timeTick,
+		content: formatTime(events.startTime - referenceTime + i * 10000, 0, 0)
 	});
 	const timeTicks = $derived([...Array(numTimeTicks + 1).keys()].map(timeTickCreator));
 
@@ -44,8 +46,8 @@
 	let showMinor = $derived(options.showMinor ?? AppState.defaultSettings.showMinor);
 	let showReceived = $derived(options.showReceived ?? AppState.defaultSettings.showReceived);
 	let pxPerSec = $derived(options.pxPerSec ?? AppState.defaultSettings.pxPerSec);
-	const offsetX = (timestamp: number) => (timestamp / 1000.0) * pxPerSec;
-	let width = $derived(offsetX(numTimeTicks * timeTick));
+	const offsetX = (timestamp: number) => ((timestamp - events.startTime) / 1000.0) * pxPerSec;
+	let width = $derived(((numTimeTicks * timeTick) / 1000.0) * pxPerSec);
 
 	function filterEvents<T extends GeneralEventRaw>(
 		events: T[],
@@ -91,7 +93,7 @@
 		{#if cursor}
 			<div style:width="1px" style:left="{cursor}px" class="absolute h-full bg-red-500"></div>
 		{/if}
-		<Timeline datatype="text" data={{ icons: timeTicks, mergeGroups: null }} bind:cursor />
+		<Timeline datatype="text" icons={timeTicks} options={{ referenceTime, offsetX }} bind:cursor />
 
 		{#each events.players as player (player.guid)}
 			<div class="sticky left-2 my-1 flex w-max items-center gap-2 font-bold">
@@ -107,16 +109,19 @@
 			<!-- <Timeline datatype="spellIcon" data={processDamages(player.id)} bind:cursor /> -->
 			<DamageEventsViewer
 				damageTakenEvents={damageEventsPartitioned.byTarget[player.id] ?? []}
-				options={{}}
+				options={{ referenceTime, offsetX }}
 				bind:cursor
 			/>
 			<div class="py-1">
 				<CastEventsViewer
 					castEventsBySource={castEventsPartitioned.bySource[player.id] ?? []}
 					castEventsByTarget={castEventsPartitioned.byTarget[player.id] ?? []}
+					buffEvents={buffEventsPartitioned.bySource[player.id] ?? []}
+					debuffEvents={debuffEventsPartitioned.bySource[player.id] ?? []}
 					{showMinor}
 					{showReceived}
 					{width}
+					options={{ referenceTime, offsetX }}
 					bind:cursor
 				/>
 			</div>

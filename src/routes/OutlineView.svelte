@@ -47,11 +47,20 @@
 					>
 						{#if pull.boss}
 							<WithTooltip tooltip={pull.boss ? `Boss #${pull.boss}` : ''}>
-								#{pull.id} 💀 {pull.name}
-								{formatTime(pull.end_time, pull.start_time, 0)}
+								<span class="text-sm text-slate-300">#{pull.id}</span>
+								💀 {pull.name}
+								<span class="text-sm text-slate-300"
+									>+{formatTime(pull.start_time, fight.start_time, 0)}
+									({formatTime(pull.end_time, pull.start_time, 0)})</span
+								>
 							</WithTooltip>
 						{:else}
-							#{pull.id} {pull.name} {formatTime(pull.end_time, pull.start_time, 0)}
+							<span class="text-sm text-slate-300">#{pull.id}</span>
+							{pull.name}
+							<span class="text-sm text-slate-300"
+								>+{formatTime(pull.start_time, fight.start_time, 0)}
+								({formatTime(pull.end_time, pull.start_time, 0)})</span
+							>
 						{/if}
 					</button>
 				{/each}

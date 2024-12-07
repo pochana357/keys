@@ -215,13 +215,15 @@
 				</div>
 			{/if}
 			<div class="relative flex-1 overflow-x-auto">
-				{#if currentDungeonPullRaw}
+				{#if currentFightPullRaw && currentDungeonPullRaw}
 					<EventViewer
 						{events}
 						options={{
 							pxPerSec: settings.pxPerSec,
 							showMinor: settings.showMinor,
-							showReceived: settings.showReceived
+							showReceived: settings.showReceived,
+							// referenceTime: currentDungeonPullRaw.start_time
+							referenceTime: currentFightPullRaw.start_time
 						}}
 					/>
 				{:else}
