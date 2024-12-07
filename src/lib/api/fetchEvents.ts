@@ -63,7 +63,6 @@ export async function fetchEventsWithCache<T extends EventType>(
 	options: FetchEventsOptions
 ): Promise<EventRaw[T][]> {
 	const url = getUrl(apiAddr.events[eventType](code), start, end, options);
-	console.log(url);
 	const hash = StringHash.cyrb53(url);
 	const cache = `${code}-${hash}`;
 	try {
