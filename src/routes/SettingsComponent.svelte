@@ -10,7 +10,7 @@
 		pxPerLevel = $bindable(),
 		showMinor: showMinors = $bindable(),
 		showReceived = $bindable(),
-		dungeonStartAsReferenceTime = $bindable()
+		pullStartAsReferenceTime = $bindable()
 	}: Props = $props();
 	let pxPerSecWrapped = $state([pxPerSec]);
 	let horizontalOverlapWrapped = $state([horizontalOverlap]);
@@ -27,12 +27,12 @@
 	});
 </script>
 
-<div class="flex gap-4">
+<div class="flex gap-4 pb-1">
 	<div>
-		<div class="text-lg font-bold">Display</div>
+		<div class="text-lg font-bold">Layout</div>
 		<hr class="mb-2 mt-1" />
 		<div class="flex w-96 flex-col gap-2">
-			<p>Horizontal size (px/s): {pxPerSec}</p>
+			<p>Time scale (px/s): {pxPerSec}</p>
 			<Slider
 				name="pxPerSec"
 				min={settingsRange.pxPerSec[0]}
@@ -44,7 +44,7 @@
 				trackBg="bg-slate-400"
 				classes="px-5"
 			/>
-			<p>Horizontal Overlap (px): {horizontalOverlap}</p>
+			<p>Icon overlap threshold (px): {horizontalOverlap}</p>
 			<Slider
 				name="horizontalOverlap"
 				min={settingsRange.horizontalOverlap[0]}
@@ -56,7 +56,7 @@
 				trackBg="bg-slate-400"
 				classes="px-5"
 			/>
-			<p>Line height between timelines (px): {pxPerLevel}</p>
+			<p>Timeline spacing (px): {pxPerLevel}</p>
 			<Slider
 				name="pxPerLevel"
 				min={settingsRange.pxPerLevel[0]}
@@ -68,10 +68,21 @@
 				trackBg="bg-slate-400"
 				classes="px-5"
 			/>
+			<div class="mt-1 flex justify-between">
+				<p>Set reference time to start of the pull</p>
+				<Switch
+					name="showReceived"
+					bind:checked={pullStartAsReferenceTime}
+					controlInactive="bg-secondary-100"
+				>
+					{#snippet inactiveChild()}<IconX size="14" />{/snippet}
+					{#snippet activeChild()}<IconCheck size="14" />{/snippet}
+				</Switch>
+			</div>
 		</div>
 	</div>
 	<div>
-		<div class="text-lg font-bold">Content</div>
+		<div class="text-lg font-bold">Filters</div>
 		<hr class="mb-2 mt-1" />
 		<div class="flex w-96 flex-col gap-2">
 			<div class="flex justify-between">
@@ -88,17 +99,6 @@
 					{#snippet activeChild()}<IconCheck size="14" />{/snippet}
 				</Switch>
 			</div>
-			<div class="flex justify-between">
-				<p>Offset the timestamp to the start of the pull</p>
-				<Switch
-					name="showReceived"
-					bind:checked={dungeonStartAsReferenceTime}
-					controlInactive="bg-secondary-100"
-				>
-					{#snippet inactiveChild()}<IconX size="14" />{/snippet}
-					{#snippet activeChild()}<IconCheck size="14" />{/snippet}
-				</Switch>
-			</div>
 		</div>
 
 		<button
@@ -110,7 +110,7 @@
 				pxPerLevelWrapped = [AppState.defaultSettings.pxPerLevel];
 				showMinors = AppState.defaultSettings.showMinor;
 				showReceived = AppState.defaultSettings.showReceived;
-				dungeonStartAsReferenceTime = AppState.defaultSettings.dungeonStartAsReferenceTime;
+				pullStartAsReferenceTime = AppState.defaultSettings.pullStartAsReferenceTime;
 			}}
 		>
 			Reset settings

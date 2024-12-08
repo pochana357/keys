@@ -12,7 +12,7 @@ export type Settings = {
 	pxPerLevel: number;
 	showMinor: boolean;
 	showReceived: boolean;
-	dungeonStartAsReferenceTime: boolean;
+	pullStartAsReferenceTime: boolean;
 };
 const defaultSettings: Settings = {
 	pxPerSec: 10.0,
@@ -20,7 +20,7 @@ const defaultSettings: Settings = {
 	pxPerLevel: 20.0,
 	showMinor: false,
 	showReceived: true,
-	dungeonStartAsReferenceTime: false
+	pullStartAsReferenceTime: true
 };
 export const settingsRange = {
 	pxPerSec: [5.0, 20.0],
