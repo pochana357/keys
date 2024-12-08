@@ -196,7 +196,7 @@
 					bind:pxPerLevel={settings.pxPerLevel}
 					bind:showMinor={settings.showMinor}
 					bind:showReceived={settings.showReceived}
-					bind:dungeonStartAsReferenceTime={settings.dungeonStartAsReferenceTime}
+					bind:pullStartAsReferenceTime={settings.pullStartAsReferenceTime}
 					defaultSettings={AppState.defaultSettings}
 				/>
 			</div>
@@ -223,9 +223,9 @@
 							pxPerSec: settings.pxPerSec,
 							showMinor: settings.showMinor,
 							showReceived: settings.showReceived,
-							referenceTime: settings.dungeonStartAsReferenceTime
-								? currentFightPullRaw.start_time
-								: currentDungeonPullRaw.start_time
+							referenceTime: settings.pullStartAsReferenceTime
+								? currentDungeonPullRaw.start_time
+								: currentFightPullRaw.start_time
 						}}
 					/>
 				{:else}
