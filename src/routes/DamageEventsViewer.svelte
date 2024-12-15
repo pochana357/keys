@@ -113,7 +113,7 @@
 			{/if}
 		</p>
 		{#if event.buffs}
-			<hr />
+			<hr class="my-1" />
 			<p class="font-bold">Defensive Buffs</p>
 			{#each event.buffs.split('.') as buff (buff)}
 				{#if buff.length > 0}
@@ -121,7 +121,7 @@
 					{#if ability}
 						<p>
 							{@html ability2img(ability, 'inline-block')}
-							{ability.name}
+							{@render formatAbilityName(ability)}
 							<span class="text-sm text-slate-300">(#{ability.guid})</span>
 						</p>
 					{:else}
@@ -131,12 +131,15 @@
 			{/each}
 		{/if}
 		{#if event.amount > 0}
-			<hr />
+			<hr class="my-1" />
 			<p class="font-bold">Stats</p>
 			{#if event.hitPoints && event.maxHitPoints}
 				<p>
-					HP remaining: {formatInteger(event.hitPoints)} / {formatInteger(event.maxHitPoints)}
+					HP remaining: {formatInteger(event.hitPoints)}
 					({((event.hitPoints / event.maxHitPoints) * 100.0).toFixed(2)} %)
+				</p>
+				<p>
+					Max HP: {formatInteger(event.maxHitPoints)}
 				</p>
 			{/if}
 			<p>Vers: {(event.versatility / 100.0).toFixed(2)}%</p>
