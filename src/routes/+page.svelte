@@ -5,7 +5,7 @@
 	import IconHistory from 'lucide-svelte/icons/history';
 	import IconSettings from 'lucide-svelte/icons/settings';
 	import IconAlignJustify from 'lucide-svelte/icons/align-justify';
-	import type { FightPullRaw, FightsRaw, PullRaw } from '$lib/api/wclTypes';
+	import type { Ability, FightPullRaw, FightsRaw, PullRaw } from '$lib/api/wclTypes';
 	import EventsLumped from '$lib/api/EventsLumped.svelte';
 	import Log from '$lib/api/Log.svelte';
 	import { onMount } from 'svelte';
@@ -15,6 +15,7 @@
 	import LoadingScreen from './LoadingScreen.svelte';
 	import SettingsComponent from './SettingsComponent.svelte';
 	import History from './History.svelte';
+	import { SvelteMap } from 'svelte/reactivity';
 
 	let appState = new AppState();
 	let logs: { [code: string]: Log } = $state({});
@@ -24,6 +25,7 @@
 	let codeInputFormValue = $state('');
 	let settings = $derived(appState.settings);
 	let visibility = $derived(appState.visibility);
+	let buffDict: SvelteMap<number, Ability> = new SvelteMap();
 	const urlParams = new URLSearchParams(window.location.search);
 
 	async function callApi(code: string, fightIdx = -1, dungeonPullIdx = -1) {
@@ -47,6 +49,9 @@
 				.fetchPull(dungeonPull.dungeonPullRaw, { progressCallback })
 				.then((e) => {
 					appState.api.status = OApiStatus.succeeded;
+					for (const buff of e.buffs) {
+						if (!buffDict.has(buff.ability.guid)) buffDict.set(buff.ability.guid, buff.ability);
+					}
 					return { dungeonPull, eventsClass: e };
 				})
 				.catch((err) => {
@@ -227,6 +232,7 @@
 								? currentDungeonPullRaw.start_time
 								: currentFightPullRaw.start_time
 						}}
+						{buffDict}
 					/>
 				{:else}
 					<p class="p-2 text-center text-lg">

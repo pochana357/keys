@@ -27,3 +27,15 @@ export function hexToRGB(hex: string) {
 		return 'rgb(128, 128, 128)';
 	}
 }
+
+export function getVersPercent(rating: number) {
+	const percent2Rating = 780; // @ Level 80
+	const preDR = rating / percent2Rating;
+	if (preDR <= 30.0) return preDR;
+	else if (preDR <= 40.0) return 30.0 + (preDR - 30.0) * 0.9;
+	else if (preDR <= 50.0) return 39.0 + (preDR - 40.0) * 0.8;
+	else if (preDR <= 60.0) return 47.0 + (preDR - 50.0) * 0.7;
+	else if (preDR <= 80.0) return 54.0 + (preDR - 60.0) * 0.6;
+	else if (preDR <= 200.0) return 66.0 + (preDR - 80.0) * 0.5;
+	if (preDR >= 200) return 126.0;
+}
