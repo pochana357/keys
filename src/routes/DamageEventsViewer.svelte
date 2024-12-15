@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { DamageTakenEvent } from '$lib/api/wclTypes';
-	import Timeline from '$lib/Timeline.svelte';
+	import Timeline, { type Icon } from '$lib/Timeline.svelte';
 	import { ability2img } from '$lib/utils/link';
+	import { formatTime } from '$lib/utils/utils';
 
 	type Props = {
 		damageTakenEvents: DamageTakenEvent[];
@@ -45,23 +46,42 @@
 		return mergeGroups;
 	});
 
-	const detailsCreator = (event: DamageTakenEvent) =>
-		`${event.amount}` +
-		(event.absorbed ? ` (A: ${event.absorbed})` : '') +
-		(event.overkill ? ` (O: ${event.overkill})` : '');
-
 	let icons = $derived(
 		damageTakenEvents.map((event) => ({
 			timestamp: event.timestamp,
-			content: ability2img(event.ability),
-			details: `${event.ability.name} (#${event.ability.guid})<br>` + detailsCreator(event)
+			data: event,
+			emphasisLevel: event.overkill && event.overkill > 0 ? 99 : 0
 		}))
 	);
 </script>
 
+{#snippet contentRenderer(icon: Icon<DamageTakenEvent>)}
+	{@const event = icon.data}
+	{@html ability2img(event.ability)}
+{/snippet}
+{#snippet detailsRenderer(icon: Icon<DamageTakenEvent>, referenceTime: number)}
+	{@const event = icon.data}
+	<div class="text-center">
+		<p>
+			{formatTime(icon.timestamp, referenceTime)}
+			{event?.ability?.name} (#{event?.ability?.guid})
+		</p>
+		<p>
+			{event.amount}
+			{#if event.absorbed}
+				(A: {event.absorbed})
+			{/if}
+			{#if event.overkill}
+				(O: {event.overkill})
+			{/if}
+		</p>
+	</div>
+{/snippet}
 <Timeline
 	datatype="spellIcon"
 	{icons}
+	{contentRenderer}
+	{detailsRenderer}
 	options={{ mergeGroups, referenceTime, offsetX: options.offsetX }}
 	bind:cursor
 />
