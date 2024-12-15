@@ -27,7 +27,9 @@
 						<p>
 							<a
 								href="https://www.warcraftlogs.com/reports/{code}#fight={fight.id}&translate=true"
-								target="_blank">#{fight.id} {fight.zoneName} +{fight.keystoneLevel}</a
+								target="_blank"
+								><span class="text-sm text-slate-300">#{fight.id}</span>
+								{fight.zoneName} +{fight.keystoneLevel}</a
 							>
 						</p>
 						<p class="pt-1 text-sm text-slate-300">
@@ -47,7 +49,8 @@
 					>
 						{#if pull.boss}
 							<WithTooltip tooltip={pull.boss ? `Boss #${pull.boss}` : ''}>
-								<span class="text-sm text-slate-300">#{pull.id}</span>
+								<!-- We use `j+1` instead of `pull.id` to match the url scheme of WCL. -->
+								<span class="text-sm text-slate-300">#{j + 1}</span>
 								💀 {pull.name}
 								<span class="text-sm text-slate-300"
 									>+{formatTime(pull.start_time, fight.start_time, 0)}
@@ -55,7 +58,7 @@
 								>
 							</WithTooltip>
 						{:else}
-							<span class="text-sm text-slate-300">#{pull.id}</span>
+							<span class="text-sm text-slate-300">#{j + 1}</span>
 							{pull.name}
 							<span class="text-sm text-slate-300"
 								>+{formatTime(pull.start_time, fight.start_time, 0)}
