@@ -2,7 +2,8 @@
 	import type { Ability, DamageTakenEvent } from '$lib/api/wclTypes';
 	import Timeline, { type Icon } from '$lib/Timeline.svelte';
 	import { ability2img } from '$lib/utils/link';
-	import { formatTime } from '$lib/utils/utils';
+	import { SpellSchool } from '$lib/utils/SpellSchool';
+	import { formatInteger, formatTime } from '$lib/utils/utils';
 	import type { SvelteMap } from 'svelte/reactivity';
 
 	type Props = {
@@ -57,24 +58,58 @@
 	);
 </script>
 
+{#snippet formatAbilityName(ability: Ability)}
+	{@const abilityTextColor = SpellSchool.getColor(ability.type)}
+
+	{#if abilityTextColor}
+		<span style:color={abilityTextColor}>{ability.name}</span>
+	{:else}
+		{ability.name}
+	{/if}
+{/snippet}
 {#snippet contentRenderer(icon: Icon<DamageTakenEvent>)}
 	{@const event = icon.data}
 	{@html ability2img(event.ability)}
 {/snippet}
 {#snippet detailsRenderer(icon: Icon<DamageTakenEvent>, referenceTime: number)}
 	{@const event = icon.data}
-	<div class="text-center">
-		<p>
+	<div>
+		<p class="text-center">
 			{formatTime(icon.timestamp, referenceTime)}
-			{event?.ability?.name} (#{event?.ability?.guid})
+			{@render formatAbilityName(event.ability)}
+			<span class="text-sm text-slate-300">(#{event.ability.guid})</span>
 		</p>
 		<p>
-			Damage taken: {event.amount}
+			School:
+			{#if SpellSchool.isPhysical(event.ability.type)}
+				<span style:color={SpellSchool.getColor(SpellSchool.Physical)}>Phys</span>
+			{/if}
+			{#if SpellSchool.isHoly(event.ability.type)}
+				<span style:color={SpellSchool.getColor(SpellSchool.Holy)}>Holy</span>
+			{/if}
+			{#if SpellSchool.isFire(event.ability.type)}
+				<span style:color={SpellSchool.getColor(SpellSchool.Fire)}>Fire</span>
+			{/if}
+			{#if SpellSchool.isNature(event.ability.type)}
+				<span style:color={SpellSchool.getColor(SpellSchool.Nature)}>Nature</span>
+			{/if}
+			{#if SpellSchool.isFrost(event.ability.type)}
+				<span style:color={SpellSchool.getColor(SpellSchool.Frost)}>Frost</span>
+			{/if}
+			{#if SpellSchool.isArcane(event.ability.type)}
+				<span style:color={SpellSchool.getColor(SpellSchool.Arcane)}>Arcane</span>
+			{/if}
+			{#if SpellSchool.isShadow(event.ability.type)}
+				<span style:color={SpellSchool.getColor(SpellSchool.Shadow)}>Shadow</span>
+			{/if}
+		</p>
+		<p>
+			Damage taken: {formatInteger(event.amount)}
 			{#if event.absorbed}
-				(A: {event.absorbed})
+				(A: {formatInteger(event.absorbed)})
 			{/if}
 			{#if event.overkill}
-				(O: {event.overkill})
+				(O: {formatInteger(event.overkill)})
 			{/if}
 		</p>
 		{#if event.buffs}
@@ -87,7 +122,7 @@
 						<p>
 							{@html ability2img(ability, 'inline-block')}
 							{ability.name}
-							(#{ability.guid})
+							<span class="text-sm text-slate-300">(#{event.ability.guid})</span>
 						</p>
 					{:else}
 						<p>(#{buff})</p>
@@ -100,10 +135,8 @@
 			<p class="font-bold">Stats</p>
 			{#if event.hitPoints && event.maxHitPoints}
 				<p>
-					HP remaining: {event.hitPoints} / {event.maxHitPoints} ({(
-						(event.hitPoints / event.maxHitPoints) *
-						100.0
-					).toFixed(2)} %)
+					HP remaining: {formatInteger(event.hitPoints)} / {formatInteger(event.maxHitPoints)}
+					({((event.hitPoints / event.maxHitPoints) * 100.0).toFixed(2)} %)
 				</p>
 			{/if}
 			<p>Vers: {(event.versatility / 100.0).toFixed(2)}%</p>

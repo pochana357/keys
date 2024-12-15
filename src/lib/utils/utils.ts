@@ -39,3 +39,7 @@ export function getVersPercent(rating: number) {
 	else if (preDR <= 200.0) return 66.0 + (preDR - 80.0) * 0.5;
 	if (preDR >= 200) return 126.0;
 }
+
+export function formatInteger(x: number) {
+	return x.toLocaleString('en-US');
+}
