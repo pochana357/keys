@@ -122,7 +122,7 @@
 						<p>
 							{@html ability2img(ability, 'inline-block')}
 							{ability.name}
-							<span class="text-sm text-slate-300">(#{event.ability.guid})</span>
+							<span class="text-sm text-slate-300">(#{ability.guid})</span>
 						</p>
 					{:else}
 						<p>(#{buff})</p>
