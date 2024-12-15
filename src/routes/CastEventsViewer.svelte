@@ -91,7 +91,11 @@
 {#snippet detailsRenderer(icon: Icon<CastEvent>, referenceTime: number)}
 	{@const event = icon.data}
 	<div class="text-center">
-		<p>{formatTime(icon.timestamp, referenceTime)} {event.ability.name} (#{event.ability.guid})</p>
+		<p>
+			{formatTime(icon.timestamp, referenceTime)}
+			{event.ability.name}
+			<span class="text-sm text-slate-300">(#{event.ability.guid})</span>
+		</p>
 		<p>
 			{@html ClassUtils.formatUnit(event.source)}
 			{#if event.target}

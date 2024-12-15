@@ -52,6 +52,7 @@ export type BossPull = {
 export type Ability = {
 	name: string;
 	guid: number;
+	type: number;
 	abilityIcon: string;
 };
 export type EventRawBase = {
