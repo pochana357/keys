@@ -33,7 +33,7 @@
 			data: formatTime(events.startTime - referenceTime + i * 10000, 0, 0)
 		};
 	}
-	const timeTicks = $derived([...Array(numTimeTicks + 1).keys()].map(timeTickCreator));
+	const timeTicks = $derived([...Array(numTimeTicks).keys()].map(timeTickCreator));
 
 	function event2icon<T extends EventRawBase>(
 		event: T,
@@ -51,7 +51,8 @@
 	let showReceived = $derived(options.showReceived ?? AppState.defaultSettings.showReceived);
 	let pxPerSec = $derived(options.pxPerSec ?? AppState.defaultSettings.pxPerSec);
 	const offsetX = (timestamp: number) => ((timestamp - events.startTime) / 1000.0) * pxPerSec;
-	let width = $derived(((numTimeTicks * timeTick) / 1000.0) * pxPerSec);
+	// let width = $derived(((numTimeTicks * timeTick) / 1000.0) * pxPerSec);
+	let width = $derived(offsetX(events.endTime));
 
 	function filterEvents<T extends GeneralEventRaw>(
 		events: T[],
