@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { castDict, castBlackList } from '$lib/appData';
 	import type EventsLumped from '$lib/api/EventsLumped.svelte';
 	import type { EventRawBase, GeneralEventRaw } from '$lib/api/wclTypes';
 	import { AppState } from '$lib/AppState';
-	import Timeline from '$lib/Timeline.svelte';
+	import Timeline, { type Icon } from '$lib/Timeline.svelte';
 	import { formatTime } from '$lib/utils/utils';
 	import ClassUtils from '$lib/utils/ClassUtils';
 	import { ability2img } from '$lib/utils/link';
@@ -25,10 +24,13 @@
 	const numTimeTicks = $derived(Math.ceil((events.endTime - events.startTime) / timeTick));
 
 	let referenceTime = $derived(options.referenceTime ?? events.startTime);
-	const timeTickCreator = (i: number) => ({
-		timestamp: events.startTime + i * timeTick,
-		content: formatTime(events.startTime - referenceTime + i * 10000, 0, 0)
-	});
+
+	function timeTickCreator(i: number): Icon<string> {
+		return {
+			timestamp: events.startTime + i * timeTick,
+			data: formatTime(events.startTime - referenceTime + i * 10000, 0, 0)
+		};
+	}
 	const timeTicks = $derived([...Array(numTimeTicks + 1).keys()].map(timeTickCreator));
 
 	function event2icon<T extends EventRawBase>(
@@ -81,6 +83,9 @@
 	const debuffEventsPartitioned = $derived(partitionEventsByPlayer(events.debuffs));
 </script>
 
+{#snippet timeTickContentRenderer(timeTick: Icon<string>)}
+	{timeTick.data}
+{/snippet}
 <div class="lr-2 w-max py-2 pl-1">
 	<div class="relative">
 		{#each timeTicks as tick (tick.timestamp)}
@@ -93,7 +98,13 @@
 		{#if cursor}
 			<div style:width="1px" style:left="{cursor}px" class="absolute h-full bg-red-500"></div>
 		{/if}
-		<Timeline datatype="text" icons={timeTicks} options={{ referenceTime, offsetX }} bind:cursor />
+		<Timeline
+			datatype="text"
+			icons={timeTicks}
+			contentRenderer={timeTickContentRenderer}
+			options={{ referenceTime, offsetX }}
+			bind:cursor
+		/>
 
 		{#each events.players as player (player.guid)}
 			<div class="sticky left-2 my-1 flex w-max items-center gap-2 font-bold">
@@ -106,7 +117,7 @@
 				/>
 				<span style:color={ClassUtils.classColor(player.icon.split('-')[0])}>{player.name}</span>
 			</div>
-			<!-- <Timeline datatype="spellIcon" data={processDamages(player.id)} bind:cursor /> -->
+
 			<DamageEventsViewer
 				damageTakenEvents={damageEventsPartitioned.byTarget[player.id] ?? []}
 				options={{ referenceTime, offsetX }}

@@ -18,13 +18,13 @@
 	} from '@skeletonlabs/floating-ui-svelte';
 
 	let {
-		tooltip = 'default floating text',
+		tooltip,
 		children,
 		placement,
 		inDelay
 	}: {
-		tooltip: string;
-		children: Snippet;
+		tooltip?: string | Snippet<[]>;
+		children: Snippet<[]>;
 		placement?: Placement;
 		inDelay?: boolean;
 	} = $props();
@@ -64,7 +64,7 @@
 		{@render children()}
 	</div>
 	<!-- Floating Element -->
-	{#if open}
+	{#if open && tooltip}
 		<div
 			bind:this={floating.elements.floating}
 			style={floating.floatingStyles}
@@ -74,10 +74,11 @@
 			out:fade={{ duration: 200 }}
 		>
 			<!-- .floating not needed in the div above? -->
-
-			<div class="text-center">
+			{#if typeof tooltip === 'string'}
 				{@html tooltip}
-			</div>
+			{:else}
+				{@render tooltip()}
+			{/if}
 			<FloatingArrow bind:ref={elemArrow} context={floating.context} fill="#575969" />
 		</div>
 	{/if}
