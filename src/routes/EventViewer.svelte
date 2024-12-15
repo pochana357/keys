@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type EventsLumped from '$lib/api/EventsLumped.svelte';
-	import type { EventRawBase, GeneralEventRaw } from '$lib/api/wclTypes';
+	import type { Ability, EventRawBase, GeneralEventRaw } from '$lib/api/wclTypes';
 	import { AppState } from '$lib/AppState';
 	import Timeline, { type Icon } from '$lib/Timeline.svelte';
 	import { formatTime } from '$lib/utils/utils';
@@ -8,6 +8,7 @@
 	import { ability2img } from '$lib/utils/link';
 	import DamageEventsViewer from './DamageEventsViewer.svelte';
 	import CastEventsViewer from './CastEventsViewer.svelte';
+	import type { SvelteMap } from 'svelte/reactivity';
 
 	type Props = {
 		events: EventsLumped;
@@ -17,8 +18,9 @@
 			showReceived?: boolean;
 			referenceTime?: number;
 		};
+		buffDict: SvelteMap<number, Ability>;
 	};
-	let { events, options = {} }: Props = $props();
+	let { events, options = {}, buffDict }: Props = $props();
 	let cursor: number | null = $state(0);
 	const timeTick = 10000;
 	const numTimeTicks = $derived(Math.ceil((events.endTime - events.startTime) / timeTick));
@@ -121,6 +123,7 @@
 			<DamageEventsViewer
 				damageTakenEvents={damageEventsPartitioned.byTarget[player.id] ?? []}
 				options={{ referenceTime, offsetX }}
+				{buffDict}
 				bind:cursor
 			/>
 			<div class="py-1">

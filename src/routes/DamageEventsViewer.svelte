@@ -1,8 +1,9 @@
 <script lang="ts">
-	import type { DamageTakenEvent } from '$lib/api/wclTypes';
+	import type { Ability, DamageTakenEvent } from '$lib/api/wclTypes';
 	import Timeline, { type Icon } from '$lib/Timeline.svelte';
 	import { ability2img } from '$lib/utils/link';
 	import { formatTime } from '$lib/utils/utils';
+	import type { SvelteMap } from 'svelte/reactivity';
 
 	type Props = {
 		damageTakenEvents: DamageTakenEvent[];
@@ -11,9 +12,10 @@
 			referenceTime?: number;
 			offsetX?: (timestamp: number) => number;
 		};
+		buffDict: SvelteMap<number, Ability>;
 		cursor: number | null;
 	};
-	let { damageTakenEvents, options = {}, cursor = $bindable(null) }: Props = $props();
+	let { damageTakenEvents, options = {}, buffDict, cursor = $bindable(null) }: Props = $props();
 	const defaultMergeDotInterval = 5000;
 	const mergeDotInterval = options.mergeDotInterval ?? defaultMergeDotInterval;
 
@@ -67,7 +69,7 @@
 			{event?.ability?.name} (#{event?.ability?.guid})
 		</p>
 		<p>
-			{event.amount}
+			Damage taken: {event.amount}
 			{#if event.absorbed}
 				(A: {event.absorbed})
 			{/if}
@@ -75,6 +77,38 @@
 				(O: {event.overkill})
 			{/if}
 		</p>
+		{#if event.buffs}
+			<hr />
+			<p class="font-bold">Defensive Buffs</p>
+			{#each event.buffs.split('.') as buff (buff)}
+				{#if buff.length > 0}
+					{@const ability = buffDict.get(Number(buff))}
+					{#if ability}
+						<p>
+							{@html ability2img(ability, 'inline-block')}
+							{ability.name}
+							(#{ability.guid})
+						</p>
+					{:else}
+						<p>(#{buff})</p>
+					{/if}
+				{/if}
+			{/each}
+		{/if}
+		{#if event.amount > 0}
+			<hr />
+			<p class="font-bold">Stats</p>
+			{#if event.hitPoints && event.maxHitPoints}
+				<p>
+					HP remaining: {event.hitPoints} / {event.maxHitPoints} ({(
+						(event.hitPoints / event.maxHitPoints) *
+						100.0
+					).toFixed(2)} %)
+				</p>
+			{/if}
+			<p>Vers: {(event.versatility / 100.0).toFixed(2)}%</p>
+			<p>Avoidance: {(event.avoidance / 100.0).toFixed(2)}%</p>
+		{/if}
 	</div>
 {/snippet}
 <Timeline

@@ -71,6 +71,8 @@ export type DamageTakenEventRaw = EventRawBase & {
 	hitPoints?: number;
 	maxHitPoints?: number;
 	overkill?: number;
+	versatility: number;
+	avoidance: number;
 };
 export type CastEventRaw = EventRawBase;
 export type BuffEventRaw = EventRawBase;

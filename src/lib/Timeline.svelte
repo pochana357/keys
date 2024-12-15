@@ -3,10 +3,9 @@
 </script>
 
 <script lang="ts" generics="T">
-	import { onMount, type Snippet } from 'svelte';
+	import { type Snippet } from 'svelte';
 	import { AppState, getAppState } from '$lib/AppState';
 	import WithTooltip from './WithTooltip.svelte';
-	import { formatTime } from '$lib/utils/utils';
 	type Props = {
 		datatype: 'text' | 'spellIcon';
 		icons: Icon<T>[];
