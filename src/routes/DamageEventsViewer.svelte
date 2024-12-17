@@ -124,8 +124,8 @@
 							{@render formatAbilityName(ability)}
 							<span class="text-sm text-slate-300">(#{ability.guid})</span>
 						</p>
-					{:else}
-						<p>(#{buff})</p>
+						<!-- {:else}
+						<p>(#{buff})</p> -->
 					{/if}
 				{/if}
 			{/each}
