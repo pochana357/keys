@@ -61,7 +61,7 @@ export default class Log {
 		const damageTakenEvents = await retrieveEvents('damageTaken', {
 			// We filter out the melee attacks and other irrelvant damage events such as Shadow Word: Death and Symbiosis (Darkmoon).
 			// Note that the spellid of the melee attack may not always be 1.
-			filter: `ability.id not in (${castBlackList.damages.join(',')}) and ability.name not in ("Melee")`,
+			filter: `(ability.id not in (${castBlackList.damages.join(',')}) and ability.name not in ("Melee")) or (overkill >= 0)`,
 			progressCallback: options.progressCallback
 		});
 		const castEvents = (
