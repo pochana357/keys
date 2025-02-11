@@ -24,23 +24,24 @@
 
 	// Group damage events with the same spell id if they are close enough.
 	// Grouped events are displayed in the same row in the timeline even when their icons overlap.
+	const getKey = (ability: Ability) => ability.name ?? `spell-{ability.guid}`;
 	let mergeGroups = $derived.by(() => {
-		// lastTimestamps[spellId] stores the last timestamp of the damage event.
-		const lastTimestamps = new Map<number, { mergeDataIdx: number; timestamp: number }>();
+		// lastTimestamps[spellName] stores the last timestamp of the damage event.
+		const lastTimestamps = new Map<string, { mergeDataIdx: number; timestamp: number }>();
 		// each entry of mergeData stores the index of the first damage event in the merge group (firstEventIdx)
 		// and the indices of the merged damage events (mergedIdxs).
 		const mergeGroups: { firstEventIdx: number; mergedIdxs: number[] }[] = [];
 
 		damageTakenEvents.forEach((e, idx) => {
-			const lastTimestamp = lastTimestamps.get(e.ability.guid);
+			const lastTimestamp = lastTimestamps.get(getKey(e.ability));
 			if (lastTimestamp && e.timestamp - lastTimestamp.timestamp < damageGroupInterval) {
-				// The current and the previous damage events (with the same spell id) are mergeable.
+				// The current and the previous damage events (with the same spell name) are mergeable.
 				mergeGroups[lastTimestamp.mergeDataIdx].mergedIdxs.push(idx);
 				lastTimestamp.timestamp = e.timestamp;
 			} else {
 				// The current damage begins a new merge group.
 				mergeGroups.push({ firstEventIdx: idx, mergedIdxs: [] });
-				lastTimestamps.set(e.ability.guid, {
+				lastTimestamps.set(getKey(e.ability), {
 					mergeDataIdx: mergeGroups.length - 1,
 					timestamp: e.timestamp
 				});
