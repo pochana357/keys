@@ -24,11 +24,15 @@ const defaultSettings: Settings = {
 	pullStartAsReferenceTime: true,
 	damageGroupInterval: 3000
 };
-export const settingsRange = {
-	pxPerSec: [5.0, 20.0],
-	horizontalOverlap: [1.0, 25.0],
-	pxPerLevel: [15.0, 25.0],
-	damageGroupInterval: [0, 10000]
+export type Range = {
+	min: number;
+	max: number;
+};
+export const settingsRange: { [name: string]: Range } = {
+	pxPerSec: { min: 5.0, max: 20.0 },
+	horizontalOverlap: { min: 1.0, max: 25.0 },
+	pxPerLevel: { min: 15.0, max: 25.0 },
+	damageGroupInterval: { min: 0, max: 5000 }
 };
 type HistoryItem = {
 	code: string;
@@ -104,27 +108,48 @@ export class AppState {
 	resetSettings() {
 		this.settings = createSettings(defaultSettings);
 	}
+	static validateNumber(value: unknown, range: Range, defaultValue: number) {
+		if (typeof value !== 'number' || isNaN(value)) return defaultValue;
+		if (value < range.min) return range.min;
+		if (value > range.max) return range.max;
+		return value;
+	}
+	static validateBoolean(value: unknown, defaultValue: boolean) {
+		if (typeof value !== 'boolean') return defaultValue;
+		return value;
+	}
 	validateSettings() {
+		// This function is called when the app is loaded
 		const settings = this.settings;
-		if (
-			typeof settings.pxPerLevel !== 'number' ||
-			settings.pxPerSec < settingsRange.pxPerSec[0] ||
-			settings.pxPerSec > settingsRange.pxPerSec[1]
-		)
-			settings.pxPerSec = defaultSettings.pxPerSec;
-		if (
-			typeof settings.pxPerLevel !== 'number' ||
-			settings.horizontalOverlap < settingsRange.horizontalOverlap[0] ||
-			settings.horizontalOverlap > settingsRange.horizontalOverlap[1]
-		)
-			settings.horizontalOverlap = defaultSettings.horizontalOverlap;
-		if (
-			typeof settings.pxPerLevel !== 'number' ||
-			settings.pxPerLevel < settingsRange.pxPerLevel[0] ||
-			settings.pxPerLevel > settingsRange.pxPerLevel[1]
-		)
-			settings.pxPerLevel = defaultSettings.pxPerLevel;
-		if (typeof settings.showMinor !== 'boolean') settings.showMinor = defaultSettings.showMinor;
+		settings.pxPerSec = AppState.validateNumber(
+			settings.pxPerSec,
+			settingsRange.pxPerSec,
+			defaultSettings.pxPerSec
+		);
+		settings.horizontalOverlap = AppState.validateNumber(
+			settings.horizontalOverlap,
+			settingsRange.horizontalOverlap,
+			defaultSettings.horizontalOverlap
+		);
+		settings.pxPerLevel = AppState.validateNumber(
+			settings.pxPerLevel,
+			settingsRange.pxPerLevel,
+			defaultSettings.pxPerLevel
+		);
+		settings.damageGroupInterval = AppState.validateNumber(
+			settings.damageGroupInterval,
+			settingsRange.damageGroupInterval,
+			defaultSettings.damageGroupInterval
+		);
+		settings.showReceived = AppState.validateBoolean(
+			settings.showReceived,
+			defaultSettings.showReceived
+		);
+		settings.showMinor = AppState.validateBoolean(settings.showMinor, defaultSettings.showMinor);
+		settings.pullStartAsReferenceTime = AppState.validateBoolean(
+			settings.pullStartAsReferenceTime,
+			defaultSettings.pullStartAsReferenceTime
+		);
 	}
 
 	pushCodeToHistory(log: Log) {

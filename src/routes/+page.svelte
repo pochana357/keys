@@ -203,7 +203,6 @@
 					bind:showReceived={settings.showReceived}
 					bind:pullStartAsReferenceTime={settings.pullStartAsReferenceTime}
 					bind:damageGroupInterval={settings.damageGroupInterval}
-					defaultSettings={AppState.defaultSettings}
 				/>
 			</div>
 		</div>

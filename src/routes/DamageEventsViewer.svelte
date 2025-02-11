@@ -1,5 +1,4 @@
 <script lang="ts">
-	// TODO: Extract the Slider and Switch components.
 	import type { Ability, DamageTakenEvent } from '$lib/api/wclTypes';
 	import Timeline, { type Icon } from '$lib/Timeline.svelte';
 	import { ability2img } from '$lib/utils/link';
@@ -31,7 +30,6 @@
 		// each entry of mergeData stores the index of the first damage event in the merge group (firstEventIdx)
 		// and the indices of the merged damage events (mergedIdxs).
 		const mergeGroups: { firstEventIdx: number; mergedIdxs: number[] }[] = [];
-		console.log('dbg in DEV: ', damageGroupInterval);
 
 		damageTakenEvents.forEach((e, idx) => {
 			const lastTimestamp = lastTimestamps.get(e.ability.guid);
