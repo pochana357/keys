@@ -1,4 +1,5 @@
 <script lang="ts">
+	// TODO: Extract the Slider and Switch components.
 	import type { Ability, DamageTakenEvent } from '$lib/api/wclTypes';
 	import Timeline, { type Icon } from '$lib/Timeline.svelte';
 	import { ability2img } from '$lib/utils/link';
@@ -9,7 +10,7 @@
 	type Props = {
 		damageTakenEvents: DamageTakenEvent[];
 		options: {
-			mergeDotInterval?: number;
+			damageGroupInterval?: number;
 			referenceTime?: number;
 			offsetX?: (timestamp: number) => number;
 		};
@@ -17,22 +18,24 @@
 		cursor: number | null;
 	};
 	let { damageTakenEvents, options = {}, buffDict, cursor = $bindable(null) }: Props = $props();
-	const defaultMergeDotInterval = 5000;
-	const mergeDotInterval = options.mergeDotInterval ?? defaultMergeDotInterval;
+	const defaultDamageGroupInterval = 3000;
+	const damageGroupInterval = $derived(options.damageGroupInterval ?? defaultDamageGroupInterval);
 
 	let referenceTime = $derived(options.referenceTime ?? 0);
 
-	// Merge damage events with the same spell id if they are close enough.
+	// Group damage events with the same spell id if they are close enough.
+	// Grouped events are displayed in the same row in the timeline even when their icons overlap.
 	let mergeGroups = $derived.by(() => {
 		// lastTimestamps[spellId] stores the last timestamp of the damage event.
 		const lastTimestamps = new Map<number, { mergeDataIdx: number; timestamp: number }>();
 		// each entry of mergeData stores the index of the first damage event in the merge group (firstEventIdx)
 		// and the indices of the merged damage events (mergedIdxs).
 		const mergeGroups: { firstEventIdx: number; mergedIdxs: number[] }[] = [];
+		console.log('dbg in DEV: ', damageGroupInterval);
 
 		damageTakenEvents.forEach((e, idx) => {
 			const lastTimestamp = lastTimestamps.get(e.ability.guid);
-			if (lastTimestamp && e.timestamp - lastTimestamp.timestamp < mergeDotInterval) {
+			if (lastTimestamp && e.timestamp - lastTimestamp.timestamp < damageGroupInterval) {
 				// The current and the previous damage events (with the same spell id) are mergeable.
 				mergeGroups[lastTimestamp.mergeDataIdx].mergedIdxs.push(idx);
 				lastTimestamp.timestamp = e.timestamp;

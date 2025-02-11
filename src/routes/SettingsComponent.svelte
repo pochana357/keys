@@ -8,13 +8,15 @@
 		pxPerSec = $bindable(),
 		horizontalOverlap = $bindable(),
 		pxPerLevel = $bindable(),
-		showMinor: showMinors = $bindable(),
+		showMinor = $bindable(),
 		showReceived = $bindable(),
-		pullStartAsReferenceTime = $bindable()
+		pullStartAsReferenceTime = $bindable(),
+		damageGroupInterval = $bindable()
 	}: Props = $props();
 	let pxPerSecWrapped = $state([pxPerSec]);
 	let horizontalOverlapWrapped = $state([horizontalOverlap]);
 	let pxPerLevelWrapped = $state([pxPerLevel]);
+	let damageGroupIntervalWrapped = $state([damageGroupInterval]);
 	$effect(() => {
 		if (pxPerSec !== pxPerSecWrapped[0]) pxPerSec = pxPerSecWrapped[0];
 	});
@@ -24,6 +26,10 @@
 	});
 	$effect(() => {
 		if (pxPerLevel !== pxPerLevelWrapped[0]) pxPerLevel = pxPerLevelWrapped[0];
+	});
+	$effect(() => {
+		if (damageGroupInterval !== damageGroupIntervalWrapped[0])
+			damageGroupInterval = damageGroupIntervalWrapped[0];
 	});
 </script>
 
@@ -68,6 +74,18 @@
 				trackBg="bg-slate-400"
 				classes="px-5"
 			/>
+			<p>Damage Grouping Threshold (ms): {damageGroupInterval}</p>
+			<Slider
+				name="pxPerLevel"
+				min={settingsRange.damageGroupInterval[0]}
+				max={settingsRange.damageGroupInterval[1]}
+				step={1}
+				bind:value={damageGroupIntervalWrapped}
+				height="h-2"
+				meterBg="bg-primary-400"
+				trackBg="bg-slate-400"
+				classes="px-5"
+			/>
 			<div class="mt-1 flex justify-between">
 				<p>Set reference time to start of the pull</p>
 				<Switch
@@ -87,7 +105,7 @@
 		<div class="flex w-96 flex-col gap-2">
 			<div class="flex justify-between">
 				<p>Show offensives and minor defensives</p>
-				<Switch name="showMinors" bind:checked={showMinors} controlInactive="bg-secondary-100">
+				<Switch name="showMinor" bind:checked={showMinor} controlInactive="bg-secondary-100">
 					{#snippet inactiveChild()}<IconX size="14" />{/snippet}
 					{#snippet activeChild()}<IconCheck size="14" />{/snippet}
 				</Switch>
@@ -108,9 +126,11 @@
 				pxPerSecWrapped = [AppState.defaultSettings.pxPerSec];
 				horizontalOverlapWrapped = [AppState.defaultSettings.horizontalOverlap];
 				pxPerLevelWrapped = [AppState.defaultSettings.pxPerLevel];
-				showMinors = AppState.defaultSettings.showMinor;
+				damageGroupIntervalWrapped = [AppState.defaultSettings.damageGroupInterval];
+				showMinor = AppState.defaultSettings.showMinor;
 				showReceived = AppState.defaultSettings.showReceived;
 				pullStartAsReferenceTime = AppState.defaultSettings.pullStartAsReferenceTime;
+				damageGroupInterval = AppState.defaultSettings.damageGroupInterval;
 			}}
 		>
 			Reset settings
