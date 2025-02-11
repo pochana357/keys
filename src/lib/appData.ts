@@ -108,6 +108,7 @@ const defensiveSpells: SpellDict = {
 	374348: { effect: [defensiveBuff(374348)] }, // Renewing Blaze
 	374251: { effect: [] }, // Cauterizing Flame
 	442204: { effect: [defensiveBuff(409678)], minor: true }, // Breath of Eons (Chrono Ward)
+	358267: { effect: [defensiveBuff(358267)], minor: true }, // Hover
 
 	// Death Knight
 	48707: { effect: [defensiveBuff(48707)] }, // Anti-Magic Shell
