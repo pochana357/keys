@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type EventsLumped from '$lib/api/EventsLumped.svelte';
 	import type { Ability, EventRawBase, GeneralEventRaw } from '$lib/api/wclTypes';
-	import { AppState } from '$lib/AppState';
+	import { AppState, settingsRange } from '$lib/AppState';
 	import Timeline, { type Icon } from '$lib/Timeline.svelte';
 	import { formatTime } from '$lib/utils/utils';
 	import ClassUtils from '$lib/utils/ClassUtils';
@@ -17,6 +17,7 @@
 			showMinor?: boolean;
 			showReceived?: boolean;
 			referenceTime?: number;
+			damageGroupInterval?: number;
 		};
 		buffDict: SvelteMap<number, Ability>;
 	};
@@ -123,7 +124,7 @@
 
 			<DamageEventsViewer
 				damageTakenEvents={damageEventsPartitioned.byTarget[player.id] ?? []}
-				options={{ referenceTime, offsetX }}
+				options={{ referenceTime, damageGroupInterval: options.damageGroupInterval, offsetX }}
 				{buffDict}
 				bind:cursor
 			/>

@@ -13,6 +13,7 @@ export type Settings = {
 	showMinor: boolean;
 	showReceived: boolean;
 	pullStartAsReferenceTime: boolean;
+	damageGroupInterval: number;
 };
 const defaultSettings: Settings = {
 	pxPerSec: 10.0,
@@ -20,12 +21,14 @@ const defaultSettings: Settings = {
 	pxPerLevel: 20.0,
 	showMinor: false,
 	showReceived: true,
-	pullStartAsReferenceTime: true
+	pullStartAsReferenceTime: true,
+	damageGroupInterval: 3000
 };
 export const settingsRange = {
 	pxPerSec: [5.0, 20.0],
 	horizontalOverlap: [1.0, 25.0],
-	pxPerLevel: [15.0, 25.0]
+	pxPerLevel: [15.0, 25.0],
+	damageGroupInterval: [0, 10000]
 };
 type HistoryItem = {
 	code: string;
