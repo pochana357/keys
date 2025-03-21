@@ -17,7 +17,7 @@
 <div class="flex gap-4 pb-1">
 	<div>
 		<div class="text-lg font-bold">Layout</div>
-		<hr class="mb-2 mt-1" />
+		<hr class="mt-1 mb-2" />
 		<div class="flex w-96 flex-col gap-2">
 			<SettingSlider
 				description="Time scale (px/s)"
@@ -53,7 +53,7 @@
 	</div>
 	<div>
 		<div class="text-lg font-bold">Filters</div>
-		<hr class="mb-2 mt-1" />
+		<hr class="mt-1 mb-2" />
 		<div class="flex w-96 flex-col gap-2">
 			<SettingSwitch
 				description="Show offensives and minor defensives"
@@ -69,7 +69,7 @@
 
 		<button
 			type="button"
-			class="btn mt-8 h-10 font-bold preset-filled-primary-950-50"
+			class="btn preset-filled-primary-700-300 mt-8 h-10 font-bold"
 			onclick={() => {
 				pxPerSec = AppState.defaultSettings.pxPerSec;
 				horizontalOverlap = AppState.defaultSettings.horizontalOverlap;

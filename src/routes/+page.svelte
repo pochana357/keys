@@ -146,7 +146,7 @@
 			/>
 			<button
 				type="button"
-				class="btn h-10 w-20 flex-none font-bold preset-filled-primary-950-50"
+				class="btn preset-filled-primary-700-300 h-10 w-20 flex-none font-bold"
 				onclick={() => handleSubmit()}
 				disabled={appState.isBusy()}
 			>
@@ -163,7 +163,7 @@
 			<div class="px-2">
 				<button
 					type="button"
-					class="w-15 h-10 flex-none px-1 font-bold hover:text-primary-200"
+					class="hover:text-primary-200 h-10 flex-none px-1 font-bold"
 					class:text-secondary-200={visibility.history}
 					onclick={() => (visibility.history = !visibility.history)}
 				>
@@ -171,7 +171,7 @@
 				</button>
 				<button
 					type="button"
-					class="w-15 h-10 flex-none px-1 font-bold hover:text-primary-200"
+					class="hover:text-primary-200 h-10 flex-none px-1 font-bold"
 					class:text-secondary-200={visibility.outline}
 					onclick={() => (visibility.outline = !visibility.outline)}
 				>
@@ -179,7 +179,7 @@
 				</button>
 				<button
 					type="button"
-					class="w-15 h-10 flex-none px-1 font-bold hover:text-primary-200"
+					class="hover:text-primary-200 h-10 flex-none px-1 font-bold"
 					class:text-secondary-200={visibility.settings}
 					onclick={() => (visibility.settings = !visibility.settings)}
 				>
@@ -193,7 +193,7 @@
 	</form>
 	{#if visibility.settings}
 		<div class="align-center flex h-max gap-1 pr-2">
-			<div class="h-10 w-20 flex-none text-center font-bold leading-10">Settings</div>
+			<div class="h-10 w-20 flex-none text-center leading-10 font-bold">Settings</div>
 			<div class="flex-1 overflow-x-clip border py-2 pl-3">
 				<SettingsComponent
 					bind:pxPerSec={settings.pxPerSec}
@@ -253,7 +253,7 @@
 			<p class="text-lg">Enter a Warcraft Logs code to get started.</p>
 			<p class="my-2">
 				<span class="text-surface-300"
-					>e.g., https://www.warcraftlogs.com/reports/<span class="font-bold text-primary-300"
+					>e.g., https://www.warcraftlogs.com/reports/<span class="text-primary-300 font-bold"
 						>1DvhRcyAX9WwNQka</span
 					>#fight=23&type=damage-done</span
 				>
