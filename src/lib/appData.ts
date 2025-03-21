@@ -11,6 +11,8 @@ type DefensiveEffect = EffectBuff | EffectNonbuff;
 type DefensiveSpell = {
 	selfCastOnly?: boolean;
 	dpsOnly?: boolean;
+	healOnly?: boolean;
+	tankOnly?: boolean;
 	effect: DefensiveEffect[];
 	minor?: boolean;
 };
@@ -29,10 +31,14 @@ const offensiveSpells: SpellDict = {
 	// The buffs procced by offensive spells are not tracked.
 	// Shaman
 	114051: { effect: [] }, // Ascendance (enhancement)
+	469270: { effect: [] }, // Doom Wind
+
 	114050: { effect: [] }, // Ascendance (elemental)
+	192249: { effect: [] }, // Storm Elemental
 
 	// Mage
 	12472: { effect: [] }, // Icy Veins
+	190319: { effect: [] }, // Combustion
 
 	// Paladin
 	454373: { effect: [] }, // Crusade
@@ -47,20 +53,47 @@ const offensiveSpells: SpellDict = {
 	// Death Knight
 	152279: { effect: [] }, // Breath of Sindragosa
 	51271: { effect: [] }, // Pillar of Frost
-	63560: { effect: [] }, // Dark Transformation
-	455395: { effect: [] }, // Raise Abomination
 
-	// Trinkets
-	444959: { effect: [] }, // Spymaster's Web
-	449946: { effect: [] } // Cryptic Instruction (Treacherous Transmitter)
+	455395: { effect: [] }, // Raise Abomination
+	63560: { effect: [] }, // Dark Transformation
+	207289: { effect: [] }, // Unholy Assault
+
+	// Demon Hunter
+	370965: { effect: [] }, // The Hunt
+	198013: { effect: [] }, // Eye Beam
+	200166: { effect: [] }, // Metamorphosis (Havoc)
+
+	// Priest
+	120644: { effect: [] }, // Halo
+	34433: { effect: [] }, // Shadowfiend
+	391109: { effect: [] }, // Dark Ascension
+	228260: { effect: [] }, // Void Eruption
+
+	// Monk
+	123904: { effect: [] }, // Invoke Xuen, the White Tiger
+	137639: { effect: [] }, // Storm, Earth, and Fire
+
+	// Warlock
+	1122: { effect: [] }, // Summon Infernal
+	205180: { effect: [] }, // Summon Darkglare
+
+	// Trinkets and cantrip effects
+	// 444959: { effect: [] }, // Spymaster's Web
+	// 449946: { effect: [] } // Cryptic Instruction (Treacherous Transmitter)
 	// 443407: { effect: [] }, // Skarmorak Shard
 	// 91374: { effect: [] }, // Battle of Prowess (Mark of Khardros)
 	// 92099: { effect: [] } // Speed of Thought (Skardin's Grace)
+	300142: { effect: [] }, // Hyperthread Wristwraps
+	431932: { effect: [] }, // Tempered Potion
+	443531: { effect: [] }, // Bolstering Light
+	466681: { effect: [] }, // House of Cards
+	345228: { effect: [] }, // Gladiator's Badge
+	443536: { effect: [] } // Bursting Lightshard
 };
 
 const defensiveSpells: SpellDict = {
 	// Priest
-	8092: { effect: [defensiveBuff(450193)] }, // Mind Blast (Entropic Rift)
+	8092: { effect: [defensiveBuff(450193)], healOnly: true }, // Mind Blast (Entropic Rift)
 	19236: { effect: [defensiveBuff(19236)] }, // Desperate Player
 	586: { effect: [defensiveBuff(586)], minor: true }, // Fade
 	62618: { effect: [defensiveBuff(81782)] }, // Power Word: Barrier
@@ -71,6 +104,9 @@ const defensiveSpells: SpellDict = {
 	2061: { effect: [defensiveBuff(193065)], minor: true }, // Flash Heal (Protective Light)
 	194509: { effect: [] }, // Power Word: Radiance
 	32375: { effect: [] }, // Mass Dispel
+
+	15286: { effect: [] }, // Vampiric Embrace
+	47585: { effect: [defensiveBuff(47585)] }, // Dispersion
 
 	// Shaman
 	108281: { effect: [defensiveBuff(108281)] }, // Ancestral Guidance
@@ -83,7 +119,6 @@ const defensiveSpells: SpellDict = {
 	2645: { effect: [defensiveBuff(260881, true)] }, // Ghost Wolf (SpiritWolf)
 	8004: { dpsOnly: true, effect: [] }, // Healing Surge
 	57994: {
-		dpsOnly: true,
 		effect: [355702, 355703, 355704, 355705, 355706, 355634].map((id) => defensiveBuff(id, true)),
 		minor: true
 	}, // Wind Shear (Seasoned Winds)
@@ -110,6 +145,15 @@ const defensiveSpells: SpellDict = {
 	442204: { effect: [defensiveBuff(409678)], minor: true }, // Breath of Eons (Chrono Ward)
 	358267: { effect: [defensiveBuff(358267)], minor: true }, // Hover
 
+	// Demon Hunter
+	203720: { effect: [defensiveBuff(203819)], minor: true }, // Demon Spikes
+	212084: { effect: [defensiveBuff(187827)] }, // Fel Devastation
+	204021: { effect: [] }, // Fiery Brand
+	187827: { effect: [defensiveBuff(187827)] }, // Metamorphosis (Vengeance)
+
+	198589: { effect: [defensiveBuff(212800)] }, // Blur
+	196555: { effect: [defensiveBuff(196555)] }, // Netherwalk
+
 	// Death Knight
 	48707: { effect: [defensiveBuff(48707)] }, // Anti-Magic Shell
 	49039: { effect: [defensiveBuff(49039)] }, // Lichborne
@@ -125,13 +169,16 @@ const defensiveSpells: SpellDict = {
 	// Mage
 	342245: { effect: [defensiveBuff(342246)] }, // Alter Time
 	55342: { effect: [defensiveBuff(55342)] }, // Mirror Image
+	212653: { effect: [defensiveBuff(382290)], minor: true }, // Shimmer (Tempest Barrier)
 
 	110960: { effect: [defensiveBuff(113862)] }, // Greater Invisibility
 	// The buff 110960 tracks the stealth; 113862 tracks the DR part (during the stealth & 3s afterward).
 
 	45438: { effect: [defensiveBuff(45438)] }, // Ice Block
 	414658: { effect: [defensiveBuff(414658)] }, // Ice cold
-	414660: { effect: [defensiveBuff(11426)] }, // Mass Barrier (Ice Barrier); the buff for the mass barrier is the same as the normal one.
+
+	414660: { effect: [defensiveBuff(11426), defensiveBuff(414662)] }, // Mass Barrier (Ice Barrier, Blazing Barrier)
+	235313: { effect: [defensiveBuff(235313)] }, // Blazing Barrier
 	11426: { effect: [defensiveBuff(11426)] }, // Ice Barrier
 
 	// Paladin
@@ -157,22 +204,47 @@ const defensiveSpells: SpellDict = {
 	85673: { dpsOnly: true, effect: [] }, // Word of Glory
 
 	// Druid
-	5487: { effect: [defensiveBuff(5487)] }, // Bear Form
+	5487: { effect: [defensiveBuff(5487), defensiveBuff(393903)] }, // Bear Form (Bear Form, Ursine Vigor)
 	22812: { effect: [defensiveBuff(22812)] }, // Barkskin
 	108238: { effect: [] }, // Renewal
 	124974: { effect: [defensiveBuff(124974)] }, // Nature's Vigil
-	12: { selfCastOnly: true, effect: [defensiveBuff(400126)] }, // Regrowth (Forestwalk)
+	12: { selfCastOnly: true, effect: [defensiveBuff(400126), defensiveBuff(433749)] }, // Regrowth (Forestwalk, Protective Growth)
+
+	// Monk
+	122783: { effect: [defensiveBuff(122783)] }, // Diffuse Magic
+	115203: { effect: [defensiveBuff(120954)] }, // Fortifying Brew
+	115310: { effect: [] }, // Revival
+	116680: { effect: [] }, // Thunder Focus Tea
+	116849: { effect: [defensiveBuff(116849)] }, // Life Cocoon
+	117952: { effect: [] }, // Crackling Jade Lightning
+	325197: { effect: [defensiveBuff(406220)] }, // Invoke Chi-Ji, the Red Crane (Chi Cocoon)
+	443028: { effect: [] }, // Celestial Conduit
+	443591: { effect: [] }, // Unity Within
+	116670: { dpsOnly: true, selfCastOnly: true, effect: [] }, // Vivify
+
+	122470: { effect: [defensiveBuff(122470)] }, // Touch of Karma
+
+	// Warlock
+	104773: { effect: [defensiveBuff(104773)] }, // Unending Resolve
+	6789: { effect: [], minor: true }, // Mortal Coil
+	108416: { effect: [defensiveBuff(108416)] }, // Dark Pact
+	119905: { effect: [], minor: true }, // Singe Magic
 
 	// General
 	431416: { effect: [] }, // Algari Healing Potion
 	452767: { effect: [] }, // Heartseeking Health Injector
+	58984: { effect: [] }, // Shadowmeld
+	6262: { effect: [] }, // Healthstone
 
 	// Trinkets
 	444301: { effect: [defensiveBuff(444301)] }, // Ravenous Swarm (444301 is the 3s buff; 447134 is the buff that tracks the shield amount)
 
 	// Necrotic Wake
-	328404: { effect: [defensiveExtended(8000)] }, // Discharged Anima; the spell 328406 is the perodic casts every 1 second when the anima is used.
-	328050: { effect: [defensiveBuff(328050)] } // Discarded Shield
+	// 328404: { effect: [defensiveExtended(8000)] }, // Discharged Anima; the spell 328406 is the perodic casts every 1 second when the anima is used.
+	// 328050: { effect: [defensiveBuff(328050)] } // Discarded Shield
+
+	// Cinderbrew Meadery
+	431895: { effect: [] } // Carrying Cinderbrew
 };
 export const castDict: SpellDict = { ...defensiveSpells };
 for (const [id, val] of Object.entries(offensiveSpells)) {

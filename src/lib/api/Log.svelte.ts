@@ -79,6 +79,13 @@ export default class Log {
 			) {
 				return false;
 			}
+			if (castData.healOnly && event.source && !ClassUtils.isHeal(event.source)) {
+				return false;
+			}
+			if (castData.tankOnly && event.source && !ClassUtils.isTank(event.source)) {
+				return false;
+			}
+
 			if (castData.selfCastOnly && event.sourceID !== event.targetID) return false;
 			return true;
 		});
