@@ -194,7 +194,7 @@
 	{#if visibility.settings}
 		<div class="align-center flex h-max gap-1 pr-2">
 			<div class="h-10 w-20 flex-none text-center leading-10 font-bold">Settings</div>
-			<div class="flex-1 overflow-x-clip border py-2 pl-3">
+			<div class="flex-1 overflow-x-clip rounded-sm border py-2 pl-3">
 				<SettingsComponent
 					bind:pxPerSec={settings.pxPerSec}
 					bind:horizontalOverlap={settings.horizontalOverlap}

@@ -13,7 +13,7 @@
 	let { code, fightsRaw, currentFightIdx, currentDungeonPullIdx, onUpdate }: Props = $props();
 </script>
 
-<div class="py-2 pl-2 pr-1">
+<div class="py-2 pr-1 pl-2">
 	<div class="text-sm italic">Only M+ fights are shown.</div>
 	{#each fightsRaw.fights as fight, i (fight.id)}
 		{#if Fights.ValidateFight(fight)}
@@ -51,7 +51,7 @@
 							<WithTooltip tooltip={pull.boss ? `Boss #${pull.boss}` : ''}>
 								<!-- We use `j+1` instead of `pull.id` to match the url scheme of WCL. -->
 								<span class="text-sm text-slate-300">#{j + 1}</span>
-								💀 {pull.name}
+								💀{pull.name}
 								<span class="text-sm text-slate-300"
 									>+{formatTime(pull.start_time, fight.start_time, 0)}
 									({formatTime(pull.end_time, pull.start_time, 0)})</span

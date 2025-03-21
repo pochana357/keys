@@ -27,7 +27,7 @@
 
 <div class="align-center flex h-max gap-1 pr-2">
 	<div class="h-10 w-20 flex-none text-center leading-10 font-bold">History</div>
-	<div class="line-nowrap flex-1 overflow-x-clip border pb-2 pl-3 text-nowrap">
+	<div class="line-nowrap flex-1 overflow-x-clip rounded-sm border pb-2 pl-3 text-nowrap">
 		{#each [...appState.history.items].reverse() as item (item.code)}
 			<button
 				type="button"
