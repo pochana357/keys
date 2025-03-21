@@ -11,6 +11,23 @@
 		onUpdate: (fightIdx: number, dungeonPullIdx: number) => void;
 	};
 	let { code, fightsRaw, currentFightIdx, currentDungeonPullIdx, onUpdate }: Props = $props();
+
+	const bossIdRedirect = new Map<number, number>();
+	const bossIdRedirectList = [
+		[112098, 12098], // Operation: Mechagon
+		[61594, 11594], // The MOTHERLODE!!
+		[62293, 12293] // Theater of Pain
+	];
+	bossIdRedirectList.forEach(([from, to]) => {
+		bossIdRedirect.set(from, to);
+	});
+	function getIconId(bossId: number) {
+		if (bossIdRedirect.has(bossId)) {
+			return bossIdRedirect.get(bossId);
+		} else {
+			return bossId;
+		}
+	}
 </script>
 
 <div class="py-2 pr-1 pl-2">
@@ -20,8 +37,9 @@
 			<div class="py-2 {i === currentFightIdx ? 'bg-primary-600' : ''}">
 				<div class="flex gap-2">
 					<img
-						src="https://assets.rpglogs.com/img/warcraft/bosses/{fight.boss}-icon.jpg"
+						src="https://assets.rpglogs.com/img/warcraft/bosses/{getIconId(fight.boss)}-icon.jpg"
 						alt={fight.zoneName}
+						class="h-12 w-12"
 					/>
 					<div>
 						<p>
