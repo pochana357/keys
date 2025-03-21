@@ -69,7 +69,7 @@
 			bind:this={floating.elements.floating}
 			style={floating.floatingStyles}
 			{...interactions.getFloatingProps()}
-			class="floating z-10 max-w-sm rounded bg-surface-500 p-2 text-white shadow-xl"
+			class="floating bg-surface-500 z-10 max-w-sm rounded-sm p-2 text-white shadow-xl"
 			in:fade={{ duration: 200, delay: inDelay ? 500 : 0 }}
 			out:fade={{ duration: 200 }}
 		>

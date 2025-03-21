@@ -98,9 +98,9 @@
 			return '';
 		}
 		if (emphasisLevel === 99) {
-			return 'z-[1] shadow-[inset_0_0_0_6px_rgba(255,0,0,1)]';
+			return 'z-1 shadow-[inset_0_0_0_6px_rgba(255,0,0,1)]';
 		} else {
-			return 'hover:z-[1] hover:shadow-[inset_0_0_0_2px_rgb(255,255,255,0.6)]';
+			return 'hover:z-1 hover:shadow-[inset_0_0_0_2px_rgb(255,255,255,0.6)]';
 		}
 	}
 </script>

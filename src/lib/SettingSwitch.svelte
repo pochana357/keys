@@ -6,9 +6,14 @@
 	let { description, name, flag = $bindable(), classes }: Props = $props();
 </script>
 
-<div class="flex justify-between {classes ?? ''}">
+<div class="flex justify-between pr-4 {classes ?? ''}">
 	<p>{description}</p>
-	<Switch {name} bind:checked={flag} controlInactive="bg-secondary-100">
+	<Switch
+		{name}
+		checked={flag}
+		onCheckedChange={(e) => (flag = e.checked)}
+		controlInactive="bg-secondary-100"
+	>
 		{#snippet inactiveChild()}<IconX size="14" />{/snippet}
 		{#snippet activeChild()}<IconCheck size="14" />{/snippet}
 	</Switch>
