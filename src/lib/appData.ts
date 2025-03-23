@@ -236,8 +236,11 @@ const defensiveSpells: SpellDict = {
 	58984: { effect: [] }, // Shadowmeld
 	6262: { effect: [] }, // Healthstone
 
-	// Trinkets
+	// Defensive trinkets
 	444301: { effect: [defensiveBuff(444301)] }, // Ravenous Swarm (444301 is the 3s buff; 447134 is the buff that tracks the shield amount)
+	466810: { effect: [defensiveBuff(466810)] }, // Chromebustible Bomb Suit
+	1219102: { effect: [defensiveBuff(1219102)] }, // Mudborne
+	443529: { effect: [defensiveBuff(451924)] }, // Burin of the Candle King (Wax Ward)
 
 	// Necrotic Wake
 	// 328404: { effect: [defensiveExtended(8000)] }, // Discharged Anima; the spell 328406 is the perodic casts every 1 second when the anima is used.
