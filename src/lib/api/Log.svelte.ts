@@ -87,6 +87,7 @@ export default class Log {
 			}
 
 			if (castData.selfCastOnly && event.sourceID !== event.targetID) return false;
+			if (castData.friendlyTargetOnly && !event.targetIsFriendly) return false;
 			return true;
 		});
 
