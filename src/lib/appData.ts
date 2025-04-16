@@ -13,6 +13,7 @@ type DefensiveSpell = {
 	dpsOnly?: boolean;
 	healOnly?: boolean;
 	tankOnly?: boolean;
+	friendlyTargetOnly?: boolean;
 	effect: DefensiveEffect[];
 	minor?: boolean;
 };
@@ -102,8 +103,14 @@ const defensiveSpells: SpellDict = {
 	47536: { effect: [defensiveBuff(47536, true)] }, // Rature (ApplyBuff & RemoveBuffStack events)
 	17: { effect: [defensiveBuff(17)], minor: true }, // Power Word: Shield
 	2061: { effect: [defensiveBuff(193065)], minor: true }, // Flash Heal (Protective Light)
-	194509: { effect: [] }, // Power Word: Radiance
+	194509: { effect: [], minor: true }, // Power Word: Radiance
 	32375: { effect: [] }, // Mass Dispel
+	428933: { effect: [] }, // Premonition of Insight
+	428930: { effect: [] }, // Premonition of Piety
+	428934: { effect: [defensiveBuff(443526)] }, // Premonition of Solace (Premonition of Solace)
+	440725: { effect: [defensiveBuff(443526)] }, // Premonition of Clairvoyane (Premonition of Solace)
+	421453: { effect: [defensiveBuff(421453)] }, // Ultimate Penitence
+	47540: { effect: [], friendlyTargetOnly: true, minor: true }, // Penance
 
 	15286: { effect: [] }, // Vampiric Embrace
 	47585: { effect: [defensiveBuff(47585)] }, // Dispersion
@@ -232,12 +239,14 @@ const defensiveSpells: SpellDict = {
 
 	// General
 	431416: { effect: [] }, // Algari Healing Potion
+	431418: { effect: [] }, // Algari Mana Potion
+	431419: { effect: [] }, // Caveweller's Delight
 	452767: { effect: [] }, // Heartseeking Health Injector
 	58984: { effect: [] }, // Shadowmeld
 	6262: { effect: [] }, // Healthstone
 
 	// Defensive trinkets
-	444301: { effect: [defensiveBuff(444301)] }, // Ravenous Swarm (444301 is the 3s buff; 447134 is the buff that tracks the shield amount)
+	444301: { effect: [defensiveBuff(444301)] }, // Ravenous Swarm (444301 is a 3s buff; 447134 is a buff tracking the shield amount)
 	466810: { effect: [defensiveBuff(466810)] }, // Chromebustible Bomb Suit
 	1219102: { effect: [defensiveBuff(1219102)] }, // Mudborne
 	443529: { effect: [defensiveBuff(451924)] }, // Burin of the Candle King (Wax Ward)
