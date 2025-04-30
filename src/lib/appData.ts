@@ -100,7 +100,8 @@ const defensiveSpells: SpellDict = {
 	62618: { effect: [defensiveBuff(81782)] }, // Power Word: Barrier
 	33206: { effect: [defensiveBuff(33206)] }, // Pain Suppression
 	451235: { effect: [defensiveBuff(322105)] }, // Voidwrath (Shadow Covenant)
-	47536: { effect: [defensiveBuff(47536, true)] }, // Rature (ApplyBuff & RemoveBuffStack events)
+	472433: { effect: [] }, // Evangelism
+	// 47536: { effect: [defensiveBuff(47536, true)] }, // Rature (ApplyBuff & RemoveBuffStack events)
 	17: { effect: [defensiveBuff(17)], minor: true }, // Power Word: Shield
 	2061: { effect: [defensiveBuff(193065)], minor: true }, // Flash Heal (Protective Light)
 	194509: { effect: [], minor: true }, // Power Word: Radiance
