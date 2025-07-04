@@ -13,6 +13,7 @@ type DefensiveSpell = {
 	dpsOnly?: boolean;
 	healOnly?: boolean;
 	tankOnly?: boolean;
+	nonTankOnly?: boolean;
 	friendlyTargetOnly?: boolean;
 	effect: DefensiveEffect[];
 	minor?: boolean;
@@ -101,7 +102,7 @@ const defensiveSpells: SpellDict = {
 	33206: { effect: [defensiveBuff(33206)] }, // Pain Suppression
 	451235: { effect: [defensiveBuff(322105)] }, // Voidwrath (Shadow Covenant)
 	472433: { effect: [] }, // Evangelism
-	// 47536: { effect: [defensiveBuff(47536, true)] }, // Rature (ApplyBuff & RemoveBuffStack events)
+	// 47536: { effect: [defensiveBuff(47536, true)] }, // Rapture (ApplyBuff & RemoveBuffStack events)
 	17: { effect: [defensiveBuff(17)], minor: true }, // Power Word: Shield
 	2061: { effect: [defensiveBuff(193065)], minor: true }, // Flash Heal (Protective Light)
 	194509: { effect: [], minor: true }, // Power Word: Radiance
@@ -167,6 +168,7 @@ const defensiveSpells: SpellDict = {
 	49039: { effect: [defensiveBuff(49039)] }, // Lichborne
 	48792: { effect: [defensiveBuff(48792)] }, // Icebound Fortitude
 	51052: { effect: [defensiveBuff(145629)] }, // Anti-Magic Zone
+	49998: { dpsOnly: true, effect: [], minor: true }, // Death Strike
 
 	// Rogue
 	1966: { effect: [defensiveBuff(1966)] }, // Feint
@@ -217,6 +219,7 @@ const defensiveSpells: SpellDict = {
 	108238: { effect: [] }, // Renewal
 	124974: { effect: [defensiveBuff(124974)] }, // Nature's Vigil
 	12: { selfCastOnly: true, effect: [defensiveBuff(400126), defensiveBuff(433749)] }, // Regrowth (Forestwalk, Protective Growth)
+	22842: { nonTankOnly: true, effect: [], minor: true }, // Frenzied Regeneration
 
 	// Monk
 	122783: { effect: [defensiveBuff(122783)] }, // Diffuse Magic

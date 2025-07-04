@@ -85,6 +85,9 @@ export default class Log {
 			if (castData.tankOnly && event.source && !ClassUtils.isTank(event.source)) {
 				return false;
 			}
+			if (castData.nonTankOnly && event.source && ClassUtils.isTank(event.source)) {
+				return false;
+			}
 
 			if (castData.selfCastOnly && event.sourceID !== event.targetID) return false;
 			if (castData.friendlyTargetOnly && !event.targetIsFriendly) return false;
