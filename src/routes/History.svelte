@@ -32,7 +32,8 @@
 			>
 				<span class="font-mono">{item.code}</span>
 				<span class="font-sm font-mono">({formatAbsoluteTime(item.timestamp)})</span>
-				{#each item.exportedCharacters.slice(0, Math.min(7, item.exportedCharacters.length)) as c (c)}
+				<!-- `item.exportedCharacters` may have duplicates, so `c` itself is not a unique key -->
+				{#each item.exportedCharacters.slice(0, Math.min(7, item.exportedCharacters.length)) as c}
 					<span class="font-sm px-1">{c}</span>
 				{/each}
 				{#if item.exportedCharacters.length > 7}
