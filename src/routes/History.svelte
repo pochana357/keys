@@ -9,16 +9,7 @@
 	};
 	let { currentCode, submitCode }: Props = $props();
 	async function handleTest() {
-		const testCodes = [
-			'dKRHZ6XDaNQ2AYkc', // Restoration Druid
-			'j8wyzBqRC37XHYbp' // Shadow Priest; Operation: Mechagon, The MOTHERLODE!!, Cinderbrew Meadery, Darkflame Cleft
-			// '4KxdFT6pVYLfy7r2', // Rogue, Stonevault
-			// '19qd8m6CcjHbkZD3', // Mage
-			// '6awx1JdH28CG94gq', // Rogue, Necrotic Wake
-			// 'HZLwh46mFCD1Xdzk', // Druid, Siege of Boralus
-			// 'xZ8Vytqp1XQAnTYm', // Restoration Shaman
-			// '3M46dqmjTnWKahwB' // Retribution Paladin, Dawnbreaker
-		];
+		const testCodes = ['jrXvdZNRFP2WhyAG', '2BcdTkFCbPq78DjK', 'fT3dFVzKq6Dg4MGc']; // Random logs in TWW S3
 		const testCode = testCodes[Math.floor(Math.random() * testCodes.length)];
 		submitCode(testCode);
 	}

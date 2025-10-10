@@ -53,7 +53,7 @@ const offensiveSpells: SpellDict = {
 	360194: { effect: [] }, // Deathmark
 
 	// Death Knight
-	152279: { effect: [] }, // Breath of Sindragosa
+	1249658: { effect: [] }, // Breath of Sindragosa
 	51271: { effect: [] }, // Pillar of Frost
 
 	455395: { effect: [] }, // Raise Abomination
@@ -80,17 +80,14 @@ const offensiveSpells: SpellDict = {
 	205180: { effect: [] }, // Summon Darkglare
 
 	// Trinkets and cantrip effects
-	// 444959: { effect: [] }, // Spymaster's Web
-	// 449946: { effect: [] } // Cryptic Instruction (Treacherous Transmitter)
-	// 443407: { effect: [] }, // Skarmorak Shard
-	// 91374: { effect: [] }, // Battle of Prowess (Mark of Khardros)
-	// 92099: { effect: [] } // Speed of Thought (Skardin's Grace)
-	300142: { effect: [] }, // Hyperthread Wristwraps
 	431932: { effect: [] }, // Tempered Potion
 	443531: { effect: [] }, // Bolstering Light
-	466681: { effect: [] }, // House of Cards
 	345228: { effect: [] }, // Gladiator's Badge
-	443536: { effect: [] } // Bursting Lightshard
+	443536: { effect: [] }, // Bursting Lightshard
+	1233556: { effect: [] }, // Unyielding Netherprism
+	1232802: { effect: [] }, // Araz's Ritual Forge
+	1242326: { effect: [] }, // Cursed Stone Idol
+	1244029: { effect: [] } // Woven Fate
 };
 
 const defensiveSpells: SpellDict = {
@@ -143,6 +140,10 @@ const defensiveSpells: SpellDict = {
 	98008: { effect: [defensiveBuff(325174)] }, // Spirit Link Totem
 	114052: { effect: [defensiveBuff(114052)] }, // Ascendance (restoration shaman); the enhancement version is 114051 and the elemental 114050.
 	5394: { effect: [defensiveExtended(15000)] }, // Healing Stream Totem
+	383013: { effect: [] }, // Poison Cleansing Totem
+	108285: { effect: [] }, // Totemic Recall
+	157153: { effect: [] }, // Cloudburst Totem
+	201764: { effect: [] }, // Recall Cloudburst Totem
 
 	// Evoker
 	374227: { effect: [defensiveBuff(374227)] }, // Zephyr
@@ -162,12 +163,19 @@ const defensiveSpells: SpellDict = {
 
 	198589: { effect: [defensiveBuff(212800)] }, // Blur
 	196555: { effect: [defensiveBuff(196555)] }, // Netherwalk
+	196718: { effect: [] }, // Darkness
+
+	188499: { effect: [defensiveBuff(427901)], minor: true }, // Blade Dance (Deflecting Dance)
+	232893: { effect: [defensiveBuff(442715)], minor: true }, // Felblade (Blade Ward)
+	207684: { effect: [] }, // Sigil of Misery
+	204596: { effect: [] }, // SIgil of Flame
 
 	// Death Knight
 	48707: { effect: [defensiveBuff(48707)] }, // Anti-Magic Shell
 	49039: { effect: [defensiveBuff(49039)] }, // Lichborne
 	48792: { effect: [defensiveBuff(48792)] }, // Icebound Fortitude
 	51052: { effect: [defensiveBuff(145629)] }, // Anti-Magic Zone
+	48743: { effect: [] }, // Death Pact
 	49998: { dpsOnly: true, effect: [], minor: true }, // Death Strike
 
 	// Rogue
@@ -175,6 +183,12 @@ const defensiveSpells: SpellDict = {
 	5277: { effect: [defensiveBuff(5277)] }, // Evasion
 	31224: { effect: [defensiveBuff(31224)] }, // Cloak of Shadows
 	185311: { effect: [defensiveBuff(185311)] }, // Crimson Vial
+
+	// Hunter
+	109304: { effect: [defensiveBuff(109304)] }, // Exhilaration
+	272679: { effect: [defensiveBuff(272679)] }, // Fortitude of the Bear
+	264735: { effect: [defensiveBuff(109304)] }, // Survival of the Fittest
+	186265: { effect: [defensiveBuff(186265)] }, // Aspect of the Turtle
 
 	// Mage
 	342245: { effect: [defensiveBuff(342246)] }, // Alter Time
@@ -221,6 +235,13 @@ const defensiveSpells: SpellDict = {
 	12: { selfCastOnly: true, effect: [defensiveBuff(400126), defensiveBuff(433749)] }, // Regrowth (Forestwalk, Protective Growth)
 	22842: { nonTankOnly: true, effect: [], minor: true }, // Frenzied Regeneration
 
+	391528: { effect: [] }, // Convoke the Spirits
+	740: { effect: [] }, // Tranquility
+	102342: { effect: [] }, // Ironbark
+	102693: { effect: [], minor: true }, // Grove Guardians
+	197721: { effect: [] }, // Flourish
+	319454: { effect: [defensiveBuff(319454)], minor: true }, // Heart of the Wild
+
 	// Monk
 	122783: { effect: [defensiveBuff(122783)] }, // Diffuse Magic
 	115203: { effect: [defensiveBuff(120954)] }, // Fortifying Brew
@@ -241,8 +262,15 @@ const defensiveSpells: SpellDict = {
 	108416: { effect: [defensiveBuff(108416)] }, // Dark Pact
 	119905: { effect: [], minor: true }, // Singe Magic
 
+	// Warrior
+	97642: { effect: [defensiveBuff(97463)] }, // Rallying Cry
+	12975: { effect: [defensiveBuff(12975)] }, // Last Stand
+	871: { effect: [defensiveBuff(871)] }, // Shield Wall
+	23920: { effect: [defensiveBuff(385391)], minor: true }, // Spell Reflection (buffid = 23920: reflection part / 385391: DR part)
+	202168: { effect: [] }, // Impending Victory
+
 	// General
-	431416: { effect: [] }, // Algari Healing Potion
+	1238009: { effect: [] }, // Invigorating Healing Potion
 	431418: { effect: [] }, // Algari Mana Potion
 	431419: { effect: [] }, // Caveweller's Delight
 	452767: { effect: [] }, // Heartseeking Health Injector
@@ -250,17 +278,14 @@ const defensiveSpells: SpellDict = {
 	6262: { effect: [] }, // Healthstone
 
 	// Defensive trinkets
-	444301: { effect: [defensiveBuff(444301)] }, // Ravenous Swarm (444301 is a 3s buff; 447134 is a buff tracking the shield amount)
-	466810: { effect: [defensiveBuff(466810)] }, // Chromebustible Bomb Suit
 	1219102: { effect: [defensiveBuff(1219102)] }, // Mudborne
-	443529: { effect: [defensiveBuff(451924)] }, // Burin of the Candle King (Wax Ward)
+	1232721: { effect: [defensiveBuff(1232721)] }, // Loom'ithar's Living Silk
 
-	// Necrotic Wake
-	// 328404: { effect: [defensiveExtended(8000)] }, // Discharged Anima; the spell 328406 is the perodic casts every 1 second when the anima is used.
-	// 328050: { effect: [defensiveBuff(328050)] } // Discarded Shield
+	// Ara-kara, City of Echoes
+	439208: { effect: [] }, // Silk Wrap
 
-	// Cinderbrew Meadery
-	431895: { effect: [] } // Carrying Cinderbrew
+	// Eco-Dome Al'dani
+	1239419: { effect: [] } // Overloading Siphon...
 };
 export const castDict: SpellDict = { ...defensiveSpells };
 for (const [id, val] of Object.entries(offensiveSpells)) {
@@ -274,7 +299,8 @@ export const spelllikeBuffs: SpellDict = {
 };
 export const spelllikeDebuffs: SpellDict = {
 	// Paladin
-	393879: { effect: [defensiveBuff(86659)] } // Gift of the Golden Val'kyr
+	393879: { effect: [defensiveBuff(86659)] }, // Gift of the Golden Val'kyr
+	1236691: { effect: [] } // All-Devouring Nucleus
 };
 
 const castsTracked = new Set<number>(Object.keys(castDict).map((id) => Number(id)));
