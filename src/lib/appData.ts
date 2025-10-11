@@ -177,6 +177,7 @@ const defensiveSpells: SpellDict = {
 	51052: { effect: [defensiveBuff(145629)] }, // Anti-Magic Zone
 	48743: { effect: [] }, // Death Pact
 	49998: { dpsOnly: true, effect: [], minor: true }, // Death Strike
+	49576: { effect: [], minor: true }, // Death Grip
 
 	// Rogue
 	1966: { effect: [defensiveBuff(1966)] }, // Feint
