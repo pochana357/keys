@@ -167,8 +167,8 @@ const defensiveSpells: SpellDict = {
 
 	188499: { effect: [defensiveBuff(427901)], minor: true }, // Blade Dance (Deflecting Dance)
 	232893: { effect: [defensiveBuff(442715)], minor: true }, // Felblade (Blade Ward)
-	207684: { effect: [] }, // Sigil of Misery
-	204596: { effect: [] }, // SIgil of Flame
+	207684: { effect: [], minor: true }, // Sigil of Misery
+	204596: { effect: [], minor: true }, // SIgil of Flame
 
 	// Death Knight
 	48707: { effect: [defensiveBuff(48707)] }, // Anti-Magic Shell
@@ -268,7 +268,8 @@ const defensiveSpells: SpellDict = {
 	12975: { effect: [defensiveBuff(12975)] }, // Last Stand
 	871: { effect: [defensiveBuff(871)] }, // Shield Wall
 	23920: { effect: [defensiveBuff(385391)], minor: true }, // Spell Reflection (buffid = 23920: reflection part / 385391: DR part)
-	202168: { effect: [] }, // Impending Victory
+	202168: { effect: [] }, // Impending Victory,
+	107574: { effect: [defensiveBuff(107574)] }, // Avatar
 
 	// General
 	1238009: { effect: [] }, // Invigorating Healing Potion
