@@ -186,9 +186,9 @@ const defensiveSpells: SpellDict = {
 	185311: { effect: [defensiveBuff(185311)] }, // Crimson Vial
 
 	// Hunter
-	109304: { effect: [defensiveBuff(109304)] }, // Exhilaration
+	109304: { effect: [defensiveBuff(264735)] }, // Exhilaration (Survival of the Fittest)
 	272679: { effect: [defensiveBuff(272679)] }, // Fortitude of the Bear
-	264735: { effect: [defensiveBuff(109304)] }, // Survival of the Fittest
+	264735: { effect: [defensiveBuff(264735)] }, // Survival of the Fittest
 	186265: { effect: [defensiveBuff(186265)] }, // Aspect of the Turtle
 
 	// Mage
