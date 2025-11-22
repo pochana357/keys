@@ -50,290 +50,294 @@
 	object-position: calc(-8px * var(--size)) 0;
 }
 
-.actor-sprite-DemonHunter-Havoc {
+.actor-sprite-DemonHunter-Devourer {
 	object-position: calc(-9px * var(--size)) 0;
 }
 
-.actor-sprite-DemonHunter-Vengeance {
+.actor-sprite-DemonHunter-Havoc {
 	object-position: calc(-10px * var(--size)) 0;
 }
 
-.actor-sprite-DemonHunter {
+.actor-sprite-DemonHunter-Vengeance {
 	object-position: calc(-11px * var(--size)) 0;
 }
 
-.actor-sprite-Druid-Balance {
+.actor-sprite-DemonHunter {
 	object-position: calc(-12px * var(--size)) 0;
 }
 
-.actor-sprite-Druid-Dreamstate {
+.actor-sprite-Druid-Balance {
 	object-position: calc(-13px * var(--size)) 0;
 }
 
-.actor-sprite-Druid-Feral {
+.actor-sprite-Druid-Dreamstate {
 	object-position: calc(-14px * var(--size)) 0;
 }
 
-.actor-sprite-Druid-Guardian {
+.actor-sprite-Druid-Feral {
 	object-position: calc(-15px * var(--size)) 0;
 }
 
-.actor-sprite-Druid-Restoration {
+.actor-sprite-Druid-Guardian {
 	object-position: calc(-16px * var(--size)) 0;
 }
 
-.actor-sprite-Druid-Warden {
+.actor-sprite-Druid-Restoration {
 	object-position: calc(-17px * var(--size)) 0;
 }
 
-.actor-sprite-Druid {
+.actor-sprite-Druid-Warden {
 	object-position: calc(-18px * var(--size)) 0;
 }
 
-.actor-sprite-Evoker-Augmentation {
+.actor-sprite-Druid {
 	object-position: calc(-19px * var(--size)) 0;
 }
 
-.actor-sprite-Evoker-Devastation {
+.actor-sprite-Evoker-Augmentation {
 	object-position: calc(-20px * var(--size)) 0;
 }
 
-.actor-sprite-Evoker-Preservation {
+.actor-sprite-Evoker-Devastation {
 	object-position: calc(-21px * var(--size)) 0;
 }
 
-.actor-sprite-Evoker-Ranged {
+.actor-sprite-Evoker-Preservation {
 	object-position: calc(-22px * var(--size)) 0;
 }
 
-.actor-sprite-Evoker {
+.actor-sprite-Evoker-Ranged {
 	object-position: calc(-23px * var(--size)) 0;
 }
 
-.actor-sprite-Hunter-BeastMastery {
+.actor-sprite-Evoker {
 	object-position: calc(-24px * var(--size)) 0;
 }
 
-.actor-sprite-Hunter-Marksmanship {
+.actor-sprite-Hunter-BeastMastery {
 	object-position: calc(-25px * var(--size)) 0;
 }
 
-.actor-sprite-Hunter-Melee {
+.actor-sprite-Hunter-Marksmanship {
 	object-position: calc(-26px * var(--size)) 0;
 }
 
-.actor-sprite-Hunter-Ranged {
+.actor-sprite-Hunter-Melee {
 	object-position: calc(-27px * var(--size)) 0;
 }
 
-.actor-sprite-Hunter-Survival {
+.actor-sprite-Hunter-Ranged {
 	object-position: calc(-28px * var(--size)) 0;
 }
 
-.actor-sprite-Hunter {
+.actor-sprite-Hunter-Survival {
 	object-position: calc(-29px * var(--size)) 0;
 }
 
-.actor-sprite-Mage-Arcane {
+.actor-sprite-Hunter {
 	object-position: calc(-30px * var(--size)) 0;
 }
 
-.actor-sprite-Mage-Fire {
+.actor-sprite-Mage-Arcane {
 	object-position: calc(-31px * var(--size)) 0;
 }
 
-.actor-sprite-Mage-Frost {
+.actor-sprite-Mage-Fire {
 	object-position: calc(-32px * var(--size)) 0;
 }
 
-.actor-sprite-Mage-Healer {
+.actor-sprite-Mage-Frost {
 	object-position: calc(-33px * var(--size)) 0;
 }
 
-.actor-sprite-Mage-Ranged {
+.actor-sprite-Mage-Healer {
 	object-position: calc(-34px * var(--size)) 0;
 }
 
-.actor-sprite-Mage {
+.actor-sprite-Mage-Ranged {
 	object-position: calc(-35px * var(--size)) 0;
 }
 
-.actor-sprite-Monk-Brewmaster {
+.actor-sprite-Mage {
 	object-position: calc(-36px * var(--size)) 0;
 }
 
-.actor-sprite-Monk-Mistweaver {
+.actor-sprite-Monk-Brewmaster {
 	object-position: calc(-37px * var(--size)) 0;
 }
 
-.actor-sprite-Monk-Windwalker {
+.actor-sprite-Monk-Mistweaver {
 	object-position: calc(-38px * var(--size)) 0;
 }
 
-.actor-sprite-Monk {
+.actor-sprite-Monk-Windwalker {
 	object-position: calc(-39px * var(--size)) 0;
 }
 
-.actor-sprite-NPC {
+.actor-sprite-Monk {
 	object-position: calc(-40px * var(--size)) 0;
 }
 
-.actor-sprite-Paladin-Holy {
+.actor-sprite-NPC {
 	object-position: calc(-41px * var(--size)) 0;
 }
 
-.actor-sprite-Paladin-Justicar {
+.actor-sprite-Paladin-Holy {
 	object-position: calc(-42px * var(--size)) 0;
 }
 
-.actor-sprite-Paladin-Protection {
+.actor-sprite-Paladin-Justicar {
 	object-position: calc(-43px * var(--size)) 0;
 }
 
-.actor-sprite-Paladin-Retribution {
+.actor-sprite-Paladin-Protection {
 	object-position: calc(-44px * var(--size)) 0;
 }
 
-.actor-sprite-Paladin {
+.actor-sprite-Paladin-Retribution {
 	object-position: calc(-45px * var(--size)) 0;
 }
 
-.actor-sprite-Pet {
+.actor-sprite-Paladin {
 	object-position: calc(-46px * var(--size)) 0;
 }
 
-.actor-sprite-Priest-Discipline {
+.actor-sprite-Pet {
 	object-position: calc(-47px * var(--size)) 0;
 }
 
-.actor-sprite-Priest-Healing {
+.actor-sprite-Priest-Discipline {
 	object-position: calc(-48px * var(--size)) 0;
 }
 
-.actor-sprite-Priest-Holy {
+.actor-sprite-Priest-Healing {
 	object-position: calc(-49px * var(--size)) 0;
 }
 
-.actor-sprite-Priest-Shadow {
+.actor-sprite-Priest-Holy {
 	object-position: calc(-50px * var(--size)) 0;
 }
 
-.actor-sprite-Priest-Smiter {
+.actor-sprite-Priest-Shadow {
 	object-position: calc(-51px * var(--size)) 0;
 }
 
-.actor-sprite-Priest {
+.actor-sprite-Priest-Smiter {
 	object-position: calc(-52px * var(--size)) 0;
 }
 
-.actor-sprite-Rogue-Assassination {
+.actor-sprite-Priest {
 	object-position: calc(-53px * var(--size)) 0;
 }
 
-.actor-sprite-Rogue-Combat {
+.actor-sprite-Rogue-Assassination {
 	object-position: calc(-54px * var(--size)) 0;
 }
 
-.actor-sprite-Rogue-Melee {
+.actor-sprite-Rogue-Combat {
 	object-position: calc(-55px * var(--size)) 0;
 }
 
-.actor-sprite-Rogue-Outlaw {
+.actor-sprite-Rogue-Melee {
 	object-position: calc(-56px * var(--size)) 0;
 }
 
-.actor-sprite-Rogue-Subtlety {
+.actor-sprite-Rogue-Outlaw {
 	object-position: calc(-57px * var(--size)) 0;
 }
 
-.actor-sprite-Rogue-Tank {
+.actor-sprite-Rogue-Subtlety {
 	object-position: calc(-58px * var(--size)) 0;
 }
 
-.actor-sprite-Rogue {
+.actor-sprite-Rogue-Tank {
 	object-position: calc(-59px * var(--size)) 0;
 }
 
-.actor-sprite-Shaman-Elemental {
+.actor-sprite-Rogue {
 	object-position: calc(-60px * var(--size)) 0;
 }
 
-.actor-sprite-Shaman-Enhancement {
+.actor-sprite-Shaman-Elemental {
 	object-position: calc(-61px * var(--size)) 0;
 }
 
-.actor-sprite-Shaman-Restoration {
+.actor-sprite-Shaman-Enhancement {
 	object-position: calc(-62px * var(--size)) 0;
 }
 
-.actor-sprite-Shaman-Tank {
+.actor-sprite-Shaman-Restoration {
 	object-position: calc(-63px * var(--size)) 0;
 }
 
-.actor-sprite-Shaman {
+.actor-sprite-Shaman-Tank {
 	object-position: calc(-64px * var(--size)) 0;
 }
 
-.actor-sprite-TricksOfTheTrade {
+.actor-sprite-Shaman {
 	object-position: calc(-65px * var(--size)) 0;
 }
 
-.actor-sprite-UnholyFrenzy {
+.actor-sprite-TricksOfTheTrade {
 	object-position: calc(-66px * var(--size)) 0;
 }
 
-.actor-sprite-Warlock-Affliction {
+.actor-sprite-UnholyFrenzy {
 	object-position: calc(-67px * var(--size)) 0;
 }
 
-.actor-sprite-Warlock-Demonology {
+.actor-sprite-Warlock-Affliction {
 	object-position: calc(-68px * var(--size)) 0;
 }
 
-.actor-sprite-Warlock-Destruction {
+.actor-sprite-Warlock-Demonology {
 	object-position: calc(-69px * var(--size)) 0;
 }
 
-.actor-sprite-Warlock-Ranged {
+.actor-sprite-Warlock-Destruction {
 	object-position: calc(-70px * var(--size)) 0;
 }
 
-.actor-sprite-Warlock-Tank {
+.actor-sprite-Warlock-Ranged {
 	object-position: calc(-71px * var(--size)) 0;
 }
 
-.actor-sprite-Warlock {
+.actor-sprite-Warlock-Tank {
 	object-position: calc(-72px * var(--size)) 0;
 }
 
-.actor-sprite-Warrior-Arms {
+.actor-sprite-Warlock {
 	object-position: calc(-73px * var(--size)) 0;
 }
 
-.actor-sprite-Warrior-Champion {
+.actor-sprite-Warrior-Arms {
 	object-position: calc(-74px * var(--size)) 0;
 }
 
-.actor-sprite-Warrior-Fury {
+.actor-sprite-Warrior-Champion {
 	object-position: calc(-75px * var(--size)) 0;
 }
 
-.actor-sprite-Warrior-Gladiator {
+.actor-sprite-Warrior-Fury {
 	object-position: calc(-76px * var(--size)) 0;
 }
 
-.actor-sprite-Warrior-Melee {
+.actor-sprite-Warrior-Gladiator {
 	object-position: calc(-77px * var(--size)) 0;
 }
 
-.actor-sprite-Warrior-Protection {
+.actor-sprite-Warrior-Melee {
 	object-position: calc(-78px * var(--size)) 0;
 }
 
-.actor-sprite-Warrior-Warden {
+.actor-sprite-Warrior-Protection {
 	object-position: calc(-79px * var(--size)) 0;
 }
 
-.actor-sprite-Warrior {
+.actor-sprite-Warrior-Warden {
 	object-position: calc(-80px * var(--size)) 0;
+}
+
+.actor-sprite-Warrior {
+	object-position: calc(-81px * var(--size)) 0;
 }
