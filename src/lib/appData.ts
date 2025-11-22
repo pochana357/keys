@@ -52,6 +52,9 @@ const offensiveSpells: SpellDict = {
 	385627: { effect: [] }, // Kingsbane
 	360194: { effect: [] }, // Deathmark
 
+	// Hunter
+	359844: { effect: [] }, // Call of the Wild
+
 	// Death Knight
 	1249658: { effect: [] }, // Breath of Sindragosa
 	51271: { effect: [] }, // Pillar of Frost
