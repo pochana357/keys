@@ -27,12 +27,13 @@
 	let visibility = $derived(appState.visibility);
 	let buffDict: SvelteMap<number, Ability> = new SvelteMap();
 	const urlParams = new URLSearchParams(window.location.search);
+	let submitRequestId = 0;
 
-	async function callApi(code: string, fightIdx = -1, dungeonPullIdx = -1) {
+	async function callApi(code: string, apiKey: string, fightIdx = -1, dungeonPullIdx = -1) {
 		if (!logs[code]) {
 			appState.api.status = OApiStatus.busy;
 			try {
-				logs[code] = await Log.build(code, settings.wclApiKey);
+				logs[code] = await Log.build(code, apiKey);
 				appState.api.status = OApiStatus.succeeded;
 			} catch (err) {
 				appState.api.status = OApiStatus.failed;
@@ -46,7 +47,7 @@
 		if (dungeonPull) {
 			appState.api.status = OApiStatus.busy;
 			return logs[code]
-				.fetchPull(dungeonPull.dungeonPullRaw, { apiKey: settings.wclApiKey, progressCallback })
+				.fetchPull(dungeonPull.dungeonPullRaw, { apiKey, progressCallback })
 				.then((e) => {
 					appState.api.status = OApiStatus.succeeded;
 					for (const buff of e.buffs) {
@@ -63,11 +64,15 @@
 	}
 
 	async function handleSubmit(fightIdx = -1, dungeonPullIdx = -1) {
-		if (codeInputFormValue.length < 5) return;
-		return callApi(codeInputFormValue, fightIdx, dungeonPullIdx)
+		const submittedCode = codeInputFormValue;
+		const apiKey = settings.wclApiKey;
+		const requestId = ++submitRequestId;
+		if (submittedCode.length < 5) return;
+		return callApi(submittedCode, apiKey, fightIdx, dungeonPullIdx)
 			.then((res) => {
-				appState.code = codeInputFormValue;
-				appState.pushCodeToHistory(logs[codeInputFormValue]);
+				if (requestId !== submitRequestId) return events;
+				appState.code = submittedCode;
+				appState.pushCodeToHistory(logs[submittedCode]);
 				if (res) {
 					appState.fightIdx = fightIdx;
 					appState.dungeonPullIdx = dungeonPullIdx;
@@ -91,11 +96,11 @@
 		console.log('submitCode', newCode);
 		if (codeInputFormValue !== newCode) codeInputFormValue = newCode;
 		// if (appState.code !== codeInputFormValue) handleSubmit(-1, -1); else
-		handleSubmit(fightIdx, dungeonPullIdx);
+		return handleSubmit(fightIdx, dungeonPullIdx);
 	}
 	async function submitMostRecentCode() {
 		const codes = appState.history.items;
-		if (!codes || codes.length == 0) return submitCode('');
+		if (!codes || codes.length == 0) return;
 		else {
 			return submitCode(codes[codes.length - 1].code);
 		}
@@ -114,8 +119,11 @@
 		};
 
 		console.log('urlParams', fromUrl);
-		if (!fromUrl.code) submitMostRecentCode();
-		await submitCode(fromUrl.code, fromUrl.fightIdx, fromUrl.dungeonPullIdx);
+		if (fromUrl.code) {
+			await submitCode(fromUrl.code, fromUrl.fightIdx, fromUrl.dungeonPullIdx);
+		} else {
+			await submitMostRecentCode();
+		}
 	});
 
 	let progress = $state({ total: 0, current: 0 });
