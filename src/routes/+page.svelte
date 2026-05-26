@@ -11,7 +11,12 @@
 	import { onMount } from 'svelte';
 	import OutlineView from './OutlineView.svelte';
 	import EventViewer from './EventViewer.svelte';
-	import { AppState, OApiStatus } from '$lib/AppState';
+	import {
+		AppState,
+		currentPageFromSearch,
+		OApiStatus,
+		type UrlUpdateMode
+	} from '$lib/AppState';
 	import LoadingScreen from './LoadingScreen.svelte';
 	import SettingsComponent from './SettingsComponent.svelte';
 	import History from './History.svelte';
@@ -26,7 +31,6 @@
 	let settings = $derived(appState.settings);
 	let visibility = $derived(appState.visibility);
 	let buffDict: SvelteMap<number, Ability> = new SvelteMap();
-	const urlParams = new URLSearchParams(window.location.search);
 	let submitRequestId = 0;
 
 	async function callApi(code: string, apiKey: string, fightIdx = -1, dungeonPullIdx = -1) {
@@ -63,7 +67,11 @@
 		} else return null;
 	}
 
-	async function handleSubmit(fightIdx = -1, dungeonPullIdx = -1) {
+	async function handleSubmit(
+		fightIdx = -1,
+		dungeonPullIdx = -1,
+		urlUpdateMode: UrlUpdateMode = 'push'
+	) {
 		const submittedCode = codeInputFormValue;
 		const apiKey = settings.wclApiKey;
 		const requestId = ++submitRequestId;
@@ -71,17 +79,20 @@
 		return callApi(submittedCode, apiKey, fightIdx, dungeonPullIdx)
 			.then((res) => {
 				if (requestId !== submitRequestId) return events;
-				appState.code = submittedCode;
 				appState.pushCodeToHistory(logs[submittedCode]);
 				if (res) {
-					appState.fightIdx = fightIdx;
-					appState.dungeonPullIdx = dungeonPullIdx;
+					appState.setCurrentPage(
+						{ code: submittedCode, fightIdx, dungeonPullIdx },
+						urlUpdateMode
+					);
 					currentFightPullRaw = res.dungeonPull.fightPullRaw;
 					currentDungeonPullRaw = res.dungeonPull.dungeonPullRaw;
 					events = res.eventsClass;
 				} else {
-					appState.fightIdx = -1;
-					appState.dungeonPullIdx = -1;
+					appState.setCurrentPage(
+						{ code: submittedCode, fightIdx: -1, dungeonPullIdx: -1 },
+						urlUpdateMode
+					);
 					currentFightPullRaw = null;
 					currentDungeonPullRaw = null;
 					events = new EventsLumped();
@@ -92,38 +103,42 @@
 				// pass
 			});
 	}
-	async function submitCode(newCode: string, fightIdx = -1, dungeonPullIdx = -1) {
+	async function submitCode(
+		newCode: string,
+		fightIdx = -1,
+		dungeonPullIdx = -1,
+		urlUpdateMode: UrlUpdateMode = 'push'
+	) {
 		console.log('submitCode', newCode);
 		if (codeInputFormValue !== newCode) codeInputFormValue = newCode;
 		// if (appState.code !== codeInputFormValue) handleSubmit(-1, -1); else
-		return handleSubmit(fightIdx, dungeonPullIdx);
+		return handleSubmit(fightIdx, dungeonPullIdx, urlUpdateMode);
 	}
-	async function submitMostRecentCode() {
+	async function submitMostRecentCode(urlUpdateMode: UrlUpdateMode = 'replace') {
 		const codes = appState.history.items;
 		if (!codes || codes.length == 0) return;
 		else {
-			return submitCode(codes[codes.length - 1].code);
+			return submitCode(codes[codes.length - 1].code, -1, -1, urlUpdateMode);
 		}
 	}
-	const toNumber = (s: string | null) => {
-		if (!s) return -1;
-		const n = parseInt(s);
-		return isNaN(n) ? -1 : n;
-	};
-	onMount(async () => {
-		appState.validateSettings();
-		const fromUrl = {
-			code: urlParams.get('code') ?? '',
-			fightIdx: toNumber(urlParams.get('fight')),
-			dungeonPullIdx: toNumber(urlParams.get('pull'))
-		};
-
+	async function restoreFromLocation(urlUpdateMode: UrlUpdateMode) {
+		const fromUrl = currentPageFromSearch(window.location.search);
 		console.log('urlParams', fromUrl);
 		if (fromUrl.code) {
-			await submitCode(fromUrl.code, fromUrl.fightIdx, fromUrl.dungeonPullIdx);
+			await submitCode(fromUrl.code, fromUrl.fightIdx, fromUrl.dungeonPullIdx, urlUpdateMode);
 		} else {
-			await submitMostRecentCode();
+			await submitMostRecentCode(urlUpdateMode);
 		}
+	}
+	onMount(() => {
+		appState.validateSettings();
+		void restoreFromLocation('replace');
+
+		const handlePopState = () => {
+			void restoreFromLocation('none');
+		};
+		window.addEventListener('popstate', handlePopState);
+		return () => window.removeEventListener('popstate', handlePopState);
 	});
 
 	let progress = $state({ total: 0, current: 0 });

@@ -2,7 +2,7 @@ import { createEphemeralState, createSettings } from '$lib/localStorageWrapper.s
 import { setContext, getContext } from 'svelte';
 import type Log from './api/Log.svelte';
 import { browser } from '$app/environment';
-import { pushState } from '$app/navigation';
+import { pushState, replaceState } from '$app/navigation';
 
 export const OReferenceTime = { dungeon: 'dungeon', pull: 'pull' } as const;
 export type ReferenceTime = (typeof OReferenceTime)[keyof typeof OReferenceTime];
@@ -49,6 +49,11 @@ const defaultCurrentPage = {
 	dungeonPullIdx: -1
 };
 export type currentPage = typeof defaultCurrentPage;
+export type UrlUpdateMode = 'push' | 'replace' | 'none';
+type Navigation = {
+	pushState: typeof pushState;
+	replaceState: typeof replaceState;
+};
 
 const defaultHistory: { items: HistoryItem[] } = { items: [] };
 
@@ -64,8 +69,50 @@ const defaultVisibility = {
 };
 export type Visibility = typeof defaultVisibility;
 
-function updateUrl(urlParams: URLSearchParams) {
-	if (browser) pushState(`?${urlParams.toString()}`, {});
+export function currentPageToSearch(currentPage: currentPage) {
+	const urlParams = new URLSearchParams();
+	urlParams.set('code', currentPage.code);
+	urlParams.set('fight', currentPage.fightIdx.toString());
+	urlParams.set('pull', currentPage.dungeonPullIdx.toString());
+	return `?${urlParams.toString()}`;
+}
+
+function toNumber(s: string | null) {
+	if (!s) return -1;
+	const n = parseInt(s);
+	return isNaN(n) ? -1 : n;
+}
+
+export function currentPageFromSearch(search: string): currentPage {
+	const urlParams = new URLSearchParams(search);
+	return {
+		code: urlParams.get('code') ?? '',
+		fightIdx: toNumber(urlParams.get('fight')),
+		dungeonPullIdx: toNumber(urlParams.get('pull'))
+	};
+}
+
+export function applyCurrentPageState(target: currentPage, next: currentPage) {
+	target.code = next.code;
+	target.fightIdx = next.fightIdx;
+	target.dungeonPullIdx = next.dungeonPullIdx;
+}
+
+export function updateCurrentPageUrl(
+	next: currentPage,
+	mode: UrlUpdateMode,
+	currentSearch: string,
+	navigation: Navigation = { pushState, replaceState }
+) {
+	const nextSearch = currentPageToSearch(next);
+	// Back/forward restores use `none`, and identical URLs should not create duplicate entries.
+	if (mode === 'none' || nextSearch === currentSearch) return nextSearch;
+	if (mode === 'replace') {
+		navigation.replaceState(nextSearch, {});
+	} else {
+		navigation.pushState(nextSearch, {});
+	}
+	return nextSearch;
 }
 export class AppState {
 	settings = createSettings(defaultSettings);
@@ -95,17 +142,21 @@ export class AppState {
 	set code(code: string) {
 		this.#currentPage.code = code;
 		this.urlParams.set('code', code);
-		updateUrl(this.urlParams);
 	}
 	set fightIdx(fightIdx: number) {
 		this.#currentPage.fightIdx = fightIdx;
 		this.urlParams.set('fight', fightIdx.toString());
-		updateUrl(this.urlParams);
 	}
 	set dungeonPullIdx(dungeonPullIdx: number) {
 		this.#currentPage.dungeonPullIdx = dungeonPullIdx;
 		this.urlParams.set('pull', dungeonPullIdx.toString());
-		updateUrl(this.urlParams);
+	}
+	// Keep current-page state and the URL in sync as one operation so a submit or pull
+	// selection creates a single browser history entry instead of one per field.
+	setCurrentPage(next: currentPage, mode: UrlUpdateMode = 'push') {
+		applyCurrentPageState(this.#currentPage, next);
+		this.urlParams = new URLSearchParams(currentPageToSearch(next));
+		if (browser) updateCurrentPageUrl(next, mode, window.location.search);
 	}
 
 	resetSettings() {
