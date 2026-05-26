@@ -221,6 +221,7 @@ const defensiveSpells: SpellDict = {
 	443591: { effect: [] }, // Unity Within
 	399491: { effect: [], minor: true }, // Sheilun's Gift
 	116670: { effect: [], minor: true }, // Vivify
+	115175: { effect: [defensiveBuff(115175)], minor: true }, // Soothing Mist
 
 	122470: { effect: [defensiveBuff(122470)] }, // Touch of Karma
 
