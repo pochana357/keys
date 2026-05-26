@@ -13,6 +13,18 @@ export function writeToBuffer(key: string, data: object) {
 	apiCache.set(key, data);
 }
 
+class EphemeralState<T extends object> {
+	value = $state({} as T);
+
+	constructor(defaultValue: T) {
+		Object.assign(this.value, defaultValue);
+	}
+}
+
+export function createEphemeralState<T extends object>(defaultValue: T) {
+	return new EphemeralState(defaultValue).value;
+}
+
 export const localStorageWrapper = {
 	set<T>(key: string, val: T) {
 		if (browser) localStorage.setItem(key, JSON.stringify(val));

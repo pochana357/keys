@@ -1,4 +1,4 @@
-import { createSettings } from '$lib/localStorageWrapper.svelte';
+import { createEphemeralState, createSettings } from '$lib/localStorageWrapper.svelte';
 import { setContext, getContext } from 'svelte';
 import type Log from './api/Log.svelte';
 import { browser } from '$app/environment';
@@ -69,7 +69,7 @@ function updateUrl(urlParams: URLSearchParams) {
 export class AppState {
 	settings = createSettings(defaultSettings);
 	history = createSettings(defaultHistory);
-	api = $state({ ...defaultApiStatus });
+	api = createEphemeralState(defaultApiStatus);
 	#currentPage = createSettings(defaultCurrentPage);
 	visibility = createSettings(defaultVisibility);
 	urlParams: URLSearchParams = new URLSearchParams();
