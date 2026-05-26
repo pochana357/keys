@@ -84,7 +84,7 @@
 		}
 		return res;
 	});
-	const heightInLevel = $derived(Math.max(...getLevel2));
+	const heightInLevel = $derived(Math.max(0, ...getLevel2));
 
 	function setCursor(timestamp: number) {
 		cursor = offsetX(timestamp);
