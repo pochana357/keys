@@ -13,9 +13,9 @@
 		useHover,
 		useInteractions,
 		useRole,
-		useDismiss,
-		type Placement
+		useDismiss
 	} from '@skeletonlabs/floating-ui-svelte';
+	import type { Placement } from '@floating-ui/dom';
 
 	let {
 		tooltip,
