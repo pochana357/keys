@@ -9,7 +9,7 @@
 	};
 	let { currentCode, submitCode }: Props = $props();
 	async function handleTest() {
-		const testCodes = ['jrXvdZNRFP2WhyAG', '2BcdTkFCbPq78DjK', 'fT3dFVzKq6Dg4MGc']; // Random logs in TWW S3
+		const testCodes = ['RMK6vq912F4xVTPN', 'PaMTHx6Ar42tK7mc']; // Random logs
 		const testCode = testCodes[Math.floor(Math.random() * testCodes.length)];
 		submitCode(testCode);
 	}
