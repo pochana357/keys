@@ -2,6 +2,7 @@ import { createEphemeralState, createSettings } from '$lib/localStorageWrapper.s
 import { setContext, getContext } from 'svelte';
 import type Log from './api/Log.svelte';
 import { browser } from '$app/environment';
+import { pushState } from '$app/navigation';
 
 export const OReferenceTime = { dungeon: 'dungeon', pull: 'pull' } as const;
 export type ReferenceTime = (typeof OReferenceTime)[keyof typeof OReferenceTime];
@@ -64,7 +65,7 @@ const defaultVisibility = {
 export type Visibility = typeof defaultVisibility;
 
 function updateUrl(urlParams: URLSearchParams) {
-	if (browser) window.history.pushState({}, '', `?${urlParams.toString()}`);
+	if (browser) pushState(`?${urlParams.toString()}`, {});
 }
 export class AppState {
 	settings = createSettings(defaultSettings);
