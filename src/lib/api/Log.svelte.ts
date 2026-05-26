@@ -18,8 +18,8 @@ export default class Log {
 				fights?.json?.exportedCharacters?.map((character) => character.name) ?? [];
 		}
 	}
-	static async build(code: string) {
-		const fights = await Fights.fetchFights(code);
+	static async build(code: string, apiKey: string) {
+		const fights = await Fights.fetchFights(code, apiKey);
 		return new Log(code, fights);
 	}
 	getDungeonPull(fightIdx: number, dungeonPullIdx: number) {
@@ -42,14 +42,22 @@ export default class Log {
 	async fetchPull(
 		pull: PullRaw,
 		options: {
+			apiKey: string;
 			progressCallback?: (cur: number, st: number, ed: number) => void;
-		} = {}
+		}
 	) {
 		const startTime = pull.start_time;
 		const endTime = pull.end_time;
 
-		const retrieveEvents = <T extends EventType>(eventType: T, options: FetchEventsOptions) =>
-			fetchEventsWithCache(eventType, this.code, startTime, endTime, options).then((events) =>
+		const retrieveEvents = <T extends EventType>(eventType: T, fetchOptions: FetchEventsOptions) =>
+			fetchEventsWithCache(
+				eventType,
+				this.code,
+				options.apiKey,
+				startTime,
+				endTime,
+				fetchOptions
+			).then((events) =>
 				events.map((event) => ({
 					...event,
 					timestamp: event.timestamp,

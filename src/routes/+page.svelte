@@ -32,7 +32,7 @@
 		if (!logs[code]) {
 			appState.api.status = OApiStatus.busy;
 			try {
-				logs[code] = await Log.build(code);
+				logs[code] = await Log.build(code, settings.wclApiKey);
 				appState.api.status = OApiStatus.succeeded;
 			} catch (err) {
 				appState.api.status = OApiStatus.failed;
@@ -46,7 +46,7 @@
 		if (dungeonPull) {
 			appState.api.status = OApiStatus.busy;
 			return logs[code]
-				.fetchPull(dungeonPull.dungeonPullRaw, { progressCallback })
+				.fetchPull(dungeonPull.dungeonPullRaw, { apiKey: settings.wclApiKey, progressCallback })
 				.then((e) => {
 					appState.api.status = OApiStatus.succeeded;
 					for (const buff of e.buffs) {
@@ -203,6 +203,7 @@
 					bind:showReceived={settings.showReceived}
 					bind:pullStartAsReferenceTime={settings.pullStartAsReferenceTime}
 					bind:damageGroupInterval={settings.damageGroupInterval}
+					bind:wclApiKey={settings.wclApiKey}
 				/>
 			</div>
 		</div>

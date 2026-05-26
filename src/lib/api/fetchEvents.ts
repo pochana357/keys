@@ -1,5 +1,5 @@
 import { readFromBuffer, writeToBuffer } from '$lib/localStorageWrapper.svelte';
-import { apiAddr, wclApiKey, type EventType } from './apiAddr';
+import { apiAddr, type EventType } from './apiAddr';
 import type { EventRaw } from './wclTypes';
 import StringHash from '$lib/utils/hash';
 
@@ -10,11 +10,17 @@ export type FetchEventsOptions = Partial<{
 	progressCallback: (now: number, start: number, end: number) => void;
 }>;
 
-function getUrl(ApiAddress: string, start: number, end: number, options: FetchEventsOptions) {
+function getUrl(
+	ApiAddress: string,
+	apiKey: string,
+	start: number,
+	end: number,
+	options: FetchEventsOptions
+) {
 	const queryString = new URLSearchParams({
 		start: String(start),
 		end: String(end),
-		api_key: String(wclApiKey),
+		api_key: apiKey,
 		translate: String(true)
 	});
 	if (options.filter) queryString.set('filter', options.filter);
@@ -22,6 +28,7 @@ function getUrl(ApiAddress: string, start: number, end: number, options: FetchEv
 }
 async function fetchEvents(
 	ApiAddress: string,
+	apiKey: string,
 	start: number,
 	end: number,
 	options: FetchEventsOptions
@@ -31,8 +38,8 @@ async function fetchEvents(
 	let st = start;
 	options.progressCallback?.(st, start, end);
 	while (true) {
-		const url = getUrl(ApiAddress, st, end, options);
-		console.log('fetching', url);
+		const url = getUrl(ApiAddress, apiKey, st, end, options);
+		console.log('fetching events', ApiAddress, start, end);
 
 		const response = await fetch(url);
 		if (!response.ok) {
@@ -58,11 +65,12 @@ async function fetchEvents(
 export async function fetchEventsWithCache<T extends EventType>(
 	eventType: T,
 	code: string,
+	apiKey: string,
 	start: number,
 	end: number,
 	options: FetchEventsOptions
 ): Promise<EventRaw[T][]> {
-	const url = getUrl(apiAddr.events[eventType](code), start, end, options);
+	const url = getUrl(apiAddr.events[eventType](code), apiKey, start, end, options);
 	const hash = StringHash.cyrb53(url);
 	const cache = `${code}-${hash}`;
 	try {
@@ -72,7 +80,8 @@ export async function fetchEventsWithCache<T extends EventType>(
 		return data as EventRaw[T][];
 	} catch {
 		const time = Date.now();
-		const events = await fetchEvents(apiAddr.events[eventType](code), start, end, options);
+		if (!apiKey) throw new Error('Warcraft Logs API key is required.');
+		const events = await fetchEvents(apiAddr.events[eventType](code), apiKey, start, end, options);
 		writeToBuffer(cache, events);
 		const elapsedTime = Date.now() - time; // milliseconds
 		console.log(`${eventType} events fetched from API;`, cache, `(${elapsedTime / 1000.0}s)`);

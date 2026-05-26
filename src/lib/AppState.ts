@@ -14,6 +14,7 @@ export type Settings = {
 	showReceived: boolean;
 	pullStartAsReferenceTime: boolean;
 	damageGroupInterval: number;
+	wclApiKey: string;
 };
 const defaultSettings: Settings = {
 	pxPerSec: 10.0,
@@ -22,7 +23,8 @@ const defaultSettings: Settings = {
 	showMinor: false,
 	showReceived: true,
 	pullStartAsReferenceTime: true,
-	damageGroupInterval: 3000
+	damageGroupInterval: 3000,
+	wclApiKey: ''
 };
 export type Range = {
 	min: number;
@@ -118,6 +120,10 @@ export class AppState {
 		if (typeof value !== 'boolean') return defaultValue;
 		return value;
 	}
+	static validateString(value: unknown, defaultValue: string) {
+		if (typeof value !== 'string') return defaultValue;
+		return value;
+	}
 	validateSettings() {
 		// This function is called when the app is loaded
 		const settings = this.settings;
@@ -150,6 +156,7 @@ export class AppState {
 			settings.pullStartAsReferenceTime,
 			defaultSettings.pullStartAsReferenceTime
 		);
+		settings.wclApiKey = AppState.validateString(settings.wclApiKey, defaultSettings.wclApiKey);
 	}
 
 	pushCodeToHistory(log: Log) {

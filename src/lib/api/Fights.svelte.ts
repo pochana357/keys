@@ -1,5 +1,5 @@
 import { readFromBuffer, writeToBuffer } from '$lib/localStorageWrapper.svelte.js';
-import { apiAddr, wclApiKey } from './apiAddr.js';
+import { apiAddr } from './apiAddr.js';
 import type { FightPullRaw, FightsRaw, UnitRaw, MplusPullRaw } from './wclTypes.js';
 
 function parseUnits(units: UnitRaw[]) {
@@ -55,7 +55,7 @@ export default class Fights {
 			return unit ?? null;
 		}
 	}
-	static async fetchFights(code: string) {
+	static async fetchFights(code: string, apiKey: string) {
 		// fetch fights data from WCL API or from cache
 		const key = `fights-${code}`;
 		try {
@@ -63,9 +63,10 @@ export default class Fights {
 			if (!data) throw new Error('Cache empty');
 			return new Fights(data);
 		} catch {
-			const queryString = new URLSearchParams({ api_key: wclApiKey, translate: String(true) });
+			if (!apiKey) throw new Error('Warcraft Logs API key is required.');
+			const queryString = new URLSearchParams({ api_key: apiKey, translate: String(true) });
 			const url = apiAddr.fights(code) + `?${queryString.toString()}`;
-			console.log('fetching', url);
+			console.log('fetching fights', code);
 			const response = await fetch(url);
 			if (!response.ok) {
 				const text = await response.text();

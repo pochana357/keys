@@ -10,7 +10,8 @@
 		showMinor = $bindable(),
 		showReceived = $bindable(),
 		pullStartAsReferenceTime = $bindable(),
-		damageGroupInterval = $bindable()
+		damageGroupInterval = $bindable(),
+		wclApiKey = $bindable()
 	}: Props = $props();
 </script>
 
@@ -65,6 +66,22 @@
 				name="showReceived"
 				bind:flag={showReceived}
 			/>
+		</div>
+
+		<div class="mt-6">
+			<div class="text-lg font-bold">API</div>
+			<hr class="mt-1 mb-2" />
+			<label class="block w-96">
+				<span>Warcraft Logs API key</span>
+				<input
+					class="input mt-2 w-full font-mono"
+					name="wclApiKey"
+					type="password"
+					autocomplete="off"
+					spellcheck="false"
+					bind:value={wclApiKey}
+				/>
+			</label>
 		</div>
 
 		<button
