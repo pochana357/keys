@@ -43,8 +43,9 @@ async function fetchEvents(
 
 		const response = await fetch(url);
 		if (!response.ok) {
-			console.log('fetchEvents failed:', await response.text());
-			return events;
+			const text = await response.text();
+			console.warn('fetchEvents failed:', text);
+			throw new Error(text);
 		}
 		const data = await response.json();
 
@@ -73,12 +74,13 @@ export async function fetchEventsWithCache<T extends EventType>(
 	const url = getUrl(apiAddr.events[eventType](code), apiKey, start, end, options);
 	const hash = StringHash.cyrb53(url);
 	const cache = `${code}-${hash}`;
-	try {
-		const data = readFromBuffer(cache);
-		if (!data) throw new Error('cache empty');
+	const data = readFromBuffer(cache);
+	if (data) {
 		console.log(`${eventType} events loaded from the local cache;`, cache);
 		return data as EventRaw[T][];
-	} catch {
+	}
+
+	try {
 		const time = Date.now();
 		if (!apiKey) throw new Error('Warcraft Logs API key is required.');
 		const events = await fetchEvents(apiAddr.events[eventType](code), apiKey, start, end, options);
@@ -86,5 +88,8 @@ export async function fetchEventsWithCache<T extends EventType>(
 		const elapsedTime = Date.now() - time; // milliseconds
 		console.log(`${eventType} events fetched from API;`, cache, `(${elapsedTime / 1000.0}s)`);
 		return events as unknown as EventRaw[T][];
+	} catch (err) {
+		console.warn(`${eventType} events fetch failed; returning empty result`, err);
+		return [];
 	}
 }
