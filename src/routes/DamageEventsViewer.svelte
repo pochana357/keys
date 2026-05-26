@@ -55,7 +55,7 @@
 		damageTakenEvents.map((event) => ({
 			timestamp: event.timestamp,
 			data: event,
-			emphasisLevel: event.overkill && event.overkill >= 0 ? 99 : 0
+			emphasisLevel: event.overkill !== undefined && event.overkill >= 0 ? 99 : 0
 		}))
 	);
 </script>
@@ -110,7 +110,7 @@
 			{#if event.absorbed}
 				(A: {formatInteger(event.absorbed)})
 			{/if}
-			{#if event.overkill}
+			{#if event.overkill !== undefined}
 				(O: {formatInteger(event.overkill)})
 			{/if}
 		</p>
