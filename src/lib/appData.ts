@@ -83,14 +83,10 @@ const offensiveSpells: SpellDict = {
 	205180: { effect: [] }, // Summon Darkglare
 
 	// Trinkets and cantrip effects
-	431932: { effect: [] }, // Tempered Potion
-	443531: { effect: [] }, // Bolstering Light
-	345228: { effect: [] }, // Gladiator's Badge
-	443536: { effect: [] }, // Bursting Lightshard
-	1233556: { effect: [] }, // Unyielding Netherprism
-	1232802: { effect: [] }, // Araz's Ritual Forge
-	1242326: { effect: [] }, // Cursed Stone Idol
-	1244029: { effect: [] } // Woven Fate
+	1236616: { effect: [] }, // Light's Potential
+	1236994: { effect: [] }, // Potion of Recklessness
+	1260459: { effect: [] }, // Nullsight
+	1259633: { effect: [] } // Charge!
 };
 
 const defensiveSpells: SpellDict = {
@@ -107,10 +103,6 @@ const defensiveSpells: SpellDict = {
 	2061: { effect: [defensiveBuff(193065)], minor: true }, // Flash Heal (Protective Light)
 	194509: { effect: [], minor: true }, // Power Word: Radiance
 	32375: { effect: [] }, // Mass Dispel
-	428933: { effect: [] }, // Premonition of Insight
-	428930: { effect: [] }, // Premonition of Piety
-	428934: { effect: [defensiveBuff(443526)] }, // Premonition of Solace (Premonition of Solace)
-	440725: { effect: [defensiveBuff(443526)] }, // Premonition of Clairvoyane (Premonition of Solace)
 	421453: { effect: [defensiveBuff(421453)] }, // Ultimate Penitence
 	47540: { effect: [], friendlyTargetOnly: true, minor: true }, // Penance
 
@@ -118,26 +110,11 @@ const defensiveSpells: SpellDict = {
 	47585: { effect: [defensiveBuff(47585)] }, // Dispersion
 
 	// Shaman
-	108281: { effect: [defensiveBuff(108281)] }, // Ancestral Guidance
 	108271: { effect: [defensiveBuff(108271)] }, // Astral Shift
-
-	108270: { effect: [defensiveBuff(114893)] }, // Stone Bulwark Totem (Stone Bulwark)
-	// 114893 is the initial big shield and 462844 is small shields generated periodically.
-
-	198103: { effect: [defensiveBuff(381755)] }, // Earth Elemental (Earth Elemental); there is also a buff named Primordial Bond (381761)
+	198103: { effect: [defensiveBuff(381755)] }, // Primordial Bond
 	2645: { effect: [defensiveBuff(260881, true)] }, // Ghost Wolf (SpiritWolf)
 	8004: { dpsOnly: true, effect: [] }, // Healing Surge
-	57994: {
-		effect: [355702, 355703, 355704, 355705, 355706, 355634].map((id) => defensiveBuff(id, true)),
-		minor: true
-	}, // Wind Shear (Seasoned Winds)
-	// 355702: Fire
-	// 355703: Holy
-	// 355704: Nature
-	// 355705: Shadow
-	// 355706: Arcane
-	// 355634: Frost
-	// 355704, 355705: https://www.warcraftlogs.com/reports/4KxdFT6pVYLfy7r2#fight=2&type=auras&source=1
+	57994: { effect: [defensiveBuff(355634)], minor: true }, // Wind Shear (Windveil) TODO: check if stackable
 
 	108280: { effect: [defensiveBuff(108280)] }, // Healing Tide Totem
 	98008: { effect: [defensiveBuff(325174)] }, // Spirit Link Totem
@@ -145,15 +122,12 @@ const defensiveSpells: SpellDict = {
 	5394: { effect: [defensiveExtended(15000)] }, // Healing Stream Totem
 	383013: { effect: [] }, // Poison Cleansing Totem
 	108285: { effect: [] }, // Totemic Recall
-	157153: { effect: [] }, // Cloudburst Totem
-	201764: { effect: [] }, // Recall Cloudburst Totem
 
 	// Evoker
 	374227: { effect: [defensiveBuff(374227)] }, // Zephyr
-	370665: { effect: [defensiveBuff(370889)] }, // Rescue (Twin Guardian)
+	370665: { effect: [defensiveBuff(370889)], minor: true }, // Rescue (Twin Guardian)
 	406732: { effect: [defensiveBuff(406732), defensiveBuff(406789)] }, // Spatial Paradox (separate buffs for the source and the target)
-	363916: { effect: [defensiveBuff(363916)] }, // Obsidian Scale
-	374348: { effect: [defensiveBuff(374348)] }, // Renewing Blaze
+	363916: { effect: [defensiveBuff(363916), defensiveBuff(374349)] }, // Obsidian Scale (Obsidian Scale, Renewing Blaze)
 	374251: { effect: [] }, // Cauterizing Flame
 	442204: { effect: [defensiveBuff(409678)], minor: true }, // Breath of Eons (Chrono Ward)
 	358267: { effect: [defensiveBuff(358267)], minor: true }, // Hover
@@ -165,13 +139,10 @@ const defensiveSpells: SpellDict = {
 	187827: { effect: [defensiveBuff(187827)] }, // Metamorphosis (Vengeance)
 
 	198589: { effect: [defensiveBuff(212800)] }, // Blur
-	196555: { effect: [defensiveBuff(196555)] }, // Netherwalk
 	196718: { effect: [] }, // Darkness
 
 	188499: { effect: [defensiveBuff(427901)], minor: true }, // Blade Dance (Deflecting Dance)
 	232893: { effect: [defensiveBuff(442715)], minor: true }, // Felblade (Blade Ward)
-	207684: { effect: [], minor: true }, // Sigil of Misery
-	204596: { effect: [], minor: true }, // SIgil of Flame
 
 	// Death Knight
 	48707: { effect: [defensiveBuff(48707)] }, // Anti-Magic Shell
@@ -196,12 +167,7 @@ const defensiveSpells: SpellDict = {
 
 	// Mage
 	342245: { effect: [defensiveBuff(342246)] }, // Alter Time
-	55342: { effect: [defensiveBuff(55342)] }, // Mirror Image
 	212653: { effect: [defensiveBuff(382290)], minor: true }, // Shimmer (Tempest Barrier)
-
-	110960: { effect: [defensiveBuff(113862)] }, // Greater Invisibility
-	// The buff 110960 tracks the stealth; 113862 tracks the DR part (during the stealth & 3s afterward).
-
 	45438: { effect: [defensiveBuff(45438)] }, // Ice Block
 	414658: { effect: [defensiveBuff(414658)] }, // Ice cold
 
@@ -234,7 +200,6 @@ const defensiveSpells: SpellDict = {
 	// Druid
 	5487: { effect: [defensiveBuff(5487), defensiveBuff(393903)] }, // Bear Form (Bear Form, Ursine Vigor)
 	22812: { effect: [defensiveBuff(22812)] }, // Barkskin
-	108238: { effect: [] }, // Renewal
 	124974: { effect: [defensiveBuff(124974)] }, // Nature's Vigil
 	12: { selfCastOnly: true, effect: [defensiveBuff(400126), defensiveBuff(433749)] }, // Regrowth (Forestwalk, Protective Growth)
 	22842: { nonTankOnly: true, effect: [], minor: true }, // Frenzied Regeneration
@@ -243,20 +208,19 @@ const defensiveSpells: SpellDict = {
 	740: { effect: [] }, // Tranquility
 	102342: { effect: [] }, // Ironbark
 	102693: { effect: [], minor: true }, // Grove Guardians
-	197721: { effect: [] }, // Flourish
 	319454: { effect: [defensiveBuff(319454)], minor: true }, // Heart of the Wild
 
 	// Monk
-	122783: { effect: [defensiveBuff(122783)] }, // Diffuse Magic
 	115203: { effect: [defensiveBuff(120954)] }, // Fortifying Brew
 	115310: { effect: [] }, // Revival
 	116680: { effect: [] }, // Thunder Focus Tea
 	116849: { effect: [defensiveBuff(116849)] }, // Life Cocoon
-	117952: { effect: [] }, // Crackling Jade Lightning
+	// 117952: { effect: [] }, // Crackling Jade Lightning
 	325197: { effect: [defensiveBuff(406220)] }, // Invoke Chi-Ji, the Red Crane (Chi Cocoon)
 	443028: { effect: [] }, // Celestial Conduit
 	443591: { effect: [] }, // Unity Within
-	116670: { dpsOnly: true, selfCastOnly: true, effect: [] }, // Vivify
+	399491: { effect: [], minor: true }, // Sheilun's Gift
+	116670: { effect: [], minor: true }, // Vivify
 
 	122470: { effect: [defensiveBuff(122470)] }, // Touch of Karma
 
@@ -275,22 +239,14 @@ const defensiveSpells: SpellDict = {
 	107574: { effect: [defensiveBuff(107574)] }, // Avatar
 
 	// General
-	1238009: { effect: [] }, // Invigorating Healing Potion
-	431418: { effect: [] }, // Algari Mana Potion
-	431419: { effect: [] }, // Caveweller's Delight
-	452767: { effect: [] }, // Heartseeking Health Injector
+	1234768: { effect: [] }, // Silvermoon Health Potion
+	1236648: { effect: [] }, // Lightfused Mana Potion
+	1239479: { effect: [] }, // Potion of Devoured Dreams
 	58984: { effect: [] }, // Shadowmeld
 	6262: { effect: [] }, // Healthstone
 
 	// Defensive trinkets
-	1219102: { effect: [defensiveBuff(1219102)] }, // Mudborne
-	1232721: { effect: [defensiveBuff(1232721)] }, // Loom'ithar's Living Silk
-
-	// Ara-kara, City of Echoes
-	439208: { effect: [] }, // Silk Wrap
-
-	// Eco-Dome Al'dani
-	1239419: { effect: [] } // Overloading Siphon...
+	1258283: { effect: [] } // Beacon of Lightblind Wrath
 };
 export const castDict: SpellDict = { ...defensiveSpells };
 for (const [id, val] of Object.entries(offensiveSpells)) {
