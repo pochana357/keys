@@ -203,12 +203,14 @@ const defensiveSpells: SpellDict = {
 	124974: { effect: [defensiveBuff(124974)] }, // Nature's Vigil
 	12: { selfCastOnly: true, effect: [defensiveBuff(400126), defensiveBuff(433749)] }, // Regrowth (Forestwalk, Protective Growth)
 	22842: { nonTankOnly: true, effect: [], minor: true }, // Frenzied Regeneration
+	102558: { effect: [defensiveBuff(102558)] }, // Incarnation: Guardian of Ursoc
 
 	391528: { effect: [] }, // Convoke the Spirits
 	740: { effect: [] }, // Tranquility
 	102342: { effect: [] }, // Ironbark
 	102693: { effect: [], minor: true }, // Grove Guardians
 	319454: { effect: [defensiveBuff(319454)], minor: true }, // Heart of the Wild
+	29166: { effect: [], minor: true }, // Innervate
 
 	// Monk
 	115203: { effect: [defensiveBuff(120954)] }, // Fortifying Brew
@@ -222,6 +224,8 @@ const defensiveSpells: SpellDict = {
 	399491: { effect: [], minor: true }, // Sheilun's Gift
 	116670: { effect: [], minor: true }, // Vivify
 	115175: { effect: [defensiveBuff(115175)], minor: true }, // Soothing Mist
+	124682: { effect: [], minor: true }, // Enveloping Mist
+	115151: { effect: [], minor: true }, // Renewing Mist
 
 	122470: { effect: [defensiveBuff(122470)] }, // Touch of Karma
 
