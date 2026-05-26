@@ -69,7 +69,7 @@ function updateUrl(urlParams: URLSearchParams) {
 export class AppState {
 	settings = createSettings(defaultSettings);
 	history = createSettings(defaultHistory);
-	api = createSettings(defaultApiStatus);
+	api = $state({ ...defaultApiStatus });
 	#currentPage = createSettings(defaultCurrentPage);
 	visibility = createSettings(defaultVisibility);
 	urlParams: URLSearchParams = new URLSearchParams();
