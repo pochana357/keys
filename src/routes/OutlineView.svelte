@@ -3,6 +3,7 @@
 	import { type FightsRaw } from '$lib/api/wclTypes';
 	import { formatAbsoluteTime, formatTime } from '$lib/utils/utils';
 	import WithTooltip from '$lib/WithTooltip.svelte';
+	import { SvelteMap } from 'svelte/reactivity';
 	type Props = {
 		code: string;
 		fightsRaw: FightsRaw;
@@ -12,19 +13,12 @@
 	};
 	let { code, fightsRaw, currentFightIdx, currentDungeonPullIdx, onUpdate }: Props = $props();
 
-	const bossIdRedirect = new Map<number, number>();
+	const bossIdRedirect = new SvelteMap<number, number>();
 	// e.g., 61594 should be redirected to `11594-icon.jpg`.
 	const bossIdRedirectList = [
-		[112098, 12098], // Operation: Mechagon
-		[61594, 11594], // The MOTHERLODE!!
-		[62293, 12293], // Theater of Pain
-		[62660, 12660], // Ara-kara, City of Echoes
-		[62649, 12649], // Priory of the Sacred Flame
-		[62662, 12662], // The Dawnbreaker
-		[62773, 12773], // Operation: Floodgate
-		[62287, 12287], // Halls of Atonement
-		[112441, 12441], // Tazavesh: Streets of Wonder
-		[112442, 12442] // Tazavesh: So'leah's Gambit
+		[361753, 11753], // The Seat of the Triumvirate
+		[61209, 11209], // Skyreach
+		[112526, 12526] // Algeth'ar Academy
 	];
 	bossIdRedirectList.forEach(([from, to]) => {
 		bossIdRedirect.set(from, to);
