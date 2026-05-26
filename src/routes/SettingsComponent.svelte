@@ -1,8 +1,12 @@
 <script lang="ts">
 	import { settingsRange, type Settings, AppState } from '$lib/AppState';
+	import IconEye from 'lucide-svelte/icons/eye';
+	import IconEyeOff from 'lucide-svelte/icons/eye-off';
 	import SettingSlider from '$lib/SettingSlider.svelte';
 	import SettingSwitch from '$lib/SettingSwitch.svelte';
-	type Props = Settings;
+	type Props = Settings & {
+		invalidApiKey?: boolean;
+	};
 	let {
 		pxPerSec = $bindable(),
 		horizontalOverlap = $bindable(),
@@ -11,8 +15,11 @@
 		showReceived = $bindable(),
 		pullStartAsReferenceTime = $bindable(),
 		damageGroupInterval = $bindable(),
-		wclApiKey = $bindable()
+		wclApiKey = $bindable(),
+		invalidApiKey = false
 	}: Props = $props();
+	let showWclApiKey = $state(false);
+	let shouldWarnApiKey = $derived(!wclApiKey.trim() || invalidApiKey);
 </script>
 
 <div class="flex gap-4 pb-1">
@@ -73,14 +80,37 @@
 			<hr class="mt-1 mb-2" />
 			<label class="block w-96">
 				<span>Warcraft Logs API key</span>
-				<input
-					class="input mt-2 w-full font-mono"
-					name="wclApiKey"
-					type="password"
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={wclApiKey}
-				/>
+				<div class="mt-2 flex">
+					<input
+						class="input min-w-0 flex-1 rounded-r-none font-mono"
+						name="wclApiKey"
+						type={showWclApiKey ? 'text' : 'password'}
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={wclApiKey}
+					/>
+					<button
+						type="button"
+						class="btn h-10 w-14 flex-none"
+						aria-label={showWclApiKey ? 'Hide Warcraft Logs API key' : 'Show Warcraft Logs API key'}
+						title={showWclApiKey ? 'Hide API key' : 'Show API key'}
+						onclick={() => (showWclApiKey = !showWclApiKey)}
+					>
+						{#if showWclApiKey}
+							<IconEyeOff strokeWidth={2.25} />
+						{:else}
+							<IconEye strokeWidth={2.25} />
+						{/if}
+					</button>
+				</div>
+				<span
+					class="mt-1 block text-sm"
+					class:text-red-400={shouldWarnApiKey}
+					class:font-bold={shouldWarnApiKey}
+					class:text-surface-300={!shouldWarnApiKey}
+				>
+					You must provide your own Warcraft Logs API key before loading reports.
+				</span>
 			</label>
 		</div>
 

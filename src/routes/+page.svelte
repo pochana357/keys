@@ -11,12 +11,7 @@
 	import { onMount } from 'svelte';
 	import OutlineView from './OutlineView.svelte';
 	import EventViewer from './EventViewer.svelte';
-	import {
-		AppState,
-		currentPageFromSearch,
-		OApiStatus,
-		type UrlUpdateMode
-	} from '$lib/AppState';
+	import { AppState, currentPageFromSearch, OApiStatus, type UrlUpdateMode } from '$lib/AppState';
 	import LoadingScreen from './LoadingScreen.svelte';
 	import SettingsComponent from './SettingsComponent.svelte';
 	import History from './History.svelte';
@@ -33,7 +28,18 @@
 	let buffDict: SvelteMap<number, Ability> = new SvelteMap();
 	let submitRequestId = 0;
 
+	function isInvalidApiKeyError(err: unknown) {
+		if (!(err instanceof Error)) return false;
+		try {
+			const parsed = JSON.parse(err.message) as { status?: number; error?: string };
+			return parsed.status === 401 && parsed.error === 'Invalid key specified.';
+		} catch {
+			return false;
+		}
+	}
+
 	async function callApi(code: string, apiKey: string, fightIdx = -1, dungeonPullIdx = -1) {
+		appState.api.invalidApiKey = false;
 		if (!logs[code]) {
 			appState.api.status = OApiStatus.busy;
 			try {
@@ -41,6 +47,7 @@
 				appState.api.status = OApiStatus.succeeded;
 			} catch (err) {
 				appState.api.status = OApiStatus.failed;
+				appState.api.invalidApiKey = isInvalidApiKeyError(err);
 				console.log(err);
 				return null;
 			}
@@ -62,6 +69,7 @@
 				.catch((err) => {
 					console.log(err);
 					appState.api.status = OApiStatus.failed;
+					appState.api.invalidApiKey = isInvalidApiKeyError(err);
 					throw err;
 				});
 		} else return null;
@@ -81,10 +89,7 @@
 				if (requestId !== submitRequestId) return events;
 				appState.pushCodeToHistory(logs[submittedCode]);
 				if (res) {
-					appState.setCurrentPage(
-						{ code: submittedCode, fightIdx, dungeonPullIdx },
-						urlUpdateMode
-					);
+					appState.setCurrentPage({ code: submittedCode, fightIdx, dungeonPullIdx }, urlUpdateMode);
 					currentFightPullRaw = res.dungeonPull.fightPullRaw;
 					currentDungeonPullRaw = res.dungeonPull.dungeonPullRaw;
 					events = res.eventsClass;
@@ -227,6 +232,7 @@
 					bind:pullStartAsReferenceTime={settings.pullStartAsReferenceTime}
 					bind:damageGroupInterval={settings.damageGroupInterval}
 					bind:wclApiKey={settings.wclApiKey}
+					invalidApiKey={appState.api.invalidApiKey}
 				/>
 			</div>
 		</div>
@@ -272,16 +278,33 @@
 			</div>
 		</div>
 	{:else}
-		<div class="pt-8 text-center">
-			<p class="my-2 text-2xl font-bold">Welcome to Log Analyzer for Mythic Plus.</p>
-			<p class="text-lg">Enter a Warcraft Logs code to get started.</p>
-			<p class="my-2">
-				<span class="text-surface-300"
-					>e.g., https://www.warcraftlogs.com/reports/<span class="text-primary-300 font-bold"
-						>1DvhRcyAX9WwNQka</span
-					>#fight=23&type=damage-done</span
-				>
-			</p>
+		<div class="mx-auto flex max-w-3xl flex-col items-center gap-3 px-4 pt-10 text-center">
+			<p class="text-2xl font-bold">Welcome to Log Analyzer for Mythic Plus.</p>
+			{#if settings.wclApiKey.trim()}
+				<p class="my-2 text-lg">Enter a Warcraft Logs code to get started.</p>
+				<p>
+					<span class="text-surface-300"
+						>e.g., https://www.warcraftlogs.com/reports/<span class="text-primary-300 font-bold"
+							>1DvhRcyAX9WwNQka</span
+						>#fight=23&type=damage-done</span
+					>
+				</p>
+			{:else}
+				<p class="my-2 text-lg">
+					You must provide your own Warcraft Logs API key in Settings before loading a report.
+				</p>
+				<p class="text-surface-300">
+					Get it from
+					<a
+						class="text-primary-300 hover:text-primary-200 underline underline-offset-2"
+						href="https://www.warcraftlogs.com/profile"
+						target="_blank"
+						rel="noreferrer"
+					>
+						Warcraft Logs
+					</a>.
+				</p>
+			{/if}
 		</div>
 	{/if}
 	{#if appState.api.status == OApiStatus.busy}

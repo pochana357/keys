@@ -63,6 +63,16 @@ async function fetchEvents(
 	return events;
 }
 
+function isInvalidApiKeyError(err: unknown) {
+	if (!(err instanceof Error)) return false;
+	try {
+		const parsed = JSON.parse(err.message) as { status?: number; error?: string };
+		return parsed.status === 401 && parsed.error === 'Invalid key specified.';
+	} catch {
+		return false;
+	}
+}
+
 export async function fetchEventsWithCache<T extends EventType>(
 	eventType: T,
 	code: string,
@@ -89,6 +99,7 @@ export async function fetchEventsWithCache<T extends EventType>(
 		console.log(`${eventType} events fetched from API;`, cache, `(${elapsedTime / 1000.0}s)`);
 		return events as unknown as EventRaw[T][];
 	} catch (err) {
+		if (isInvalidApiKeyError(err)) throw err;
 		console.warn(`${eventType} events fetch failed; returning empty result`, err);
 		return [];
 	}

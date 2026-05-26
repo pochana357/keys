@@ -60,7 +60,10 @@ const defaultHistory: { items: HistoryItem[] } = { items: [] };
 export const OApiStatus = { busy: 'busy', failed: 'failed', succeeded: 'succeeded' } as const;
 type ApiStatus = (typeof OApiStatus)[keyof typeof OApiStatus];
 const maxHistory = 10;
-const defaultApiStatus: { status: ApiStatus } = { status: OApiStatus.succeeded };
+const defaultApiStatus: { status: ApiStatus; invalidApiKey: boolean } = {
+	status: OApiStatus.succeeded,
+	invalidApiKey: false
+};
 
 const defaultVisibility = {
 	history: false,
