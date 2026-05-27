@@ -8,8 +8,11 @@
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "check:format": "prettier --check .",
+    "check:lint": "eslint .",
+    "check:all": "npm run check && npm run check:format && npm run check:lint",
     "format": "prettier --write .",
-    "lint": "prettier --check . && eslint .",
+    "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest"
   },
