@@ -4,7 +4,7 @@
   import { ability2img } from '$lib/utils/link';
   import { SpellSchool } from '$lib/utils/SpellSchool';
   import { formatInteger, formatTime } from '$lib/utils/utils';
-  import type { SvelteMap } from 'svelte/reactivity';
+  import { SvelteMap } from 'svelte/reactivity';
 
   type Props = {
     damageTakenEvents: DamageTakenEvent[];
@@ -38,7 +38,7 @@
     event.overkill !== undefined && event.overkill > 0;
   let mergeGroups = $derived.by(() => {
     // lastTimestamps[spellName] stores the last timestamp of the damage event.
-    const lastTimestamps = new Map<
+    const lastTimestamps = new SvelteMap<
       string,
       { mergeDataIdx: number; timestamp: number }
     >();

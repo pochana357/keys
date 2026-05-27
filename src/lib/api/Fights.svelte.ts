@@ -2,6 +2,7 @@ import {
   readFromBuffer,
   writeToBuffer,
 } from '$lib/localStorageWrapper.svelte.js';
+import { SvelteURLSearchParams } from 'svelte/reactivity';
 import { apiAddr } from './apiAddr.js';
 import type {
   FightPullRaw,
@@ -77,7 +78,7 @@ export default class Fights {
       return new Fights(data);
     } catch {
       if (!apiKey) throw new Error('Warcraft Logs API key is required.');
-      const queryString = new URLSearchParams({
+      const queryString = new SvelteURLSearchParams({
         api_key: apiKey,
         translate: String(true),
       });

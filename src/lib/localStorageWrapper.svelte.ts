@@ -1,6 +1,7 @@
 import { browser } from '$app/environment';
+import { SvelteMap } from 'svelte/reactivity';
 
-const apiCache = new Map<string, object>();
+const apiCache = new SvelteMap<string, object>();
 export function readFromBuffer(key: string): unknown | null {
   try {
     const data = apiCache.get(key);
