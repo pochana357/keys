@@ -260,8 +260,9 @@ for (const [id, val] of Object.entries(offensiveSpells)) {
 }
 
 export const spelllikeBuffs: SpellDict = {
-	457533: { effect: [defensiveBuff(457533)] }, // Evasive Maneuvers (Cloak proc)
-	65116: { effect: [defensiveBuff(65116)] } // Stoneform; its casts are missing in the logs.
+	// the casts are missing in logs.
+	1217607: { effect: [defensiveBuff(1217607)] }, // Void Metamorphosis (Active Ability)
+	65116: { effect: [defensiveBuff(65116)] } // Stoneform
 };
 export const spelllikeDebuffs: SpellDict = {
 	// Paladin
