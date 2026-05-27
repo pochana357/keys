@@ -8,6 +8,7 @@
   import IconPlus from 'lucide-svelte/icons/plus';
   import IconRotateCcw from 'lucide-svelte/icons/rotate-ccw';
   import AbilityIcon from '$lib/AbilityIcon.svelte';
+  import WithTooltip from '$lib/WithTooltip.svelte';
   import {
     buildMrtNoteModel,
     buildMrtNote,
@@ -151,19 +152,20 @@
   label: string,
   onclick: () => void,
 )}
-  <button
-    type="button"
-    class="btn h-7 w-7 flex-none p-0"
-    aria-label={label}
-    title={label}
-    {onclick}
-  >
-    {#if selected}
-      <IconMinus size={15} />
-    {:else}
-      <IconPlus size={15} />
-    {/if}
-  </button>
+  <WithTooltip tooltip={label} placement="left">
+    <button
+      type="button"
+      class="btn h-7 w-7 flex-none p-0"
+      aria-label={label}
+      {onclick}
+    >
+      {#if selected}
+        <IconMinus size={15} />
+      {:else}
+        <IconPlus size={15} />
+      {/if}
+    </button>
+  </WithTooltip>
 {/snippet}
 
 {#snippet damageGroupRow(
@@ -261,36 +263,39 @@
       {#if copyStatus}
         <span class="text-surface-300 text-xs">{copyStatus}</span>
       {/if}
-      <button
-        type="button"
-        class={`btn h-9 w-9 p-0 ${noteView === 'preview' ? 'preset-filled-primary-700-300' : ''}`}
-        aria-label="Show rendered preview"
-        aria-pressed={noteView === 'preview'}
-        title="Preview"
-        onclick={() => (noteView = 'preview')}
-      >
-        <IconEye size={18} />
-      </button>
-      <button
-        type="button"
-        class={`btn h-9 w-9 p-0 ${noteView === 'raw' ? 'preset-filled-primary-700-300' : ''}`}
-        aria-label="Show raw MRT note"
-        aria-pressed={noteView === 'raw'}
-        title="MRT note"
-        onclick={() => (noteView = 'raw')}
-      >
-        <IconFileText size={18} />
-      </button>
-      <button
-        type="button"
-        class="btn h-9 w-9 p-0"
-        aria-label="Copy MRT note"
-        title="Copy"
-        onclick={copyNote}
-        disabled={!noteText}
-      >
-        <IconCopy size={18} />
-      </button>
+      <WithTooltip tooltip="Preview" placement="bottom">
+        <button
+          type="button"
+          class={`btn h-9 w-9 p-0 ${noteView === 'preview' ? 'preset-filled-primary-700-300' : ''}`}
+          aria-label="Show rendered preview"
+          aria-pressed={noteView === 'preview'}
+          onclick={() => (noteView = 'preview')}
+        >
+          <IconEye size={18} />
+        </button>
+      </WithTooltip>
+      <WithTooltip tooltip="MRT note" placement="bottom">
+        <button
+          type="button"
+          class={`btn h-9 w-9 p-0 ${noteView === 'raw' ? 'preset-filled-primary-700-300' : ''}`}
+          aria-label="Show raw MRT note"
+          aria-pressed={noteView === 'raw'}
+          onclick={() => (noteView = 'raw')}
+        >
+          <IconFileText size={18} />
+        </button>
+      </WithTooltip>
+      <WithTooltip tooltip="Copy" placement="bottom">
+        <button
+          type="button"
+          class="btn h-9 w-9 p-0"
+          aria-label="Copy MRT note"
+          onclick={copyNote}
+          disabled={!noteText}
+        >
+          <IconCopy size={18} />
+        </button>
+      </WithTooltip>
     </div>
   </div>
 
@@ -395,16 +400,17 @@
             )})
           </span>
         </button>
-        <button
-          type="button"
-          class="btn h-8 w-8 p-0"
-          aria-label="Reset defensive selections"
-          title="Reset defensives"
-          onclick={onResetDefensiveSelections}
-          disabled={defensiveCandidates.length === 0}
-        >
-          <IconRotateCcw size={16} />
-        </button>
+        <WithTooltip tooltip="Reset defensives" placement="left">
+          <button
+            type="button"
+            class="btn h-8 w-8 p-0"
+            aria-label="Reset defensive selections"
+            onclick={onResetDefensiveSelections}
+            disabled={defensiveCandidates.length === 0}
+          >
+            <IconRotateCcw size={16} />
+          </button>
+        </WithTooltip>
       </div>
       {#if defensiveExpanded}
         {#each selectedDefensiveGroups as group (group.ability.guid)}

@@ -4,6 +4,7 @@
   import IconEyeOff from 'lucide-svelte/icons/eye-off';
   import SettingSlider from '$lib/SettingSlider.svelte';
   import SettingSwitch from '$lib/SettingSwitch.svelte';
+  import WithTooltip from '$lib/WithTooltip.svelte';
   type Props = Settings & {
     invalidApiKey?: boolean;
   };
@@ -89,21 +90,26 @@
             spellcheck="false"
             bind:value={wclApiKey}
           />
-          <button
-            type="button"
-            class="btn h-10 w-14 flex-none"
-            aria-label={showWclApiKey
-              ? 'Hide Warcraft Logs API key'
-              : 'Show Warcraft Logs API key'}
-            title={showWclApiKey ? 'Hide API key' : 'Show API key'}
-            onclick={() => (showWclApiKey = !showWclApiKey)}
+          <WithTooltip
+            tooltip={showWclApiKey ? 'Hide API key' : 'Show API key'}
+            placement="bottom"
+            classes="inline-flex flex-none"
           >
-            {#if showWclApiKey}
-              <IconEyeOff strokeWidth={2.25} />
-            {:else}
-              <IconEye strokeWidth={2.25} />
-            {/if}
-          </button>
+            <button
+              type="button"
+              class="btn h-10 w-14 flex-none"
+              aria-label={showWclApiKey
+                ? 'Hide Warcraft Logs API key'
+                : 'Show Warcraft Logs API key'}
+              onclick={() => (showWclApiKey = !showWclApiKey)}
+            >
+              {#if showWclApiKey}
+                <IconEyeOff strokeWidth={2.25} />
+              {:else}
+                <IconEye strokeWidth={2.25} />
+              {/if}
+            </button>
+          </WithTooltip>
         </div>
         <span
           class="mt-1 block text-sm"

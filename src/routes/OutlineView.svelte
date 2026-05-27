@@ -53,12 +53,16 @@
           />
           <div>
             <p>
-              <a
-                href="https://www.warcraftlogs.com/reports/{code}#fight={fight.id}&translate=true"
-                target="_blank"
-                ><span class="text-sm text-slate-300">#{fight.id}</span>
-                {fight.zoneName} +{fight.keystoneLevel}</a
-              >
+              <WithTooltip tooltip="Go to WCL" placement="right">
+                <a
+                  class="hover:text-primary-200 focus:text-primary-200 focus:outline-none"
+                  href="https://www.warcraftlogs.com/reports/{code}#fight={fight.id}&translate=true"
+                  target="_blank"
+                  rel="noreferrer"
+                  ><span class="text-sm text-slate-300">#{fight.id}</span>
+                  {fight.zoneName} +{fight.keystoneLevel}</a
+                >
+              </WithTooltip>
             </p>
             <p class="pt-1 text-sm text-slate-300">
               {formatAbsoluteTime(fightsRaw.start + fight.start_time)}

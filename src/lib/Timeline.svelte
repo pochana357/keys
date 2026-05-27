@@ -143,7 +143,7 @@
       onkeydown={(event) => toggleIconWithKeyboard(event, icon)}
     >
       {#if detailsRenderer}
-        <WithTooltip placement="bottom">
+        <WithTooltip placement="bottom" classes="flex leading-none">
           {#snippet tooltip()}
             {@render detailsRenderer(icon, referenceTime)}
           {/snippet}

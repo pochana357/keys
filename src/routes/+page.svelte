@@ -22,6 +22,7 @@
   import SettingsComponent from './SettingsComponent.svelte';
   import History from './History.svelte';
   import ExportPane from './ExportPane.svelte';
+  import WithTooltip from '$lib/WithTooltip.svelte';
   import { SvelteMap } from 'svelte/reactivity';
   import type {
     ExportDamageSelection,
@@ -53,6 +54,10 @@
   let exportSelections = $derived(appState.exportSelections);
   let buffDict: SvelteMap<number, Ability> = new SvelteMap();
   let exportLanguage: ExportLanguage = $state(defaultExportLanguage);
+  let outlinePaneWidth = $state(336);
+  let outlinePaneResizeStartX = 0;
+  let outlinePaneResizeStartWidth = 0;
+  let outlinePaneResizing = false;
   let exportPaneWidth = $state(384);
   let exportPaneResizeStartX = 0;
   let exportPaneResizeStartWidth = 0;
@@ -244,6 +249,42 @@
     resetDefensiveSelectionsToDefaults();
   });
 
+  function resizeOutlinePane(nextWidth: number) {
+    outlinePaneWidth = Math.min(640, Math.max(240, nextWidth));
+  }
+
+  function startOutlinePaneResize(event: PointerEvent) {
+    event.preventDefault();
+    outlinePaneResizing = true;
+    outlinePaneResizeStartX = event.clientX;
+    outlinePaneResizeStartWidth = outlinePaneWidth;
+    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+  }
+
+  function moveOutlinePaneResize(event: PointerEvent) {
+    if (!outlinePaneResizing) return;
+    resizeOutlinePane(
+      outlinePaneResizeStartWidth + event.clientX - outlinePaneResizeStartX,
+    );
+  }
+
+  function stopOutlinePaneResize(event: PointerEvent) {
+    if (!outlinePaneResizing) return;
+    outlinePaneResizing = false;
+    const resizeHandle = event.currentTarget as HTMLElement;
+    if (resizeHandle.hasPointerCapture(event.pointerId)) {
+      resizeHandle.releasePointerCapture(event.pointerId);
+    }
+  }
+
+  function resizeOutlinePaneWithKeyboard(event: KeyboardEvent) {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    event.preventDefault();
+    resizeOutlinePane(
+      outlinePaneWidth + (event.key === 'ArrowRight' ? 24 : -24),
+    );
+  }
+
   function resizeExportPane(nextWidth: number) {
     exportPaneWidth = Math.min(720, Math.max(320, nextWidth));
   }
@@ -364,40 +405,50 @@
         {/if}
       </button>
       <div class="px-2">
-        <button
-          type="button"
-          class="hover:text-primary-200 h-10 flex-none px-1 font-bold"
-          class:text-secondary-200={visibility.history}
-          onclick={() => (visibility.history = !visibility.history)}
-        >
-          <IconHistory />
-        </button>
-        <button
-          type="button"
-          class="hover:text-primary-200 h-10 flex-none px-1 font-bold"
-          class:text-secondary-200={visibility.outline}
-          onclick={() => (visibility.outline = !visibility.outline)}
-        >
-          <IconAlignJustify />
-        </button>
-        <button
-          type="button"
-          class="hover:text-primary-200 h-10 flex-none px-1 font-bold"
-          class:text-secondary-200={visibility.export}
-          aria-label="Toggle export panel"
-          title="Export"
-          onclick={() => (visibility.export = !visibility.export)}
-        >
-          <IconFileText />
-        </button>
-        <button
-          type="button"
-          class="hover:text-primary-200 h-10 flex-none px-1 font-bold"
-          class:text-secondary-200={visibility.settings}
-          onclick={() => (visibility.settings = !visibility.settings)}
-        >
-          <IconSettings />
-        </button>
+        <WithTooltip tooltip="History" placement="bottom">
+          <button
+            type="button"
+            class="hover:text-primary-200 h-10 flex-none px-1 font-bold"
+            class:text-secondary-200={visibility.history}
+            aria-label="Toggle history panel"
+            onclick={() => (visibility.history = !visibility.history)}
+          >
+            <IconHistory />
+          </button>
+        </WithTooltip>
+        <WithTooltip tooltip="Outline" placement="bottom">
+          <button
+            type="button"
+            class="hover:text-primary-200 h-10 flex-none px-1 font-bold"
+            class:text-secondary-200={visibility.outline}
+            aria-label="Toggle outline panel"
+            onclick={() => (visibility.outline = !visibility.outline)}
+          >
+            <IconAlignJustify />
+          </button>
+        </WithTooltip>
+        <WithTooltip tooltip="Export" placement="bottom">
+          <button
+            type="button"
+            class="hover:text-primary-200 h-10 flex-none px-1 font-bold"
+            class:text-secondary-200={visibility.export}
+            aria-label="Toggle export panel"
+            onclick={() => (visibility.export = !visibility.export)}
+          >
+            <IconFileText />
+          </button>
+        </WithTooltip>
+        <WithTooltip tooltip="Settings" placement="bottom">
+          <button
+            type="button"
+            class="hover:text-primary-200 h-10 flex-none px-1 font-bold"
+            class:text-secondary-200={visibility.settings}
+            aria-label="Toggle settings panel"
+            onclick={() => (visibility.settings = !visibility.settings)}
+          >
+            <IconSettings />
+          </button>
+        </WithTooltip>
       </div>
     </div>
     {#if visibility.history}
@@ -427,14 +478,35 @@
   {#if currentLog?.fights?.json}
     <div class="flex flex-1 overflow-hidden">
       {#if visibility.outline}
-        <div class="w-84 flex-none overflow-y-auto">
-          <OutlineView
-            code={appState.code}
-            fightsRaw={currentLog.fights.json}
-            currentFightIdx={appState.fightIdx}
-            currentDungeonPullIdx={appState.dungeonPullIdx}
-            onUpdate={handleSubmit}
-          />
+        <div
+          class="relative min-h-0 flex-none overflow-hidden"
+          style:width={`${outlinePaneWidth}px`}
+        >
+          <div class="h-full overflow-y-auto">
+            <OutlineView
+              code={appState.code}
+              fightsRaw={currentLog.fights.json}
+              currentFightIdx={appState.fightIdx}
+              currentDungeonPullIdx={appState.dungeonPullIdx}
+              onUpdate={handleSubmit}
+            />
+          </div>
+          <WithTooltip
+            tooltip="Resize outline pane"
+            placement="right"
+            classes="absolute top-0 right-0 z-10 h-full w-2"
+          >
+            <button
+              type="button"
+              aria-label="Resize outline pane"
+              class="hover:bg-primary-500/40 focus:bg-primary-500/40 h-full w-full cursor-col-resize outline-none"
+              onpointerdown={startOutlinePaneResize}
+              onpointermove={moveOutlinePaneResize}
+              onpointerup={stopOutlinePaneResize}
+              onpointercancel={stopOutlinePaneResize}
+              onkeydown={resizeOutlinePaneWithKeyboard}
+            ></button>
+          </WithTooltip>
         </div>
       {/if}
       <div class="relative flex-1 overflow-x-auto">
@@ -472,17 +544,22 @@
           class="relative min-h-0 flex-none overflow-hidden border-l"
           style:width={`${exportPaneWidth}px`}
         >
-          <button
-            type="button"
-            aria-label="Resize export pane"
-            title="Resize export pane"
-            class="hover:bg-primary-500/40 focus:bg-primary-500/40 absolute top-0 left-0 z-10 h-full w-2 cursor-col-resize outline-none"
-            onpointerdown={startExportPaneResize}
-            onpointermove={moveExportPaneResize}
-            onpointerup={stopExportPaneResize}
-            onpointercancel={stopExportPaneResize}
-            onkeydown={resizeExportPaneWithKeyboard}
-          ></button>
+          <WithTooltip
+            tooltip="Resize export pane"
+            placement="left"
+            classes="absolute top-0 left-0 z-10 h-full w-2"
+          >
+            <button
+              type="button"
+              aria-label="Resize export pane"
+              class="hover:bg-primary-500/40 focus:bg-primary-500/40 h-full w-full cursor-col-resize outline-none"
+              onpointerdown={startExportPaneResize}
+              onpointermove={moveExportPaneResize}
+              onpointerup={stopExportPaneResize}
+              onpointercancel={stopExportPaneResize}
+              onkeydown={resizeExportPaneWithKeyboard}
+            ></button>
+          </WithTooltip>
           <ExportPane
             damageSelections={selectedDamageList}
             defensiveSelections={selectedDefensiveList}
