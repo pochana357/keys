@@ -13,11 +13,16 @@ checks:
 npm install
 ```
 
-Start the Vite development server during normal UI work:
+Human developers should start the Vite development server during normal UI
+work:
 
 ```bash
 npm run dev
 ```
+
+Coding agents must not start the dev server themselves. If a local dev server
+is needed for browser verification, ask the human user to start or reuse it and
+provide the URL.
 
 The dev server is usually the right loop while editing. Use a production build
 only when you need to verify bundling, static output, or behavior that differs
@@ -73,6 +78,12 @@ Use watch mode while iterating on tests:
 ```bash
 npm run test:watch
 ```
+
+## Warcraft Logs API inspection
+
+Use the `wcl:fetch` CLI to inspect Warcraft Logs API responses when tests or
+fixtures need a better picture of real report data. See `README.md` for
+commands and examples.
 
 ## Change Guidelines
 
