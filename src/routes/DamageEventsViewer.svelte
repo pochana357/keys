@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Ability, DamageTakenEvent } from '$lib/api/wclTypes';
+  import AbilityIcon from '$lib/AbilityIcon.svelte';
   import Timeline, { type Icon } from '$lib/Timeline.svelte';
-  import { ability2img } from '$lib/utils/link';
   import { SpellSchool } from '$lib/utils/SpellSchool';
   import { formatInteger, formatTime } from '$lib/utils/utils';
   import { SvelteMap } from 'svelte/reactivity';
@@ -88,7 +88,7 @@
 {/snippet}
 {#snippet contentRenderer(icon: Icon<DamageTakenEvent>)}
   {@const event = icon.data}
-  {@html ability2img(event.ability)}
+  <AbilityIcon ability={event.ability} />
 {/snippet}
 {#snippet detailsRenderer(icon: Icon<DamageTakenEvent>, referenceTime: number)}
   {@const event = icon.data}
@@ -147,7 +147,7 @@
           {@const ability = buffDict.get(Number(buff))}
           {#if ability}
             <p>
-              {@html ability2img(ability, 'inline-block')}
+              <AbilityIcon {ability} classes="inline-block" />
               {@render formatAbilityName(ability)}
               <span class="text-sm text-slate-300">(#{ability.guid})</span>
             </p>

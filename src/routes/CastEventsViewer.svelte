@@ -6,9 +6,9 @@
     spelllikeBuffs,
     spelllikeDebuffs,
   } from '$lib/appData';
+  import AbilityIcon from '$lib/AbilityIcon.svelte';
   import Timeline, { type Icon } from '$lib/Timeline.svelte';
-  import ClassUtils from '$lib/utils/ClassUtils';
-  import { ability2img } from '$lib/utils/link';
+  import UnitName from '$lib/UnitName.svelte';
   import { formatTime } from '$lib/utils/utils';
 
   type Props = {
@@ -39,7 +39,7 @@
 
   let referenceTime = $derived(options.referenceTime ?? 0);
 
-  const event2icon = (event: CastEvent, classes = '') => ({
+  const event2icon = (event: CastEvent) => ({
     timestamp: event.timestamp,
     data: event,
   });
@@ -60,7 +60,7 @@
   let receivedCastIcons = $derived(
     castEventsByTarget
       .filter((event) => !castBlackList.AoEHeals.includes(event.ability.guid))
-      .map((event) => event2icon(event, 'grayscale-[50%]')),
+      .map((event) => event2icon(event)),
   );
 
   let spelllikeBuffIcons = $derived(
@@ -98,11 +98,11 @@
 
 {#snippet contentRenderer(icon: Icon<CastEvent>)}
   {@const event = icon.data}
-  {@html ability2img(event.ability)}
+  <AbilityIcon ability={event.ability} />
 {/snippet}
 {#snippet receivedContentRenderer(icon: Icon<CastEvent>)}
   {@const event = icon.data}
-  {@html ability2img(event.ability, 'grayscale-[50%]')}
+  <AbilityIcon ability={event.ability} classes="grayscale-[50%]" />
 {/snippet}
 {#snippet detailsRenderer(icon: Icon<CastEvent>, referenceTime: number)}
   {@const event = icon.data}
@@ -113,9 +113,9 @@
       <span class="text-sm text-slate-300">(#{event.ability.guid})</span>
     </p>
     <p>
-      {@html ClassUtils.formatUnit(event.source)}
+      <UnitName unit={event.source} />
       {#if event.target}
-        ▶ {@html ClassUtils.formatUnit(event.target)}
+        ▶ <UnitName unit={event.target} />
       {/if}
     </p>
   </div>

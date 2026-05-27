@@ -78,7 +78,7 @@
     >
       <!-- .floating not needed in the div above? -->
       {#if typeof tooltip === 'string'}
-        {@html tooltip}
+        {tooltip}
       {:else}
         {@render tooltip()}
       {/if}
