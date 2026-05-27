@@ -23,11 +23,21 @@ const ability = (guid: number, name: string): Ability => ({
   abilityIcon: 'spell.jpg',
 });
 
+const defaultUnitIcon: Record<string, string> = {
+  DeathKnight: 'DeathKnight-Frost',
+  DemonHunter: 'DemonHunter-Havoc',
+  Evoker: 'Evoker-Augmentation',
+  Monk: 'Monk-Mistweaver',
+  Paladin: 'Paladin-Retribution',
+  Priest: 'Priest-Discipline',
+  Warrior: 'Warrior-Protection',
+};
+
 const unit = (
   id: number,
   name: string,
   type: string,
-  icon = type,
+  icon = defaultUnitIcon[type] ?? type,
 ): UnitRaw => ({
   id,
   guid: id + 1000,
@@ -169,14 +179,17 @@ describe('MRT note export', () => {
     );
   });
 
-  it('sorts multiple attached defensives by timestamp', () => {
+  it('sorts multiple attached defensives by canonical player order', () => {
     const note = buildMrtNote(
       [damage('damage', 83000)],
       [
-        defensive('divine-shield', 84000, 642, 'Divine Shield', 'Paladin'),
+        defensive('tank-wall', 83100, 871, 'Shield Wall', 'Warrior'),
+        defensive('blur', 83200, 198589, 'Blur', 'DemonHunter'),
+        defensive('ams', 83300, 48707, 'Anti-Magic Shell', 'DeathKnight'),
+        defensive('zephyr', 83400, 374227, 'Zephyr', 'Evoker'),
         defensive(
           'pain-suppression',
-          83100,
+          84000,
           33206,
           'Pain Suppression',
           'Priest',
@@ -186,7 +199,7 @@ describe('MRT note export', () => {
     );
 
     expect(note).toBe(
-      '{time:01:23} Hit#1 {spell:123456} - |cffFFFFFF고억|r {spell:33206} |cffF48CBA무적|r {spell:642}',
+      '{time:01:23} Hit#1 {spell:123456} - |cffFFFFFF고억|r {spell:33206} |cffA330C9흐릿|r {spell:198589} |cffC41E3A대마보|r {spell:48707} |cff33937F미풍|r {spell:374227} |cffC69B6D방벽|r {spell:871}',
     );
   });
 
@@ -295,7 +308,7 @@ describe('MRT note export', () => {
     );
 
     expect(note).toBe(
-      '{time:01:23} Hit#1 {spell:123456} - |cffFFFFFFPS|r {spell:33206} |cffF48CBABubble|r {spell:642} |cffA330C9Blur|r {spell:198589}',
+      '{time:01:23} Hit#1 {spell:123456} - |cffFFFFFFPS|r {spell:33206} |cffA330C9Blur|r {spell:198589} |cffF48CBABubble|r {spell:642}',
     );
   });
 

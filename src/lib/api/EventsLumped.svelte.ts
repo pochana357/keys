@@ -47,12 +47,9 @@ export default class EventsLumped {
         }
       }
     }
-    this.players = Object.values(playersMap).toSorted((a, b) => {
-      const roleDiff = String(ClassUtils.role(a)).localeCompare(
-        String(ClassUtils.role(b)),
-      );
-      return roleDiff !== 0 ? roleDiff : a.icon.localeCompare(b.icon);
-    });
+    this.players = Object.values(playersMap).toSorted(
+      ClassUtils.comparePlayerOrder,
+    );
     this.endTime = options.endTime ?? this.endTime;
   }
 }

@@ -21,6 +21,26 @@ export const ORole = {
   dps: 'DPS',
 } as const;
 export type Role = (typeof ORole)[keyof typeof ORole];
+const roleSortOrder: Record<Role, number> = {
+  [ORole.heal]: 0,
+  [ORole.dps]: 1,
+  [ORole.tank]: 2,
+};
+const classSortNames: Record<string, string> = {
+  DemonHunter: 'dh',
+  DeathKnight: 'dk',
+  Druid: 'druid',
+  Evoker: 'evoker',
+  Hunter: 'hunter',
+  Mage: 'mage',
+  Monk: 'monk',
+  Paladin: 'paladin',
+  Priest: 'priest',
+  Rogue: 'rogue',
+  Shaman: 'shaman',
+  Warlock: 'warlock',
+  Warrior: 'warrior',
+};
 export const classSpec2Role: Record<string, Role> = {
   'DeathKnight-Blood': ORole.tank,
   'DeathKnight-Frost': ORole.dps,
@@ -99,6 +119,37 @@ class ClassUtils {
     // so treat unspecified Evokers as DPS.
     if (unit.icon === 'Evoker') return ORole.dps;
     return classSpec2Role[unit.icon] ?? undefined;
+  }
+  static comparePlayerOrder(
+    a: UnitRaw | null | undefined,
+    b: UnitRaw | null | undefined,
+  ) {
+    if (!a && !b) return 0;
+    if (!a) return 1;
+    if (!b) return -1;
+
+    const roleDiff =
+      ClassUtils.playerRoleSortOrder(a) - ClassUtils.playerRoleSortOrder(b);
+    if (roleDiff !== 0) return roleDiff;
+
+    const classDiff = ClassUtils.playerClassSortName(a).localeCompare(
+      ClassUtils.playerClassSortName(b),
+    );
+    if (classDiff !== 0) return classDiff;
+
+    return (
+      a.name.localeCompare(b.name) ||
+      a.guid - b.guid ||
+      a.id - b.id ||
+      a.icon.localeCompare(b.icon)
+    );
+  }
+  private static playerRoleSortOrder(unit: UnitRaw) {
+    const role = ClassUtils.role(unit);
+    return role ? roleSortOrder[role] : roleSortOrder[ORole.dps];
+  }
+  private static playerClassSortName(unit: UnitRaw) {
+    return classSortNames[unit.type] ?? unit.type.toLowerCase();
   }
 }
 export default ClassUtils;

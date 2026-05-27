@@ -130,11 +130,22 @@ function sortDamage(a: ExportDamageSelection, b: ExportDamageSelection) {
   return a.timestamp - b.timestamp || a.key.localeCompare(b.key);
 }
 
-function sortDefensive(
+function sortDefensiveByTime(
   a: ExportDefensiveSelection,
   b: ExportDefensiveSelection,
 ) {
   return a.timestamp - b.timestamp || a.key.localeCompare(b.key);
+}
+
+function sortDefensiveForList(
+  a: ExportDefensiveSelection,
+  b: ExportDefensiveSelection,
+) {
+  return (
+    ClassUtils.comparePlayerOrder(a.source, b.source) ||
+    a.timestamp - b.timestamp ||
+    a.key.localeCompare(b.key)
+  );
 }
 
 export function reduceDamageSelections(
@@ -179,7 +190,7 @@ export function attachDefensivesToDamage(
     .map((damage) => ({ damage, defensives: [] }));
   const unassignedDefensives: ExportDefensiveSelection[] = [];
 
-  for (const defensive of defensives.toSorted(sortDefensive)) {
+  for (const defensive of defensives.toSorted(sortDefensiveByTime)) {
     let bestGroup: AttachedDamageSelection | null = null;
     let bestDistance = Infinity;
     for (const group of damageGroups) {
@@ -205,9 +216,9 @@ export function attachDefensivesToDamage(
   }
 
   for (const group of damageGroups) {
-    group.defensives.sort(sortDefensive);
+    group.defensives.sort(sortDefensiveForList);
   }
-  unassignedDefensives.sort(sortDefensive);
+  unassignedDefensives.sort(sortDefensiveByTime);
 
   return { damageGroups, unassignedDefensives };
 }
