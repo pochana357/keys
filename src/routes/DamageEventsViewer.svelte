@@ -25,6 +25,10 @@
 	// Group damage events with the same spell id if they are close enough.
 	// Grouped events are displayed in the same row in the timeline even when their icons overlap.
 	const getKey = (ability: Ability) => ability.name ?? `spell-{ability.guid}`;
+	// Ordinary damage events omit overkill when non-lethal, but Falling (#3) always includes
+	// overkill even when the player survives. Only positive overkill should be death emphasis.
+	const isOverkill = (event: DamageTakenEvent) =>
+		event.overkill !== undefined && event.overkill > 0;
 	let mergeGroups = $derived.by(() => {
 		// lastTimestamps[spellName] stores the last timestamp of the damage event.
 		const lastTimestamps = new Map<string, { mergeDataIdx: number; timestamp: number }>();
@@ -55,7 +59,7 @@
 		damageTakenEvents.map((event) => ({
 			timestamp: event.timestamp,
 			data: event,
-			emphasisLevel: event.overkill !== undefined && event.overkill >= 0 ? 99 : 0
+			emphasisLevel: isOverkill(event) ? 99 : 0
 		}))
 	);
 </script>
@@ -110,8 +114,8 @@
 			{#if event.absorbed}
 				(A: {formatInteger(event.absorbed)})
 			{/if}
-			{#if event.overkill !== undefined}
-				(O: {formatInteger(event.overkill)})
+			{#if isOverkill(event)}
+				(O: {formatInteger(event.overkill ?? 0)})
 			{/if}
 		</p>
 		{#if event.buffs}
