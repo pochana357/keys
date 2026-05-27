@@ -221,12 +221,12 @@ const defensiveSpells: SpellDict = {
   // Monk
   115203: { effect: [defensiveBuff(120954)] }, // Fortifying Brew
   115310: { effect: [] }, // Revival
-  116680: { effect: [] }, // Thunder Focus Tea
+  116680: { effect: [], minor: true }, // Thunder Focus Tea
   116849: { effect: [defensiveBuff(116849)] }, // Life Cocoon
   // 117952: { effect: [] }, // Crackling Jade Lightning
   325197: { effect: [defensiveBuff(406220)] }, // Invoke Chi-Ji, the Red Crane (Chi Cocoon)
   443028: { effect: [] }, // Celestial Conduit
-  443591: { effect: [] }, // Unity Within
+  443591: { effect: [], minor: true }, // Unity Within
   399491: { effect: [], minor: true }, // Sheilun's Gift
   116670: { effect: [], minor: true }, // Vivify
   115175: { effect: [defensiveBuff(115175)], minor: true }, // Soothing Mist
