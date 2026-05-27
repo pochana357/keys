@@ -42,23 +42,7 @@
   const offsetX =
     options.offsetX ?? ((timestamp: number) => (timestamp / 1000.0) * pxPerSec);
 
-  const maxLevel = 5;
-  const getLevel1 = $derived.by(() => {
-    const numIcons = icons.length;
-    const res: number[] = Array(numIcons).fill(0);
-    for (let i = 1; i < numIcons; i++) {
-      if (
-        offsetX(icons[i].timestamp - icons[i - 1].timestamp) <=
-          horizontalOverlap &&
-        res[i - 1] < maxLevel
-      ) {
-        res[i] = res[i - 1] + 1;
-      }
-    }
-    return res;
-  });
-  // getLevel1 should be eventually replaced by getLevel2
-  const getLevel2 = $derived.by(() => {
+  const getLevel = $derived.by(() => {
     const numIcons = icons.length;
     const res: number[] = Array(numIcons).fill(-1);
     const occupied: number[] = [];
@@ -82,7 +66,7 @@
 
       if (options.mergeGroups) {
         const k = options.mergeGroups.findIndex(
-          ({ firstEventIdx: idx, mergedIdxs: merged }) => idx === i,
+          ({ firstEventIdx: idx }) => idx === i,
         );
         if (k >= 0) {
           options.mergeGroups[k].mergedIdxs.forEach((idx) => {
@@ -94,14 +78,13 @@
     }
     return res;
   });
-  const heightInLevel = $derived(Math.max(0, ...getLevel2));
+  const heightInLevel = $derived(Math.max(0, ...getLevel));
 
   function setCursor(timestamp: number) {
     cursor = offsetX(timestamp);
   }
 
-  // const offsetYdata = $derived(datatype === 'text' ? offsetYdata1 : offsetYdata2);
-  const offsetYdata = $derived(getLevel2);
+  const offsetYdata = $derived(getLevel);
 
   function getBoundaryClasses(emphasisLevel: number) {
     if (datatype === 'text') {

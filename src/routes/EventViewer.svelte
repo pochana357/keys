@@ -1,15 +1,10 @@
 <script lang="ts">
   import type EventsLumped from '$lib/api/EventsLumped.svelte';
-  import type {
-    Ability,
-    EventRawBase,
-    GeneralEventRaw,
-  } from '$lib/api/wclTypes';
+  import type { Ability, GeneralEventRaw } from '$lib/api/wclTypes';
   import { AppState } from '$lib/AppState';
   import Timeline, { type Icon } from '$lib/Timeline.svelte';
   import { formatTime } from '$lib/utils/utils';
   import ClassUtils from '$lib/utils/ClassUtils';
-  import { ability2img } from '$lib/utils/link';
   import DamageEventsViewer from './DamageEventsViewer.svelte';
   import CastEventsViewer from './CastEventsViewer.svelte';
   import type { SvelteMap } from 'svelte/reactivity';
@@ -44,20 +39,6 @@
     [...Array(numTimeTicks).keys()].map(timeTickCreator),
   );
 
-  function event2icon<T extends EventRawBase>(
-    event: T,
-    detailsCreator: (event: T) => string,
-    classes = '',
-  ) {
-    return {
-      timestamp: event.timestamp,
-      content: ability2img(event.ability, classes),
-      details:
-        `${event.ability.name} (#${event.ability.guid})<br>` +
-        detailsCreator(event),
-    };
-  }
-
   let showMinor = $derived(
     options.showMinor ?? AppState.defaultSettings.showMinor,
   );
@@ -71,18 +52,6 @@
     ((timestamp - events.startTime) / 1000.0) * pxPerSec;
   // let width = $derived(((numTimeTicks * timeTick) / 1000.0) * pxPerSec);
   let width = $derived(offsetX(events.endTime));
-
-  function filterEvents<T extends GeneralEventRaw>(
-    events: T[],
-    playerId: { source?: number; target?: number },
-  ) {
-    const filtered = playerId.source
-      ? events.filter((e) => e.source?.id === playerId.source)
-      : events;
-    return playerId.target
-      ? filtered.filter((e) => e.target?.id === playerId.target)
-      : filtered;
-  }
 
   function partitionEventsByPlayer<T extends GeneralEventRaw>(events: T[]) {
     const bySource: { [id: number]: T[] } = {};

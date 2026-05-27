@@ -15,12 +15,6 @@
     poochyenaThreaten,
     poochyenaYawn,
   ];
-  function randomPoochyenaVideo() {
-    return videos[Math.floor(Math.random() * videos.length)];
-  }
-  function randomPoochyenaGif() {
-    return gifs[Math.floor(Math.random() * gifs.length)];
-  }
   function randomPoochyena() {
     const r = Math.floor(Math.random() * (videos.length + gifs.length));
     if (r < videos.length) {

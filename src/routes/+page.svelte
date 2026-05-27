@@ -5,12 +5,7 @@
   import IconHistory from 'lucide-svelte/icons/history';
   import IconSettings from 'lucide-svelte/icons/settings';
   import IconAlignJustify from 'lucide-svelte/icons/align-justify';
-  import type {
-    Ability,
-    FightPullRaw,
-    FightsRaw,
-    PullRaw,
-  } from '$lib/api/wclTypes';
+  import type { Ability, FightPullRaw, PullRaw } from '$lib/api/wclTypes';
   import EventsLumped from '$lib/api/EventsLumped.svelte';
   import Log from '$lib/api/Log.svelte';
   import { onMount } from 'svelte';
@@ -126,7 +121,7 @@
         }
         return events;
       })
-      .catch((err) => {
+      .catch((_err) => {
         // pass
       });
   }
