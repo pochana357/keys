@@ -39,7 +39,7 @@
           >({formatAbsoluteTime(item.timestamp)})</span
         >
         <!-- `item.exportedCharacters` may have duplicates, so `c` itself is not a unique key -->
-        {#each item.exportedCharacters.slice(0, Math.min(7, item.exportedCharacters.length)) as c}
+        {#each item.exportedCharacters.slice(0, Math.min(7, item.exportedCharacters.length)) as c, index (index)}
           <span class="font-sm px-1">{c}</span>
         {/each}
         {#if item.exportedCharacters.length > 7}
