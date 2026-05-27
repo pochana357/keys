@@ -1,15 +1,30 @@
 <script lang="ts">
   import type { BuffEvent, CastEvent, DebuffEvent } from '$lib/api/wclTypes';
   import {
-    castBlackList,
-    castDict,
-    spelllikeBuffs,
-    spelllikeDebuffs,
-  } from '$lib/appData';
+    defensiveSelectionKey,
+    type DefensiveSelectionRowKind,
+    type ExportDefensiveSelection,
+    toExportDefensiveSelection,
+  } from '$lib/export/mrtNote';
   import AbilityIcon from '$lib/AbilityIcon.svelte';
   import Timeline, { type Icon } from '$lib/Timeline.svelte';
   import UnitName from '$lib/UnitName.svelte';
+  import {
+    isMajorDefensiveCast,
+    isMinorDefensiveCast,
+    isReceivedDefensiveCast,
+    isSpelllikeBuffEvent,
+    isSpelllikeDebuffEvent,
+  } from '$lib/export/exportSelection';
+  import {
+    defaultExportLanguage,
+    getSpellAbbreviation,
+    type ExportLanguage,
+  } from '$lib/export/spellAbbreviations';
   import { formatTime } from '$lib/utils/utils';
+  import type { SvelteMap } from 'svelte/reactivity';
+
+  type DefensiveEvent = CastEvent | BuffEvent | DebuffEvent;
 
   type Props = {
     castEventsBySource: CastEvent[];
@@ -24,6 +39,10 @@
       referenceTime?: number;
       offsetX?: (timestamp: number) => number;
     };
+    exportMode?: boolean;
+    exportLanguage?: ExportLanguage;
+    selectedDefensives?: SvelteMap<string, ExportDefensiveSelection>;
+    onToggleDefensiveSelection?: (selection: ExportDefensiveSelection) => void;
   };
   let {
     castEventsBySource,
@@ -35,53 +54,42 @@
     width,
     cursor = $bindable(null),
     options = {},
+    exportMode = false,
+    exportLanguage = defaultExportLanguage,
+    selectedDefensives,
+    onToggleDefensiveSelection,
   }: Props = $props();
 
   let referenceTime = $derived(options.referenceTime ?? 0);
 
-  const event2icon = (event: CastEvent) => ({
+  const event2icon = (event: DefensiveEvent): Icon<DefensiveEvent> => ({
     timestamp: event.timestamp,
     data: event,
   });
 
-  const isMinor = (event: CastEvent) =>
-    castDict[event.ability.guid]?.minor ?? false;
-
   let majorCastIcons = $derived(
     castEventsBySource
-      .filter((event) => !isMinor(event))
+      .filter(isMajorDefensiveCast)
       .map((event) => event2icon(event)),
   );
   let minorCastIcons = $derived(
     castEventsBySource
-      .filter((event) => isMinor(event))
+      .filter(isMinorDefensiveCast)
       .map((event) => event2icon(event)),
   );
   let receivedCastIcons = $derived(
     castEventsByTarget
-      .filter((event) => !castBlackList.AoEHeals.includes(event.ability.guid))
+      .filter(isReceivedDefensiveCast)
       .map((event) => event2icon(event)),
   );
 
   let spelllikeBuffIcons = $derived(
-    buffEvents
-      .filter(
-        (event) =>
-          spelllikeBuffs[event.ability.guid] !== undefined &&
-          ['applybuff', 'applybuffstack', 'refreshbuff'].includes(event.type),
-      )
-      .map((event) => event2icon(event)),
+    buffEvents.filter(isSpelllikeBuffEvent).map((event) => event2icon(event)),
   );
 
   let spelllikeDebuffIcons = $derived(
     debuffEvents
-      .filter(
-        (event) =>
-          spelllikeDebuffs[event.ability.guid] !== undefined &&
-          ['applydebuff', 'applydebuffstack', 'refreshdebuff'].includes(
-            event.type,
-          ),
-      )
+      .filter(isSpelllikeDebuffEvent)
       .map((event) => event2icon(event)),
   );
 
@@ -94,22 +102,40 @@
     icons.sort((a, b) => a.timestamp - b.timestamp);
     return icons;
   });
+
+  function isSelected(rowKind: DefensiveSelectionRowKind) {
+    return (icon: Icon<DefensiveEvent>) =>
+      selectedDefensives?.has(defensiveSelectionKey(icon.data, rowKind)) ??
+      false;
+  }
+
+  function toggleSelection(rowKind: DefensiveSelectionRowKind) {
+    return (icon: Icon<DefensiveEvent>) => {
+      if (!exportMode || !onToggleDefensiveSelection) return;
+      onToggleDefensiveSelection(
+        toExportDefensiveSelection(icon.data, rowKind),
+      );
+    };
+  }
 </script>
 
-{#snippet contentRenderer(icon: Icon<CastEvent>)}
+{#snippet contentRenderer(icon: Icon<DefensiveEvent>)}
   {@const event = icon.data}
   <AbilityIcon ability={event.ability} />
 {/snippet}
-{#snippet receivedContentRenderer(icon: Icon<CastEvent>)}
+{#snippet receivedContentRenderer(icon: Icon<DefensiveEvent>)}
   {@const event = icon.data}
   <AbilityIcon ability={event.ability} classes="grayscale-[50%]" />
 {/snippet}
-{#snippet detailsRenderer(icon: Icon<CastEvent>, referenceTime: number)}
+{#snippet detailsRenderer(icon: Icon<DefensiveEvent>, referenceTime: number)}
   {@const event = icon.data}
+  {@const abilityName = exportMode
+    ? getSpellAbbreviation(event.ability, exportLanguage)
+    : event.ability.name}
   <div class="text-center">
     <p>
       {formatTime(icon.timestamp, referenceTime)}
-      {event.ability.name}
+      {abilityName}
       <span class="text-sm text-slate-300">(#{event.ability.guid})</span>
     </p>
     <p>
@@ -126,7 +152,12 @@
     icons={majorCastIcons}
     {contentRenderer}
     {detailsRenderer}
-    options={{ referenceTime, offsetX: options.offsetX }}
+    options={{
+      referenceTime,
+      offsetX: options.offsetX,
+      isSelected: exportMode ? isSelected('major') : undefined,
+      onToggle: exportMode ? toggleSelection('major') : undefined,
+    }}
     bind:cursor
   />
 </div>
@@ -138,7 +169,12 @@
       icons={minorIcons}
       {contentRenderer}
       {detailsRenderer}
-      options={{ referenceTime, offsetX: options.offsetX }}
+      options={{
+        referenceTime,
+        offsetX: options.offsetX,
+        isSelected: exportMode ? isSelected('minor') : undefined,
+        onToggle: exportMode ? toggleSelection('minor') : undefined,
+      }}
       bind:cursor
     />
   </div>
@@ -151,7 +187,12 @@
       icons={receivedCastIcons}
       contentRenderer={receivedContentRenderer}
       {detailsRenderer}
-      options={{ referenceTime, offsetX: options.offsetX }}
+      options={{
+        referenceTime,
+        offsetX: options.offsetX,
+        isSelected: exportMode ? isSelected('received') : undefined,
+        onToggle: exportMode ? toggleSelection('received') : undefined,
+      }}
       bind:cursor
     />
   </div>

@@ -8,6 +8,11 @@
   import DamageEventsViewer from './DamageEventsViewer.svelte';
   import CastEventsViewer from './CastEventsViewer.svelte';
   import type { SvelteMap } from 'svelte/reactivity';
+  import type {
+    ExportDamageSelection,
+    ExportDefensiveSelection,
+  } from '$lib/export/mrtNote';
+  import type { ExportLanguage } from '$lib/export/spellAbbreviations';
 
   type Props = {
     events: EventsLumped;
@@ -19,8 +24,24 @@
       damageGroupInterval?: number;
     };
     buffDict: SvelteMap<number, Ability>;
+    exportMode?: boolean;
+    selectedDamages?: SvelteMap<string, ExportDamageSelection>;
+    selectedDefensives?: SvelteMap<string, ExportDefensiveSelection>;
+    exportLanguage?: ExportLanguage;
+    onToggleDamageSelection?: (selection: ExportDamageSelection) => void;
+    onToggleDefensiveSelection?: (selection: ExportDefensiveSelection) => void;
   };
-  let { events, options = {}, buffDict }: Props = $props();
+  let {
+    events,
+    options = {},
+    buffDict,
+    exportMode = false,
+    selectedDamages,
+    selectedDefensives,
+    exportLanguage,
+    onToggleDamageSelection,
+    onToggleDefensiveSelection,
+  }: Props = $props();
   let cursor: number | null = $state(0);
   const timeTick = 10000;
   const numTimeTicks = $derived(
@@ -128,6 +149,9 @@
           offsetX,
         }}
         {buffDict}
+        {exportMode}
+        {selectedDamages}
+        {onToggleDamageSelection}
         bind:cursor
       />
       <div class="py-1">
@@ -140,6 +164,10 @@
           {showReceived}
           {width}
           options={{ referenceTime, offsetX }}
+          {exportMode}
+          {exportLanguage}
+          {selectedDefensives}
+          {onToggleDefensiveSelection}
           bind:cursor
         />
       </div>

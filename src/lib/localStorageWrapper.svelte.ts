@@ -47,15 +47,22 @@ export const localStorageWrapper = {
   },
 };
 
-export function createSettings<T extends object>(defaultSettings_: T) {
-  const settings = $state(defaultSettings_);
+export function createLocalStorageState<T extends object>(
+  defaultSettings_: T,
+  prefix = 'settings',
+) {
+  const settings = $state({ ...defaultSettings_ });
 
   for (const key of Object.keys(settings)) {
     // @ts-expect-error permit any
-    settings[key] = localStorageWrapper.get(`settings.${key}`, settings[key]);
+    settings[key] = localStorageWrapper.get(`${prefix}.${key}`, settings[key]);
     // @ts-expect-error permit any
-    $effect(() => localStorageWrapper.set(`settings.${key}`, settings[key]));
+    $effect(() => localStorageWrapper.set(`${prefix}.${key}`, settings[key]));
   }
 
   return settings;
+}
+
+export function createSettings<T extends object>(defaultSettings_: T) {
+  return createLocalStorageState(defaultSettings_, 'settings');
 }

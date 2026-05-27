@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { pushState, replaceState } from '$app/navigation';
 import {
+  AppState,
   applyCurrentPageState,
   currentPageFromSearch,
   currentPageToSearch,
   updateCurrentPageUrl,
+  type ExportSelections,
   type currentPage,
 } from './AppState';
 
@@ -78,5 +80,30 @@ describe('current page URL state', () => {
 
     expect(pushState).not.toHaveBeenCalled();
     expect(replaceState).not.toHaveBeenCalled();
+  });
+});
+
+describe('export selection validation', () => {
+  it('sanitizes persisted spell-id arrays', () => {
+    expect(
+      AppState.validateSpellIdArray([456, 123, 123, -1, 0, 1.5, 'x']),
+    ).toEqual([123, 456]);
+    expect(AppState.validateSpellIdArray('not-array')).toEqual([]);
+  });
+
+  it('validates persisted export selection state', () => {
+    const state = {
+      damageSpellIds: [2, 1, 1, Number.NaN],
+      defensiveSpellIds: ['x', 3, 3, 4],
+      defensiveDefaultsInitialized: 'yes',
+    } as unknown as ExportSelections;
+
+    AppState.validateExportSelections(state);
+
+    expect(state).toEqual({
+      damageSpellIds: [1, 2],
+      defensiveSpellIds: [3, 4],
+      defensiveDefaultsInitialized: false,
+    });
   });
 });

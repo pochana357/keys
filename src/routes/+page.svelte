@@ -5,6 +5,7 @@
   import IconHistory from 'lucide-svelte/icons/history';
   import IconSettings from 'lucide-svelte/icons/settings';
   import IconAlignJustify from 'lucide-svelte/icons/align-justify';
+  import IconFileText from 'lucide-svelte/icons/file-text';
   import type { Ability, FightPullRaw, PullRaw } from '$lib/api/wclTypes';
   import EventsLumped from '$lib/api/EventsLumped.svelte';
   import Log from '$lib/api/Log.svelte';
@@ -20,18 +21,89 @@
   import LoadingScreen from './LoadingScreen.svelte';
   import SettingsComponent from './SettingsComponent.svelte';
   import History from './History.svelte';
+  import ExportPane from './ExportPane.svelte';
   import { SvelteMap } from 'svelte/reactivity';
+  import type {
+    ExportDamageSelection,
+    ExportDefensiveSelection,
+  } from '$lib/export/mrtNote';
+  import {
+    buildDamageSelections,
+    buildDefaultMajorDefensiveSpellIds,
+    buildSelectionMap,
+    buildVisibleDefensiveSelectionGroupsForPull,
+    selectBySpellIds,
+    setSpellIdSelected,
+    toggleSpellId,
+  } from '$lib/export/exportSelection';
+  import {
+    defaultExportLanguage,
+    type ExportLanguage,
+  } from '$lib/export/spellAbbreviations';
 
   let appState = new AppState();
   let logs: { [code: string]: Log } = $state({});
+  let events = $state(new EventsLumped());
   let currentLog: Log | undefined = $derived(logs[appState.code]);
   let currentFightPullRaw: FightPullRaw | null = $state(null);
   let currentDungeonPullRaw: PullRaw | null = $state(null);
   let codeInputFormValue = $state('');
   let settings = $derived(appState.settings);
   let visibility = $derived(appState.visibility);
+  let exportSelections = $derived(appState.exportSelections);
   let buffDict: SvelteMap<number, Ability> = new SvelteMap();
+  let exportLanguage: ExportLanguage = $state(defaultExportLanguage);
+  let exportPaneWidth = $state(384);
+  let exportPaneResizeStartX = 0;
+  let exportPaneResizeStartWidth = 0;
+  let exportPaneResizing = false;
   let submitRequestId = 0;
+
+  let allDamageSelections = $derived(buildDamageSelections(events.damages));
+  let visibleDefensiveSelectionGroups = $derived(
+    buildVisibleDefensiveSelectionGroupsForPull({
+      castEvents: events.casts,
+      buffEvents: events.buffs,
+      debuffEvents: events.debuffs,
+      showMinor: settings.showMinor,
+      showReceived: settings.showReceived,
+    }),
+  );
+  let visibleDefensiveSelections = $derived(
+    visibleDefensiveSelectionGroups.all,
+  );
+  let selectedDamageList = $derived(
+    selectBySpellIds(allDamageSelections, exportSelections.damageSpellIds),
+  );
+  let selectedDefensiveList = $derived(
+    selectBySpellIds(
+      visibleDefensiveSelections,
+      exportSelections.defensiveSpellIds,
+    ),
+  );
+  let selectedDamages = $derived(
+    new SvelteMap<string, ExportDamageSelection>(
+      buildSelectionMap(selectedDamageList),
+    ),
+  );
+  let selectedDefensives = $derived(
+    new SvelteMap<string, ExportDefensiveSelection>(
+      buildSelectionMap(selectedDefensiveList),
+    ),
+  );
+
+  let timelineReferenceTime = $derived.by(() => {
+    if (!currentFightPullRaw || !currentDungeonPullRaw) return 0;
+    return settings.pullStartAsReferenceTime
+      ? currentDungeonPullRaw.start_time
+      : currentFightPullRaw.start_time;
+  });
+  let exportReferenceTime = $derived.by(() =>
+    currentDungeonPullRaw ? currentDungeonPullRaw.start_time : 0,
+  );
+  let eventViewerReferenceTime = $derived(
+    visibility.export ? exportReferenceTime : timelineReferenceTime,
+  );
 
   function isInvalidApiKeyError(err: unknown) {
     if (!(err instanceof Error)) return false;
@@ -125,6 +197,87 @@
         // pass
       });
   }
+
+  function toggleDamageSelection(selection: ExportDamageSelection) {
+    exportSelections.damageSpellIds = toggleSpellId(
+      exportSelections.damageSpellIds,
+      selection.ability.guid,
+    );
+  }
+
+  function setDamageSpellIdSelected(spellId: number, selected: boolean) {
+    exportSelections.damageSpellIds = setSpellIdSelected(
+      exportSelections.damageSpellIds,
+      spellId,
+      selected,
+    );
+  }
+
+  function toggleDefensiveSelection(selection: ExportDefensiveSelection) {
+    exportSelections.defensiveSpellIds = toggleSpellId(
+      exportSelections.defensiveSpellIds,
+      selection.ability.guid,
+    );
+    exportSelections.defensiveDefaultsInitialized = true;
+  }
+
+  function setDefensiveSpellIdSelected(spellId: number, selected: boolean) {
+    exportSelections.defensiveSpellIds = setSpellIdSelected(
+      exportSelections.defensiveSpellIds,
+      spellId,
+      selected,
+    );
+    exportSelections.defensiveDefaultsInitialized = true;
+  }
+
+  function resetDefensiveSelectionsToDefaults() {
+    exportSelections.defensiveSpellIds = buildDefaultMajorDefensiveSpellIds(
+      visibleDefensiveSelectionGroups.major,
+    );
+    exportSelections.defensiveDefaultsInitialized = true;
+  }
+
+  $effect(() => {
+    if (!visibility.export || !currentFightPullRaw || !currentDungeonPullRaw)
+      return;
+    if (exportSelections.defensiveDefaultsInitialized) return;
+    resetDefensiveSelectionsToDefaults();
+  });
+
+  function resizeExportPane(nextWidth: number) {
+    exportPaneWidth = Math.min(720, Math.max(320, nextWidth));
+  }
+
+  function startExportPaneResize(event: PointerEvent) {
+    event.preventDefault();
+    exportPaneResizing = true;
+    exportPaneResizeStartX = event.clientX;
+    exportPaneResizeStartWidth = exportPaneWidth;
+    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+  }
+
+  function moveExportPaneResize(event: PointerEvent) {
+    if (!exportPaneResizing) return;
+    resizeExportPane(
+      exportPaneResizeStartWidth + exportPaneResizeStartX - event.clientX,
+    );
+  }
+
+  function stopExportPaneResize(event: PointerEvent) {
+    if (!exportPaneResizing) return;
+    exportPaneResizing = false;
+    const resizeHandle = event.currentTarget as HTMLElement;
+    if (resizeHandle.hasPointerCapture(event.pointerId)) {
+      resizeHandle.releasePointerCapture(event.pointerId);
+    }
+  }
+
+  function resizeExportPaneWithKeyboard(event: KeyboardEvent) {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    event.preventDefault();
+    resizeExportPane(exportPaneWidth + (event.key === 'ArrowLeft' ? 24 : -24));
+  }
+
   async function submitCode(
     newCode: string,
     fightIdx = -1,
@@ -174,8 +327,6 @@
   const progressCallback = (current: number, start: number, end: number) => {
     progress = { total: end - start, current: current - start };
   };
-
-  let events = $state(new EventsLumped());
 </script>
 
 <div class="flex h-screen w-screen flex-col gap-1">
@@ -232,6 +383,16 @@
         <button
           type="button"
           class="hover:text-primary-200 h-10 flex-none px-1 font-bold"
+          class:text-secondary-200={visibility.export}
+          aria-label="Toggle export panel"
+          title="Export"
+          onclick={() => (visibility.export = !visibility.export)}
+        >
+          <IconFileText />
+        </button>
+        <button
+          type="button"
+          class="hover:text-primary-200 h-10 flex-none px-1 font-bold"
           class:text-secondary-200={visibility.settings}
           onclick={() => (visibility.settings = !visibility.settings)}
         >
@@ -284,12 +445,16 @@
               pxPerSec: settings.pxPerSec,
               showMinor: settings.showMinor,
               showReceived: settings.showReceived,
-              referenceTime: settings.pullStartAsReferenceTime
-                ? currentDungeonPullRaw.start_time
-                : currentFightPullRaw.start_time,
+              referenceTime: eventViewerReferenceTime,
               damageGroupInterval: settings.damageGroupInterval,
             }}
             {buffDict}
+            exportMode={visibility.export}
+            {selectedDamages}
+            {selectedDefensives}
+            {exportLanguage}
+            onToggleDamageSelection={toggleDamageSelection}
+            onToggleDefensiveSelection={toggleDefensiveSelection}
           />
         {:else}
           <p class="p-2 text-center text-lg">
@@ -302,6 +467,37 @@
           </p>
         {/if}
       </div>
+      {#if visibility.export && currentFightPullRaw && currentDungeonPullRaw}
+        <div
+          class="relative min-h-0 flex-none overflow-hidden border-l"
+          style:width={`${exportPaneWidth}px`}
+        >
+          <button
+            type="button"
+            aria-label="Resize export pane"
+            title="Resize export pane"
+            class="hover:bg-primary-500/40 focus:bg-primary-500/40 absolute top-0 left-0 z-10 h-full w-2 cursor-col-resize outline-none"
+            onpointerdown={startExportPaneResize}
+            onpointermove={moveExportPaneResize}
+            onpointerup={stopExportPaneResize}
+            onpointercancel={stopExportPaneResize}
+            onkeydown={resizeExportPaneWithKeyboard}
+          ></button>
+          <ExportPane
+            damageSelections={selectedDamageList}
+            defensiveSelections={selectedDefensiveList}
+            damageCandidates={allDamageSelections}
+            defensiveCandidates={visibleDefensiveSelections}
+            referenceTime={exportReferenceTime}
+            damageGroupIntervalMs={settings.damageGroupInterval}
+            encounterId={currentDungeonPullRaw.boss}
+            bind:exportLanguage
+            onSetDamageSpellIdSelected={setDamageSpellIdSelected}
+            onSetDefensiveSpellIdSelected={setDefensiveSpellIdSelected}
+            onResetDefensiveSelections={resetDefensiveSelectionsToDefaults}
+          />
+        </div>
+      {/if}
     </div>
   {:else}
     <div

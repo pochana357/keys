@@ -15,6 +15,8 @@
       mergeGroups?: { firstEventIdx: number; mergedIdxs: number[] }[];
       referenceTime?: number;
       offsetX?: (timestamp: number) => number;
+      isSelected?: (icon: Icon<T>) => boolean;
+      onToggle?: (icon: Icon<T>) => void;
     };
     cursor: number | null;
   };
@@ -84,13 +86,30 @@
     cursor = offsetX(timestamp);
   }
 
+  function toggleIcon(event: MouseEvent, icon: Icon<T>) {
+    if (!options.onToggle) return;
+    event.preventDefault();
+    options.onToggle(icon);
+  }
+
+  function toggleIconWithKeyboard(event: KeyboardEvent, icon: Icon<T>) {
+    if (!options.onToggle) return;
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    options.onToggle(icon);
+  }
+
   const offsetYdata = $derived(getLevel);
 
-  function getBoundaryClasses(emphasisLevel: number) {
+  function getBoundaryClasses(emphasisLevel: number, isSelected: boolean) {
     if (datatype === 'text') {
       return '';
     }
-    if (emphasisLevel === 99) {
+    if (isSelected && emphasisLevel === 99) {
+      return 'z-1 outline outline-2 outline-offset-1 outline-yellow-300 shadow-[inset_0_0_0_6px_rgba(255,0,0,1)]';
+    } else if (isSelected) {
+      return 'z-1 outline outline-2 outline-offset-1 outline-yellow-300 shadow-[inset_0_0_0_2px_rgb(255,255,255,0.9)]';
+    } else if (emphasisLevel === 99) {
       return 'z-1 shadow-[inset_0_0_0_6px_rgba(255,0,0,1)]';
     } else {
       return 'hover:z-1 hover:shadow-[inset_0_0_0_2px_rgb(255,255,255,0.6)]';
@@ -104,7 +123,11 @@
 >
   {#each icons as icon, i (i)}
     {@const timestamp = icon.timestamp}
-    {@const boundaryClasses = getBoundaryClasses(icon.emphasisLevel ?? 0)}
+    {@const isSelected = options.isSelected?.(icon) ?? false}
+    {@const boundaryClasses = getBoundaryClasses(
+      icon.emphasisLevel ?? 0,
+      isSelected,
+    )}
     <!-- Overkill in the damage-taken timeline: red boundary -->
     <div
       class="absolute inline-block p-[2px] ${boundaryClasses}"
@@ -116,6 +139,8 @@
       onfocus={() => setCursor(timestamp)}
       onmouseleave={() => (cursor = null)}
       onblur={() => (cursor = null)}
+      onclick={(event) => toggleIcon(event, icon)}
+      onkeydown={(event) => toggleIconWithKeyboard(event, icon)}
     >
       {#if detailsRenderer}
         <WithTooltip placement="bottom">

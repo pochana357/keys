@@ -27,6 +27,7 @@ export const classSpec2Role: Record<string, Role> = {
   'DeathKnight-Unholy': ORole.dps,
 
   'DemonHunter-Havoc': ORole.dps,
+  'DemonHunter-Devourer': ORole.dps,
   'DemonHunter-Vengeance': ORole.tank,
 
   'Druid-Balance': ORole.dps,
@@ -75,6 +76,9 @@ export const classSpec2Role: Record<string, Role> = {
   'Warrior-Protection': ORole.tank,
 };
 class ClassUtils {
+  static classColorHex(className: string) {
+    return classColors[className] ?? '#FFFFFF';
+  }
   static classColor(className: string) {
     return hexToRGB(classColors[className]);
   }

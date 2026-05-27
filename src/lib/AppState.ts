@@ -1,5 +1,6 @@
 import {
   createEphemeralState,
+  createLocalStorageState,
   createSettings,
 } from '$lib/localStorageWrapper.svelte';
 import { setContext, getContext } from 'svelte';
@@ -30,6 +31,16 @@ const defaultSettings: Settings = {
   pullStartAsReferenceTime: true,
   damageGroupInterval: 3000,
   wclApiKey: '',
+};
+export type ExportSelections = {
+  damageSpellIds: number[];
+  defensiveSpellIds: number[];
+  defensiveDefaultsInitialized: boolean;
+};
+const defaultExportSelections: ExportSelections = {
+  damageSpellIds: [],
+  defensiveSpellIds: [],
+  defensiveDefaultsInitialized: false,
 };
 export type Range = {
   min: number;
@@ -77,6 +88,7 @@ const defaultVisibility = {
   history: false,
   settings: false,
   outline: true,
+  export: false,
 };
 export type Visibility = typeof defaultVisibility;
 
@@ -131,11 +143,16 @@ export class AppState {
   api = createEphemeralState(defaultApiStatus);
   #currentPage = createSettings(defaultCurrentPage);
   visibility = createSettings(defaultVisibility);
+  exportSelections = createLocalStorageState(
+    defaultExportSelections,
+    'exportSelections',
+  );
   urlParams: URLSearchParams = new URLSearchParams();
 
   static defaultSettings = defaultSettings;
   static defaultCurrentPage = defaultCurrentPage;
   static defaultHistory = defaultHistory;
+  static defaultExportSelections = defaultExportSelections;
 
   constructor() {
     setContext('appSettings', this);
@@ -187,6 +204,29 @@ export class AppState {
     if (typeof value !== 'string') return defaultValue;
     return value;
   }
+  static validateSpellIdArray(value: unknown) {
+    if (!Array.isArray(value)) return [];
+    return [
+      ...new Set(
+        value.filter(
+          (item): item is number =>
+            typeof item === 'number' && Number.isInteger(item) && item > 0,
+        ),
+      ),
+    ].toSorted((a, b) => a - b);
+  }
+  static validateExportSelections(exportSelections: ExportSelections) {
+    exportSelections.damageSpellIds = AppState.validateSpellIdArray(
+      exportSelections.damageSpellIds,
+    );
+    exportSelections.defensiveSpellIds = AppState.validateSpellIdArray(
+      exportSelections.defensiveSpellIds,
+    );
+    exportSelections.defensiveDefaultsInitialized = AppState.validateBoolean(
+      exportSelections.defensiveDefaultsInitialized,
+      defaultExportSelections.defensiveDefaultsInitialized,
+    );
+  }
   validateSettings() {
     // This function is called when the app is loaded
     const settings = this.settings;
@@ -226,6 +266,7 @@ export class AppState {
       settings.wclApiKey,
       defaultSettings.wclApiKey,
     );
+    AppState.validateExportSelections(this.exportSelections);
   }
 
   pushCodeToHistory(log: Log) {

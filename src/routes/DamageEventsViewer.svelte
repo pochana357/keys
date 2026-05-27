@@ -2,6 +2,11 @@
   import type { Ability, DamageTakenEvent } from '$lib/api/wclTypes';
   import AbilityIcon from '$lib/AbilityIcon.svelte';
   import Timeline, { type Icon } from '$lib/Timeline.svelte';
+  import {
+    damageSelectionKey,
+    toExportDamageSelection,
+    type ExportDamageSelection,
+  } from '$lib/export/mrtNote';
   import { SpellSchool } from '$lib/utils/SpellSchool';
   import { formatInteger, formatTime } from '$lib/utils/utils';
   import { SvelteMap } from 'svelte/reactivity';
@@ -15,12 +20,18 @@
     };
     buffDict: SvelteMap<number, Ability>;
     cursor: number | null;
+    exportMode?: boolean;
+    selectedDamages?: SvelteMap<string, ExportDamageSelection>;
+    onToggleDamageSelection?: (selection: ExportDamageSelection) => void;
   };
   let {
     damageTakenEvents,
     options = {},
     buffDict,
     cursor = $bindable(null),
+    exportMode = false,
+    selectedDamages,
+    onToggleDamageSelection,
   }: Props = $props();
   const defaultDamageGroupInterval = 3000;
   const damageGroupInterval = $derived(
@@ -75,6 +86,15 @@
       emphasisLevel: isOverkill(event) ? 99 : 0,
     })),
   );
+
+  function isSelected(icon: Icon<DamageTakenEvent>) {
+    return selectedDamages?.has(damageSelectionKey(icon.data)) ?? false;
+  }
+
+  function toggleSelection(icon: Icon<DamageTakenEvent>) {
+    if (!exportMode || !onToggleDamageSelection) return;
+    onToggleDamageSelection(toExportDamageSelection(icon.data));
+  }
 </script>
 
 {#snippet formatAbilityName(ability: Ability)}
@@ -179,6 +199,12 @@
   {icons}
   {contentRenderer}
   {detailsRenderer}
-  options={{ mergeGroups, referenceTime, offsetX: options.offsetX }}
+  options={{
+    mergeGroups,
+    referenceTime,
+    offsetX: options.offsetX,
+    isSelected: exportMode ? isSelected : undefined,
+    onToggle: exportMode ? toggleSelection : undefined,
+  }}
   bind:cursor
 />

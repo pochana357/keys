@@ -1,6 +1,6 @@
 import type { PullRaw } from './wclTypes';
 import ClassUtils from '$lib/utils/ClassUtils';
-import { castDict, trackedIds, castBlackList } from '$lib/appData';
+import { castDict, trackedIds, castBlackList } from '$lib/spellData/tracking';
 import Fights from '$lib/api/Fights.svelte';
 import EventsLumped from '$lib/api/EventsLumped.svelte';
 import {
