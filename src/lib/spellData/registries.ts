@@ -149,6 +149,7 @@ export const defensiveSpells: SpellDict = {
   11426: { effect: [defensiveBuff(11426)] }, // Ice Barrier
 
   // Paladin
+  498: { effect: [defensiveBuff(498)] }, // Divine Protection
   204018: { effect: [defensiveBuff(204018)] }, // Blessing of Spellwarding
   6940: { effect: [defensiveBuff(6940)] }, // Blessing of Sacrifice
   1022: { effect: [defensiveBuff(1022)] }, // Blessing of Protection

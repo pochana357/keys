@@ -10,6 +10,7 @@ export const spellAbbreviations: Record<
 > = {
   ko: {
     12: '재생',
+    498: '가호',
     586: '소실',
     633: '신축',
     642: '무적',
@@ -114,6 +115,7 @@ export const spellAbbreviations: Record<
   },
   en: {
     12: 'Regrowth',
+    498: 'DP',
     586: 'Fade',
     633: 'LoH',
     33206: 'PS',
