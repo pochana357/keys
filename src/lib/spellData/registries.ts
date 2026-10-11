@@ -57,6 +57,7 @@ export const offensiveSpells: SpellDict = {
   // Trinkets and cantrip effects
   1236616: { effect: [] }, // Light's Potential
   1236994: { effect: [] }, // Potion of Recklessness
+  1295132: { effect: [] }, // Liquid Luster
   1260459: { effect: [] }, // Nullsight
   1259633: { effect: [] }, // Charge!
 };
@@ -83,7 +84,7 @@ export const defensiveSpells: SpellDict = {
 
   // Shaman
   108271: { effect: [defensiveBuff(108271)] }, // Astral Shift
-  198103: { effect: [defensiveBuff(381755)] }, // Primordial Bond
+  198103: { effect: [defensiveBuff(381755)] }, // Earth Elemental (Primordial Bond)
   2645: { effect: [defensiveBuff(260881, true)] }, // Ghost Wolf (SpiritWolf)
   8004: { dpsOnly: true, effect: [] }, // Healing Surge
   57994: { effect: [defensiveBuff(355634)], minor: true }, // Wind Shear (Windveil) TODO: check if stackable
@@ -151,6 +152,9 @@ export const defensiveSpells: SpellDict = {
   204018: { effect: [defensiveBuff(204018)] }, // Blessing of Spellwarding
   6940: { effect: [defensiveBuff(6940)] }, // Blessing of Sacrifice
   1022: { effect: [defensiveBuff(1022)] }, // Blessing of Protection
+  1044: { effect: [defensiveBuff(1044)], minor: true }, // Blessing of Freedom
+  633: { effect: [] }, // Lay of Hands
+  82326: { effect: [], minor: true }, // Holy Light
 
   432459: { effect: [defensiveBuff(432496), defensiveBuff(432607)] }, // Holy Bulwark
   // (432496 is the 20s buff merely showing that the buff is up and
@@ -219,6 +223,7 @@ export const defensiveSpells: SpellDict = {
   107574: { effect: [defensiveBuff(107574)] }, // Avatar
 
   // General
+  1295247: { effect: [] }, // Concentrated Silvermoon Health Potion
   1234768: { effect: [] }, // Silvermoon Health Potion
   1236648: { effect: [] }, // Lightfused Mana Potion
   1239479: { effect: [] }, // Potion of Devoured Dreams
@@ -226,7 +231,7 @@ export const defensiveSpells: SpellDict = {
   6262: { effect: [] }, // Healthstone
 
   // Defensive trinkets
-  1258283: { effect: [] }, // Beacon of Lightblind Wrath
+  1291894: { effect: [defensiveBuff(1307578)] }, // Soulcoiler Ritual Vessel
 };
 
 export const defensiveSpelllikeBuffs: SpellDict = {
