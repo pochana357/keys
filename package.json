@@ -2,6 +2,7 @@
   "name": "keys-frontend",
   "version": "0.0.1",
   "type": "module",
+  "packageManager": "pnpm@11.3.0",
   "scripts": {
     "dev": "vite dev",
     "wcl:fetch": "node scripts/wcl-fetch.mjs",
@@ -11,7 +12,7 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "check:format": "prettier --check .",
     "check:lint": "eslint .",
-    "check:all": "npm run check && npm run check:format && npm run check:lint",
+    "check:all": "pnpm run check && pnpm run check:format && pnpm run check:lint",
     "format": "prettier --write .",
     "lint": "eslint .",
     "test": "vitest run",
@@ -19,6 +20,8 @@
   },
   "devDependencies": {
     "@eslint/compat": "^2.1.0",
+    "@eslint/js": "9.37.0",
+    "@floating-ui/dom": "1.7.4",
     "@skeletonlabs/skeleton": "^3.0.0",
     "@skeletonlabs/skeleton-svelte": "^1.0.0",
     "@sveltejs/kit": "^2.20.2",

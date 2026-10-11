@@ -1,5 +1,17 @@
 # keys
 
+## Development
+
+Use Node.js 22.13 or newer and pnpm 11.3.0, pinned in `package.json`.
+
+```bash
+pnpm install
+pnpm run dev
+```
+
+Commit `pnpm-lock.yaml` when dependencies change. CI installs dependencies with
+`pnpm install --frozen-lockfile`.
+
 ## Warcraft Logs CLI
 
 Use the CLI helper to fetch Warcraft Logs v1 data outside the UI. It reads
@@ -12,13 +24,13 @@ report fights, select a pull, then fetch `damage-taken`, `casts`, `buffs`, and
 `debuffs`.
 
 ```bash
-npm run wcl:fetch -- doctor --url "http://localhost:5173/?code=RMK6vq912F4xVTPN&fight=8&pull=6"
+pnpm run wcl:fetch doctor --url "http://localhost:5173/?code=RMK6vq912F4xVTPN&fight=8&pull=6"
 ```
 
 The old no-subcommand form still works as an alias for `doctor`:
 
 ```bash
-npm run wcl:fetch -- --code RMK6vq912F4xVTPN --fight 8 --pull 6
+pnpm run wcl:fetch --code RMK6vq912F4xVTPN --fight 8 --pull 6
 ```
 
 The `--url` option only parses `code`, `fight`, and `pull` from the query
@@ -27,17 +39,17 @@ string; it does not request `localhost` or require a Vite dev server. The
 
 ### Fetch report fights
 
-Fetch `GET /v1/report/fights/{code}` as JSON. Use `npm run --silent` when
-reading JSON from stdout so npm does not print its script banner first:
+Fetch `GET /v1/report/fights/{code}` as JSON. Use `pnpm --silent run` when
+reading JSON from stdout so pnpm does not print its script banner first:
 
 ```bash
-npm run --silent wcl:fetch -- fights --code RMK6vq912F4xVTPN
+pnpm --silent run wcl:fetch fights --code RMK6vq912F4xVTPN
 ```
 
 Write the JSON to a file:
 
 ```bash
-npm run wcl:fetch -- fights --code RMK6vq912F4xVTPN --out tmp/fights.json
+pnpm run wcl:fetch fights --code RMK6vq912F4xVTPN --out tmp/fights.json
 ```
 
 ### Fetch report events
@@ -45,13 +57,13 @@ npm run wcl:fetch -- fights --code RMK6vq912F4xVTPN --out tmp/fights.json
 Fetch one event endpoint with an explicit report-relative time range:
 
 ```bash
-npm run --silent wcl:fetch -- events --type damage-taken --code RMK6vq912F4xVTPN --start 5357834 --end 5576773
+pnpm --silent run wcl:fetch events --type damage-taken --code RMK6vq912F4xVTPN --start 5357834 --end 5576773
 ```
 
 Or derive `start` and `end` from the app's pull selection:
 
 ```bash
-npm run wcl:fetch -- events --type casts --url "http://localhost:5173/?code=RMK6vq912F4xVTPN&fight=8&pull=6"
+pnpm run wcl:fetch events --type casts --url "http://localhost:5173/?code=RMK6vq912F4xVTPN&fight=8&pull=6"
 ```
 
 Supported event types are `damage-taken`, `casts`, `buffs`, and `debuffs`.

@@ -6,11 +6,11 @@ const commands = ['doctor', 'fights', 'events'];
 export function usage() {
   return [
     'Usage:',
-    '  npm run wcl:fetch -- fights --code RMK6vq912F4xVTPN',
-    '  npm run wcl:fetch -- events --type damage-taken --code RMK6vq912F4xVTPN --start 5357834 --end 5576773',
-    '  npm run wcl:fetch -- events --type casts --url "http://localhost:5173/?code=RMK6vq912F4xVTPN&fight=8&pull=6"',
-    '  npm run wcl:fetch -- doctor --url "http://localhost:5173/?code=RMK6vq912F4xVTPN&fight=8&pull=6"',
-    '  npm run wcl:fetch -- --url "http://localhost:5173/?code=RMK6vq912F4xVTPN&fight=8&pull=6"',
+    '  pnpm run wcl:fetch fights --code RMK6vq912F4xVTPN',
+    '  pnpm run wcl:fetch events --type damage-taken --code RMK6vq912F4xVTPN --start 5357834 --end 5576773',
+    '  pnpm run wcl:fetch events --type casts --url "http://localhost:5173/?code=RMK6vq912F4xVTPN&fight=8&pull=6"',
+    '  pnpm run wcl:fetch doctor --url "http://localhost:5173/?code=RMK6vq912F4xVTPN&fight=8&pull=6"',
+    '  pnpm run wcl:fetch --url "http://localhost:5173/?code=RMK6vq912F4xVTPN&fight=8&pull=6"',
   ].join('\n');
 }
 

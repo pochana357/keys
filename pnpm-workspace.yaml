@@ -1,0 +1,6 @@
+engineStrict: true
+
+allowBuilds:
+  '@tailwindcss/oxide': true
+  esbuild: true
+  fsevents: true
