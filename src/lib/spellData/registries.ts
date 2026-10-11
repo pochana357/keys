@@ -221,6 +221,9 @@ export const defensiveSpells: SpellDict = {
   23920: { effect: [defensiveBuff(385391)], minor: true }, // Spell Reflection (buffid = 23920: reflection part / 385391: DR part)
   202168: { effect: [] }, // Impending Victory,
   107574: { effect: [defensiveBuff(107574)] }, // Avatar
+  386164: { dpsOnly: true, effect: [] }, // Battle Stance
+  386208: { dpsOnly: true, effect: [defensiveBuff(386208)] }, // Defensive Stance
+  3411: { effect: [] }, // Intervene
 
   // General
   1295247: { effect: [] }, // Concentrated Silvermoon Health Potion

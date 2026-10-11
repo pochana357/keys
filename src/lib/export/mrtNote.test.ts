@@ -470,6 +470,7 @@ describe('Korean defensive abbreviations', () => {
   });
 
   it('uses the requested Korean defensive labels', () => {
+    expect(spellAbbreviations.ko[3411]).toBe('가막');
     expect(spellAbbreviations.ko[48707]).toBe('대마보');
     expect(spellAbbreviations.ko[51052]).toBe('대마지');
     expect(spellAbbreviations.ko[108271]).toBe('영혼이동');
